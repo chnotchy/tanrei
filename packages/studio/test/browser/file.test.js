@@ -10,6 +10,11 @@ const state = (page) => page.locator('[data-save-state]').getAttribute('data-sav
 const toDials = async (page) => {
   if (!(await page.locator('[data-dial="tanrei.dial.space.unit"]').count())) await page.locator('[data-rail] [data-row="dials"]').click();
 };
+/** Export, open: the file's id and name stand in it. */
+const toExport = async (page) => {
+  await page.locator('[data-export-open]').click();
+  await page.waitForFunction(() => document.querySelector('[data-export-sheet]').open);
+};
 const typeSpacing = async (page, value) => {
   await toDials(page);
   await page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-number-field input').fill(String(value));
@@ -23,8 +28,12 @@ studioTest('the token leaves the address bar, the event stream opens with a tick
   await until(() => requests.some((url) => url.includes('/api/events?ticket=')), 'the event stream');
   await page.reload();
   await page.waitForSelector('[data-save-state="saved"]');
-  assert.match(await page.locator('[data-file]').textContent(), /Saved.*acme\.system\.json/);
+  assert.match(await page.locator('[data-file]').textContent(), /Saved/);
+  assert.equal(await page.locator('[data-bar] [data-file-name]').textContent(), 'acme.system.json', 'the file’s name is on Inspect’s button');
+  await toExport(page);
   assert.equal(await page.locator('[data-id] input').isDisabled(), true, 'the id is the file name: locked');
+  await page.keyboard.press('Escape');
+  await page.waitForFunction(() => !document.querySelector('[data-export-sheet]').open);
   assert.match(await page.title(), /^acme — /);
 
   await typeSpacing(page, 9);
@@ -36,6 +45,7 @@ studioTest('the token leaves the address bar, the event stream opens with a tick
 
 studioTest('a save the server refuses (422) is said in the server’s words, and the next good edit is saved', (t) => ({ server: { validate: (layer) => (layer.name === 'No' ? ['the server says: not this name'] : []) } }), async ({ page, expected, saved, onDisk }) => {
   expected.push(/422/);
+  await toExport(page);
   await page.locator('[data-name] input').fill('No');
   await page.waitForSelector('[data-save-state="error"]');
   assert.match(await page.locator('[data-file] .ts-error').textContent(), /the server says: not this name/);
@@ -43,6 +53,29 @@ studioTest('a save the server refuses (422) is said in the server’s words, and
   await page.locator('[data-name] input').fill('Acme');
   await saved((layer) => layer.name === 'Acme', 'the next edit');
   await page.waitForSelector('[data-save-state="saved"]');
+});
+
+// A host slow to answer: the first save is written, and answered 1.5 s later — longer than the autosave's delay
+// (600 ms), so an edit made meanwhile would be due for its own save while the first one is still unanswered.
+const slowFirstAnswer = () => {
+  let answered = 0;
+  return { server: { answer: () => (answered++ ? undefined : new Promise((resolve) => setTimeout(resolve, 1500))) } };
+};
+studioTest('one save at a time: an edit made while the last save is unanswered is saved after its answer, and the file is never in conflict with the Studio’s own write', slowFirstAnswer, async ({ page, saved }) => {
+  await toDials(page);
+  // Every state the file is drawn in, from here on.
+  await page.evaluate(() => {
+    const states = (window.__states = []);
+    new MutationObserver(() => states.push(document.querySelector('[data-save-state]')?.dataset.saveState)).observe(document.querySelector('[data-save-state]').parentElement, { childList: true });
+  });
+  await typeSpacing(page, 9);
+  await saved((layer) => layer.tokens?.['tanrei.dial.space.unit']?.$value.value === 9, 'the first edit, written; its answer is held');
+  await typeSpacing(page, 10);
+  assert.equal(await state(page), 'unsaved', 'the second edit is said to be unsaved while the first save is on its way');
+  await saved((layer) => layer.tokens?.['tanrei.dial.space.unit']?.$value.value === 10, 'the second edit, after the first save’s answer');
+  await page.waitForSelector('[data-save-state="saved"]');
+  // Each edit says once that the file is unsaved: the first save's answer, come after the second edit, says nothing.
+  assert.deepEqual(await page.evaluate(() => window.__states), ['unsaved', 'saving', 'unsaved', 'saving', 'saved'], 'one save at a time, and no conflict');
 });
 
 studioTest('409: the file changed underneath an unsaved edit — nothing is overwritten until the person chooses; "Keep mine" and "Reload from disk" both do what they say', { server: { announce: false } }, async ({ page, file, write, expected, onDisk, css, scope }) => {

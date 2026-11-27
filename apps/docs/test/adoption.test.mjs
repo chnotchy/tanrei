@@ -172,12 +172,18 @@ describe('each adoption', () => {
     assert.match(choice, /<tanrei-tag-group class="docs-name-tags" spacing="tags" label=\{t\.choiceValues\}>/);
     said(['states', 'choiceValues', 'choiceDefault']);
   });
-  test('a key of a keyboard map is the Keyboard shortcut, named in the page’s language, a word in a cap’s box until it is defined', () => {
+  // Before it is defined, a key is still the Keyboard shortcut's: what stands between its tags is the web package's
+  // own content for it (the element's legends, in both conventions), drawn by the package's own stylesheet in the
+  // reader's convention — so a row is as wide before as after. The site writes no key, no cap and no rule of a key.
+  test('a key of a keyboard map is the Keyboard shortcut, named in the page’s language, drawn before it is defined by the web package’s own content and stylesheet', () => {
     const map = read('components/visuals/KeyboardMap.astro');
-    assert.match(template(map), /<tanrei-keyboard-shortcut class="docs-key" size="small" keys=\{shortcutKeys\(segment\.chord\)\} label=\{label\}>\s*\{label\}\s*<\/tanrei-keyboard-shortcut>/);
-    assert.match(map, /const label = spokenChord\(segment\.chord, t\.keys\);/);
-    assert.match(map, /\.docs-key:not\(:defined\) \{[^}]*min-block-size: var\(--tanrei-comp-keyboard-shortcut-container-height-small\);/);
+    assert.match(template(map), /<tanrei-keyboard-shortcut class="docs-key" size="small" keys=\{shortcut\} label=\{label\} set:html=\{keyboardShortcutContent\(shortcut, \{ label \}\)\} \/>/);
+    assert.match(map, /const label = spokenChord\(segment\.chord, t\.keys\);\s*const shortcut = shortcutKeys\(segment\.chord\);/);
+    assert.match(map, /^import \{ keyboardShortcutContent \} from '@tanrei\/web\/keyboard-convention';$/m);
     assert.doesNotMatch(template(map), /<kbd\b/);
+    assert.doesNotMatch(map, /\.docs-key\b[^{]*\{/, 'no rule of the site’s draws a key');
+    assert.match(read('styles/prose.css'), /^@import '@tanrei\/web\/keyboard-shortcut\.css' layer\(docs\.keyboard-shortcut\);$/m);
+    assert.match(read('components/frame/Head.astro'), /const keyboardPlatform = keyboardPlatformScript\(\);[\s\S]*<script is:inline set:html=\{keyboardPlatform\} \/>/);
     said(['keysColumn', 'keyboard', 'action']);
   });
   test('the platforms of a component are a Description list, a platform to a fact', () => {

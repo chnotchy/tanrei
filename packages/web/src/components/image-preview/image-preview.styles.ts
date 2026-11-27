@@ -187,6 +187,9 @@ export const styles = css`
 
   /* IMP-11, IMP-27: the stage is the whole container: it takes the gestures and the keys and is the one focus stop
      that is not a Button. It draws nothing (IMP-42), and the browser's own pinch and scroll do not take its gestures. */
+  /* It lies under the pages, which take no pointer (below), so that a press on the image or the error text (IMP-31)
+     still reaches it, and no element of the stage's lies over that text, where a contrast checker would take it for
+     one covering the text and check none. */
   .stage {
     position: absolute;
     inset: 0;
@@ -344,7 +347,10 @@ export const styles = css`
   ${productText('.error-text')}
 
   /* The bar, the two controls at the stage's sides and the caption stand over the stage, which is the whole container;
-     so does the fit area's edge, where the stage's focus is drawn. */
+     so does the fit area's edge, where the stage's focus is drawn. So do the pages, first of them in the paint order
+     (the bar, the controls and the caption stay over a zoomed image): they take no pointer, so a press on them reaches
+     the stage, and the stage lies over no text of theirs (the error text, IMP-31) for a contrast checker. */
+  .pages,
   .bar,
   .previous,
   .next,

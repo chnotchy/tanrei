@@ -55,9 +55,12 @@ class TanreiRing {
 }
 
 /// The opacity of an indicator that stands still under reduced motion, at [t] (0–1) of its cycle:
-/// 1 at the start, eased with [curve] to 0 at the middle, and back to 1 at the end (PRG-7, LDG-4).
-double tanreiPulseOpacity(Curve curve, double t) =>
-    t < 0.5 ? 1 - curve.transform(t * 2) : curve.transform((t - 0.5) * 2);
+/// 1 at the start, eased with [curve] down to [floor] (the component's pulse-floor-opacity token)
+/// at the middle, and back to 1 at the end; never below [floor], so the mark keeps pulsing and is
+/// never drawn as nothing (PRG-7, LDG-4).
+double tanreiPulseOpacity(Curve curve, double t, double floor) => t < 0.5
+    ? 1 - (1 - floor) * curve.transform(t * 2)
+    : floor + (1 - floor) * curve.transform((t - 0.5) * 2);
 
 /// [color] with its alpha multiplied by [opacity].
 Color tanreiFade(Color color, double opacity) =>

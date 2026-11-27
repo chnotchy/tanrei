@@ -101,7 +101,7 @@ export const styles = css`
   :host {
     display: block;
     min-inline-size: 0;
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;
@@ -400,9 +400,13 @@ export const styles = css`
     margin-inline-start: var(${P}-container-action-gap);
   }
 
-  /* CMB-19: the chevron's button: the glyph's box, with a hit area that reaches from the container's end edge to the
-     input's end over the container's whole height, at least the minimum target wide. It draws no press answer and no
-     ring — it is no focus stop — and it does not turn. */
+  /* CMB-19: the chevron's button: the glyph's box, with a hit area over the container's whole height that reaches from
+     the container's end edge to the middle of the gap before the chevron — container.gap to the input or the chip that
+     ends a line of entries (CMB-74), action-gap to the clear button — and no further: the room on its side of that gap
+     is all the chevron's, and the rest is its neighbour's, as between two Buttons in a row (BTN-5, rowTargets()). Where
+     that room is at least the minimum target, so is the hit area; where a size or a layer leaves less, the hit area is
+     the room, and a press at the input's end or on a chip is still the input's or the chip's. It draws no press answer
+     and no ring — it is no focus stop — and it does not turn. */
   .chevron {
     all: unset;
     box-sizing: border-box;
@@ -417,20 +421,14 @@ export const styles = css`
     -webkit-tap-highlight-color: transparent;
   }
   .chevron::before {
-    --_target: var(--tanrei-sys-target-pointer);
     content: '';
     position: absolute;
     inset-block: 0;
     inset-inline-end: calc(-1 * var(--_end));
-    inline-size: max(calc(100% + var(--_end) + var(--_gap)), var(--_target));
+    inline-size: calc(100% + var(--_end) + var(--_gap) / 2);
   }
   .clear-box + .chevron::before {
-    inline-size: max(calc(100% + var(--_end) + var(${P}-container-action-gap) / 2), var(--_target));
-  }
-  @media (pointer: coarse) {
-    .chevron::before {
-      --_target: var(--tanrei-sys-target-touch);
-    }
+    inline-size: calc(100% + var(--_end) + var(${P}-container-action-gap) / 2);
   }
 
   /* CMB-8: the label of a filled or outlined combobox — resting in the input line, floated, wrapping — and CMB-7, its

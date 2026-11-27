@@ -46,19 +46,11 @@ const IN_TIME = new Set(['chromium']);
 const WIDE = { width: 1440, height: 900 };
 const PAGE = '/components/button/';
 const en = strings('en');
-/** A layer as Theme Studio's switch would give it: a brand color of its own (the Studio's brand color row writes this). */
-const tone = (light, dark) => ({ derive: { fn: 'tone', palette: 'primary', tone: { light, dark } } });
+/** A layer as Theme Studio's switch would give it: a brand color of its own, the `primary` palette the Studio's brand color row writes (the engine draws the primary roles from it). */
 const LAYER = {
   id: 'acme',
   extends: DEFAULT,
   palettes: { primary: { source: { seed: '#0b6e4f' } } },
-  tokens: {
-    [`${DEFAULT}.sys.color.primary`]: tone([45, 38, 30], [72, 80, 87]),
-    [`${DEFAULT}.sys.color.on-primary`]: tone([100], [10]),
-    [`${DEFAULT}.sys.color.primary-container`]: tone([93, 91, 89], [22]),
-    [`${DEFAULT}.sys.color.on-primary-container`]: tone([20, 15, 10], [88, 92, 96]),
-    [`${DEFAULT}.sys.color.inverse-primary`]: tone([80], [40]),
-  },
 };
 
 let host;
@@ -198,6 +190,16 @@ for (const engine of ENGINES) {
       const toggle = studio.locator('[data-share-docs]');
       await toggle.waitFor();
       assert.equal(await toggle.evaluate((element) => element.checked), false, 'off by default');
+      // Grown in: a menu still fading in is no color to measure (WebKit, its fade 0.6 of the way in when the switch
+      // was found: axe read the Copy link button's label at 2.8 to 1). The entrance is held paused at its start until
+      // the next frame, so the wait is for every motion that has an end to have ended, in the menu's shadow root and in
+      // each of its elements'.
+      await studio.waitForFunction(() => {
+        const menu = document.querySelector('[data-share]');
+        if (menu?.open !== true) return false;
+        const roots = [menu, ...menu.querySelectorAll('*')].flatMap((element) => (element.shadowRoot ? [element.shadowRoot] : []));
+        return roots.flatMap((root) => root.getAnimations()).every((animation) => animation.playState === 'finished' || !Number.isFinite(animation.effect?.getComputedTiming().endTime));
+      });
       const axe = await new AxeBuilder({ page: studio }).include('[data-share]').analyze();
       assert.deepEqual(axe.violations.map((violation) => `${violation.id}: ${violation.nodes[0]?.target}`), [], 'axe: the Share menu');
 

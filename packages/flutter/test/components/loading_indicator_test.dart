@@ -133,46 +133,55 @@ void main() {
     });
 
     for (final bool contained in <bool>[false, true]) {
-      testWidgets(
-        'LDG-4: under reduced motion the ${contained ? 'contained ' : ''}indicator does '
-        'not turn: the whole circle, its opacity eased 1 → 0 → 1 once per cycle with '
-        'sys.motion.easing.standard${contained ? '; the container stays still and opaque' : ''}',
-        (WidgetTester tester) async {
-          await tester.pumpWidget(
-            tanreiTestApp(loading(contained: contained), disableAnimations: true),
+      testWidgets('LDG-4: under reduced motion the ${contained ? 'contained ' : ''}indicator does '
+          'not turn: the whole circle, its opacity eased 1 → floor → 1 once per cycle with '
+          'sys.motion.easing.standard, never painted below the floor'
+          '${contained ? '; the container stays still and opaque' : ''}', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          tanreiTestApp(loading(contained: contained), disableAnimations: true),
+        );
+        final TanreiLoadingIndicatorSizeTokens t = tokens.sizes.medium;
+        final Color color = lightTheme.paint(
+          contained ? tokens.containedIndicatorColor : tokens.indicatorColor,
+        );
+        final double floor = tokens.motionPulseFloorOpacity;
+        expect(floor, inExclusiveRange(0, 1));
+        final TanreiContainerDecoration? before = contained ? containerDecoration(tester) : null;
+        // Sampled over a whole cycle, as painted: the whole circle at the pulse's opacity, which
+        // never falls below the floor.
+        for (int step = 0; step < 8; step++) {
+          final double at = step / 8;
+          final double opacity = tanreiPulseOpacity(standard, at, floor);
+          expect(opacity, greaterThanOrEqualTo(floor - 1e-9), reason: 'at $at');
+          expect(
+            markFinder,
+            paints..arc(
+              rect: arcRect(t),
+              startAngle: top,
+              sweepAngle: turn,
+              color: tanreiFade(color, opacity),
+              strokeWidth: t.indicatorThickness,
+            ),
+            reason: 'at $at',
           );
-          final TanreiLoadingIndicatorSizeTokens t = tokens.sizes.medium;
-          final Color color = lightTheme.paint(
-            contained ? tokens.containedIndicatorColor : tokens.indicatorColor,
-          );
-          final TanreiContainerDecoration? before = contained ? containerDecoration(tester) : null;
-          for (final double at in <double>[0, 0.25, 0.5, 0.75]) {
-            final double opacity = tanreiPulseOpacity(standard, at);
-            if (opacity < 1e-9) {
-              expect(markFinder, isNot(paints..arc()), reason: 'at $at');
-            } else {
-              expect(
-                markFinder,
-                paints..arc(
-                  rect: arcRect(t),
-                  startAngle: top,
-                  sweepAngle: turn,
-                  color: tanreiFade(color, opacity),
-                  strokeWidth: t.indicatorThickness,
-                ),
-                reason: 'at $at',
-              );
-            }
-            if (contained) {
-              expect(containerDecoration(tester), before, reason: 'at $at');
-              expect(find.descendant(of: subject, matching: find.byType(Opacity)), findsNothing);
-            }
-            await tester.pump(cycle * 0.25);
+          if (contained) {
+            expect(containerDecoration(tester), before, reason: 'at $at');
+            expect(find.descendant(of: subject, matching: find.byType(Opacity)), findsNothing);
           }
-          expect(tanreiPulseOpacity(standard, 0), 1);
-          expect(tanreiPulseOpacity(standard, 0.5), moreOrLessEquals(0, epsilon: 1e-9));
-        },
-      );
+          await tester.pump(cycle * 0.125);
+        }
+        expect(tanreiPulseOpacity(standard, 0, floor), 1);
+        expect(tanreiPulseOpacity(standard, 0.5, floor), moreOrLessEquals(floor, epsilon: 1e-9));
+        for (int step = 0; step <= 200; step++) {
+          expect(
+            tanreiPulseOpacity(standard, step / 200, floor),
+            greaterThanOrEqualTo(floor - 1e-9),
+            reason: 'at ${step / 200}',
+          );
+        }
+      });
     }
 
     testWidgets('LDG-7: the animation stops where TickerMode is off (a hidden route) and resumes '

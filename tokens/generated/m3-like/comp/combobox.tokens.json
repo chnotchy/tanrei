@@ -77,7 +77,7 @@
         "container": {
           "action-gap": {
             "$type": "dimension",
-            "$description": "Between the clear button and the chevron at the end of the container. The clear button is a small Button centred on its glyph, so the gap gives half of what that Button gains above the small step's 32 (a pad of the small Button's height): its box meets the chevron's and never overlaps it. 6 in the default system, where the small Button is held at 36.",
+            "$description": "Between the clear button and the chevron at the end of the container. The clear button is a small Button centred on its glyph, so the gap gives half of what that Button gains above the small step's 32 at the control height's reference of 40 (a pad of the small Button's height): its box meets the chevron's and never overlaps it. 6 in the default system, where the small Button is held at 36.",
             "$value": {
               "value": 4,
               "unit": "px"

@@ -59,6 +59,30 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
     'on-{name}-container': { light: [20, 15, 10], dark: [88, 92, 96] },
   };
 
+  // The tones of `inverse-<intent>`: a light tone of the palette on the light scheme's dark inverse surface, a dark one
+  // on the dark scheme's light one, further apart at each contrast level.
+  const INVERSE_TONES = { light: [80, 85, 90], dark: [40, 30, 20] };
+
+  /**
+   * The operation that values a role, as the layer chain leaves it (`entry`: the role's row of `roleTable`).
+   *
+   * A core intent's roles follow a palette of the intent's name. Where a layer gives the chain that palette, a `tone`
+   * rule an earlier layer wrote for one of those roles from another palette — while the intent had no palette of its
+   * own — gives way to the palette's template: a product that declares `primary`, its brand color, on a system whose
+   * primary is drawn from `neutral` has its primary roles drawn from the brand. A rule written by the layer that gave
+   * the palette or a later one stays (the default system's quiet status containers, valued after the root declared
+   * the status palettes, stay quiet when a product changes a status color), and so does one that already reads the
+   * intent's palette (a preset's own tones for its primary).
+   */
+  function roleOperation(system, role, entry) {
+    const op = system.tokens[`${SYS_COLOR}${role}`];
+    const palette = entry?.template?.palette;
+    if (!palette || op?.derive?.fn !== 'tone' || op.derive.palette === palette) return op;
+    const chain = system.chain ?? [];
+    const declared = chain.indexOf(system.paletteLayers?.[palette]);
+    return declared >= 0 && declared > chain.indexOf(op.layer) ? undefined : op;
+  }
+
   /**
    * The roles a system must and may value, in output order, each with its one-product rationale:
    * core intents and roles from the vocabulary, then the roles of palettes the system declares.
@@ -70,7 +94,14 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
       for (const p of pattern) table.set(p.replace('{name}', name), { rationale, template: palette ? { palette, tone: INTENT_TONES[p] } : null, declared });
     };
     for (const [name, rationale] of Object.entries(vocabulary.intents)) add(name, name in system.palettes ? name : null, rationale, false);
-    for (const [role, rationale] of Object.entries(vocabulary.roles)) table.set(role, { rationale, template: null, declared: false });
+    // A core role named `inverse-<intent>` (inverse-primary) is that intent's color on an inverse surface: drawn from
+    // the intent's palette where the system declares one, in the tones a light color on a dark surface (and the other
+    // way) takes.
+    const inverseOf = (role) => Object.keys(vocabulary.intents).find((name) => role === `inverse-${name}` && name in system.palettes);
+    for (const [role, rationale] of Object.entries(vocabulary.roles)) {
+      const intent = inverseOf(role);
+      table.set(role, { rationale, template: intent ? { palette: intent, tone: INVERSE_TONES } : null, declared: false });
+    }
     for (const [name, decl] of Object.entries(system.palettes)) {
       if (decl.roles !== 'intent') continue;
       if (name in vocabulary.intents) continue; // a core intent valued by a palette of the same name
@@ -114,9 +145,10 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
     }
     const out = {};
     const picks = [];
-    for (const [role, { template }] of table) {
+    for (const [role, entry] of table) {
+      const { template } = entry;
       const id = `${SYS_COLOR}${role}`;
-      const op = system.tokens[id];
+      const op = roleOperation(system, role, entry);
       // A role is an alias into a palette, so that schemes, contrast levels and Figma all follow it. A brand color
       // that must not be recomputed is a palette with that seed (its tone can be fixed), never a literal on the role.
       if (op && '$value' in op && typeof op.$value !== 'string') {
@@ -236,5 +268,5 @@ export function createPaletteEngine({ Hct, TonalPalette, namespace: NS = 'tanrei
     return files;
   }
 
-  return { buildPalette, roleTable, rolesFor, generateColorFiles };
+  return { buildPalette, roleTable, roleOperation, rolesFor, generateColorFiles };
 }

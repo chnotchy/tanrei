@@ -6,7 +6,7 @@
 // that tie parts together — the same validity, and in Chromium the same accessibility tree. No picture is compared.
 import { type Page, expect, test } from '@playwright/test';
 import { axTree } from '../../../test/ax-tree.js';
-import { type Fixture, loadSpec, mountFixtures } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 
 type Props = Fixture['props'];
 const WORDS = { requiredText: 'Required', optionalText: 'Optional' };
@@ -79,7 +79,7 @@ for (const { name, props, items } of FRAMED) {
   const label = `${name}${props.kind ? ` (${props.kind})` : ''}`;
   test(`${label}: required and optional are two booleans — with both, it is required, optional is ignored and reported once — and requirement is no attribute (FLD-4, FLD-32, FGR-4, FGR-26)`, async ({ page, browserName }) => {
     const warnings: string[] = [];
-    page.on('console', (message) => message.type() === 'warning' && warnings.push(message.text()));
+    page.on('console', (message) => message.type() === 'warning' && !isRobotoMonoGlyphWarning(message) && warnings.push(message.text()));
     const spec = loadSpec(name);
     const stage = (id: string, extra: Props): Fixture => ({ id, props: { ...props, ...extra }, ...(items ? { items } : {}) });
     await mountFixtures(page, spec, { icons: true, fixtures: [stage('none', {}), stage('required', { required: true }), stage('optional', { optional: true }), stage('both', { required: true, optional: true })] });

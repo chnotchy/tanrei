@@ -20,8 +20,11 @@
   text-size-adjust: 100%;
 }
 
-/* The page's items of the Studio's bar: the brand, a link back to the documentation's first page, and the page's
-   heading at the start; the page about the tool at the end. Until the Studio has mounted they stand where its bar will be. */
+/* The page's items of the Studio's bar, at its start: the brand, a link back to the documentation's first page, the
+   page's heading, and the page about the tool, a glyph whose words are its tooltip's. On a phone, where the bar is one
+   line, the brand is its mark, the heading is read, not drawn, and the page about the tool is left out (as the
+   approved design leaves it: the brand alone; the documentation it leads to links the page). Until the Studio has
+   mounted they stand where its bar will be. */
 .docs-studio-brand {
   display: inline-flex;
   align-items: center;
@@ -47,11 +50,34 @@
   white-space: nowrap;
 }
 .docs-studio-about {
-  display: inline-flex;
-  align-items: center;
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--tanrei-sys-target-minimum);
   min-block-size: var(--tanrei-sys-target-minimum);
-  color: inherit;
-  font: var(--tanrei-sys-typescale-label-font-weight) var(--tanrei-sys-typescale-label-font-size)/var(--tanrei-sys-typescale-label-line-height) var(--tanrei-sys-typescale-label-font-family);
+  color: var(--tanrei-sys-color-on-surface-variant);
+  font-size: var(--tanrei-sys-icon-medium);
+}
+.docs-studio-word {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 40rem) {
+  .docs-studio-title,
+  .docs-studio-name {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .docs-studio-about-tip {
+    display: none;
+  }
 }
 .docs-studio-brand:focus-visible,
 .docs-studio-about:focus-visible {

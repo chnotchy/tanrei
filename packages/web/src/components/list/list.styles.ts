@@ -160,7 +160,7 @@ export const itemStyles = css`
     position: relative;
     box-sizing: border-box;
     /* LST-10: the ring is drawn inside the item, never around the host. */
-    outline: none;
+    outline: none !important;
   }
   /* LST-37: a dragged item is drawn above the other items of the list. */
   :host([data-dragged]) {

@@ -6,7 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
@@ -29,13 +29,6 @@ const css = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The easing token as the browser serializes a timing function. */
 const easingToken = (page: P, name: string) =>
   page.evaluate((n) => {
@@ -1734,14 +1727,15 @@ test.describe('test frames', () => {
 });
 
 test.describe('accessibility: what is drawn over a label', () => {
-  test('TBV-9: the ring over every tab of the view\'s row hides no label from a contrast check — the labels and the panel are checked, a faint text in the panel is reported', async ({ page }) => {
+  test('TBV-9: the ring over every tab of the view\'s row and the covered copy over the selected one hide no label from a contrast check — the labels and the panel are checked, a faint text in the panel is reported, nothing is left unchecked', async ({ page }) => {
     // An element drawn over a text is, to axe's color-contrast, an element covering it, whatever its pointer-events: it
     // left the text incomplete ("overlapped by another element") instead of checking it, so faint text passed unseen.
     await mountFixtures(page, spec, { icons: true, fixtures: [fixture('marked', [p('overview', '<p data-text="faint" style="margin: 0; color: #bbb">Faint text</p><p data-text="normal" style="margin: 0">Readable text</p>'), p('activity'), p('settings')])] });
     const checked = await contrastChecked(page);
     expect(checked.violations, 'the faint text is reported').toEqual(['faint']);
+    // The selected tab's own label lies under its covered copy (TAB-24), which is what is drawn there: the copy is
+    // checked, and the label the copy covers whole is not drawn.
     expect(checked.passes, 'the row\'s labels and the panel\'s text pass').toEqual(['Activity', 'Overview', 'Settings', 'normal']);
-    // The selected tab's own label lies under its covered copy (TAB-17), which is what is drawn there and is checked.
-    expect(checked.incomplete, 'nothing else is left unchecked').toEqual(['Overview']);
+    expect(checked.incomplete, 'nothing is left unchecked').toEqual([]);
   });
 });

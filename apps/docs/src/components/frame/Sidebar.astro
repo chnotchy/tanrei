@@ -75,8 +75,10 @@ const cells = (entries: Entry[], top: boolean): string =>
       const mark = markOf(entry);
       const shipped = shippedOf(entry);
       const trailing = mark ?? entry.badge?.text;
-      // Until the drawer is defined, its anchor holds the label over the supporting text, as the drawer draws them.
-      const text = shipped ? `<span class="docs-sidebar-text"><span class="docs-sidebar-label">${escape(entry.label)}</span><span class="docs-sidebar-supporting">${escape(shipped)}</span></span>` : escape(entry.label);
+      // Until the drawer is defined, its anchor holds the label over the supporting text, as the drawer draws them, and
+      // the label alone on one line, as the drawer draws it.
+      const label = `<span class="docs-sidebar-label">${escape(entry.label)}</span>`;
+      const text = shipped ? `<span class="docs-sidebar-text">${label}<span class="docs-sidebar-supporting">${escape(shipped)}</span></span>` : label;
       return `<tanrei-navigation-drawer-item label="${escape(entry.label)}" href="${escape(entry.href)}"${top ? ' icon="article"' : ''}${entry.onRequest ? ` ${ON_REQUEST_ATTR}` : ''}${shipped ? ` supporting-text="${escape(shipped)}"` : ''}${trailing ? ` trailing-text="${escape(trailing)}"` : ''}><a href="${escape(entry.href)}"${entry.isCurrent ? ' aria-current="page"' : ''}>${text}${mark ? ` <span class="docs-sidebar-mark">${escape(mark)}</span>` : ''}</a></tanrei-navigation-drawer-item>`;
     })
     .join('');

@@ -145,7 +145,7 @@ test.describe('the control height: fields and pickers', () => {
     }
   });
 
-  test('SEG-32: the set and every segment of a medium segmented button are the control height at 32, 36 and 40, every label whole inside its segment; large is the large step', async ({ page }) => {
+  test('SEG-32: the set of a medium segmented button is the control height at 32, 36 and 40 and every segment that height less twice set.padding, every label whole inside its segment; large is the large step', async ({ page }) => {
     const spec = loadSpec('segmented-button');
     await mountFixtures(page, spec, { fixtures: fixturesOf('segmented-button', ['single', 'large']) });
     const set = (id: string) => page.locator(`[data-fixture="${id}"] tanrei-segmented-button`);

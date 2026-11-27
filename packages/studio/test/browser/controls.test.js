@@ -55,11 +55,11 @@ studioTest('no control is hand-made: in every section and tab of Inspect, with t
   assert.deepEqual(sorted(held.source), [], 'Source: none but its own editor');
   // (The Studio's own tree: a text field's own Field is in its shadow root, and is the text field's.)
   assert.equal(await page.evaluate(() => document.querySelectorAll('tanrei-field tanrei-text-field, tanrei-field tanrei-text-input, tanrei-field textarea').length), 0, 'the Studio frames no text field and no text input with a Field of its own');
-  // The standalone app's items of the Studio's bar: its theme button and its language select are Tanrei's too.
+  // The standalone app's items of the Studio's bar: its menu of language and theme is Tanrei's too.
   // (But the start point's hidden file input, the browser's own picker its menu item opens.)
   assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ts-bar button, .ts-bar input:not([data-start-input]), .ts-bar select')].length), 0);
   assert.equal(await page.locator('.ts-bar [data-start-input]').isHidden(), true);
-  assert.equal(await page.locator('.ts-bar #theme').evaluate((el) => el.localName), 'tanrei-button');
+  assert.deepEqual(await page.evaluate(() => ['#app-menu-open', '#app-menu', '#lang', '#theme'].map((selector) => document.querySelector(`.ts-bar ${selector}`)?.localName)), ['tanrei-button', 'tanrei-menu', 'tanrei-menu-group', 'tanrei-menu-group']);
 });
 
 studioTest('an action is a Tanrei button: its drawn word, its whole name where rows share the word, and Enter and Space press it', { layer }, async ({ page, section, inspect, saved }) => {
@@ -76,15 +76,17 @@ studioTest('an action is a Tanrei button: its drawn word, its whole name where r
   await page.keyboard.press('Enter');
   await saved((file) => !file.tokens, 'Enter resets the dial');
 
-  // The theme button of the app's bar says what its word is about.
-  assert.equal(await page.getByRole('button', { name: 'Theme: Dark', exact: true }).count(), 1);
-  await page.locator('#theme').focus();
+  // The app's menu of language and theme is a glyph named by its label; it opens from the keyboard, and the theme is
+  // chosen in it there (its last item, Dark).
+  assert.equal(await page.getByRole('button', { name: 'Language and theme', exact: true }).count(), 1);
+  await page.locator('#app-menu-open').focus();
   await page.keyboard.press('Space');
-  assert.equal(await page.locator('html').getAttribute('data-tanrei-theme'), 'dark');
-  assert.equal(await page.getByRole('button', { name: 'Theme: Light', exact: true }).count(), 1);
+  await until(async () => (await page.locator('#app-menu').evaluate((menu) => menu.open)) === true, 'the menu opens');
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await until(async () => (await page.locator('html').getAttribute('data-tanrei-theme')) === 'dark', 'Enter chooses Dark');
+  assert.equal(await page.locator('#theme').evaluate((group) => group.value), 'dark');
 
-  // The file's actions under the panel — Export and Start over — outlined: with a file attached, nothing is the main action.
-  assert.deepEqual(await page.locator('[data-panel="export"] .ts-export-side .ts-actions tanrei-button').evaluateAll((els) => els.map((el) => el.variant)), ['outlined', 'outlined'], 'with a file attached nothing is the main action');
   // A palette is declared by the button, and by Enter in its name: the form is still a form.
   await section('palettes');
   const form = page.locator('[data-add-palette]');
@@ -126,14 +128,16 @@ studioTest('a state that is pressed is a small chip with its glyph: the count of
   await page.locator('[data-source]').fill('{ "draft": ');
   await section('color');
   const draft = page.locator('[data-draft-badge]');
-  assert.deepEqual(await draft.evaluate((el) => [el.localName, el.label, el.querySelector('[slot="icon"]').textContent]), ['tanrei-chip', 'Source has invalid edits', 'warning']);
+  // In a wide window, a chip that says it in words; its phone form is not drawn here.
+  assert.deepEqual(await draft.evaluate((el) => [el.localName, el.label, el.querySelector('[slot="icon"]').textContent]), ['tanrei-chip', 'The JSON has invalid edits', 'warning']);
+  assert.equal(await page.locator('[data-draft-button]').isVisible(), false);
   await draft.focus();
   await page.keyboard.press('Enter');
   await page.waitForSelector('[data-studio][data-pane="source"]');
   assert.equal(await page.locator('[data-source]').inputValue(), '{ "draft": ');
 });
 
-studioTest('the platform switch is a Switch named with the keyword it writes, the «Emphasized» box a Checkbox, the preview’s toggle a real toggle Button', { layer }, async ({ page, section, saved, lightPane }) => {
+studioTest('the platform switch is a Switch named with the keyword it writes, «Emphasized» a checkbox item of the preview’s menu, the preview’s toggle a real toggle Button', { layer }, async ({ page, section, saved, lightPane }) => {
   await section('typeface');
   const brand = page.locator('[data-typeface="brand"]');
   const platform = brand.locator('[data-stack-system]');
@@ -150,17 +154,27 @@ studioTest('the platform switch is a Switch named with the keyword it writes, th
   await platform.locator('[part="label"]').click();
   await saved((file) => !file.tokens?.['tanrei.ref.typeface.brand'] || file.tokens['tanrei.ref.typeface.brand'].$value[0] !== 'system-ui', 'a press on the label switches it off');
 
-  const emphasized = page.locator('[data-emphasized-toggle]');
-  assert.equal(await emphasized.evaluate((el) => el.localName), 'tanrei-checkbox');
-  assert.equal(await page.getByRole('checkbox', { name: 'Emphasized', exact: true }).count(), 1);
-  await emphasized.focus();
-  await page.keyboard.press('Space');
-  assert.equal(await page.locator('[data-scope]').getAttribute('data-emphasized'), '', 'Space checks it, and the samples are drawn emphasized');
+  // «Emphasized» is a checkbox item of the menu at the end of the preview's bar, which a button with a glyph opens: the
+  // button is named, and opened from the keyboard its menu takes the focus.
+  const more = page.locator('[data-view-more]');
+  assert.deepEqual(await more.evaluate((el) => [el.label, el.parentElement.localName, el.parentElement.text]), ['Contrast and emphasis', 'tanrei-tooltip', 'Contrast and emphasis']);
+  await more.focus();
+  await page.keyboard.press('Enter');
+  await page.waitForFunction(() => document.querySelector('[data-view-menu]')?.open === true);
+  const emphasized = page.getByRole('menuitemcheckbox', { name: 'Emphasized', exact: true });
+  assert.equal(await emphasized.count(), 1);
+  assert.equal(await page.locator('[data-emphasized-toggle]').evaluate((el) => el.localName), 'tanrei-menu-checkbox-item');
+  await emphasized.click();
+  assert.equal(await page.locator('[data-scope]').getAttribute('data-emphasized'), '', 'checked, the samples are drawn emphasized');
+  assert.equal(await page.locator('[data-emphasized-toggle]').evaluate((el) => el.checked), true);
+  if (await page.locator('[data-view-menu]').evaluate((menu) => menu.open)) await page.keyboard.press('Escape');
+  await page.waitForFunction(() => document.querySelector('[data-view-menu]')?.open === false);
 
+  // The overview's toggle is a product's: an icon-only Favorite, on — its name is its label, and it says whether it is on.
   const toggle = lightPane.locator('[data-sample-toggle]').first();
-  assert.deepEqual(await toggle.evaluate((el) => [el.localName, el.toggle, el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed'), el.textContent.trim().replace(/^favorite\s*/, '')]), ['tanrei-button', true, false, 'false', 'Unselected']);
+  assert.deepEqual(await toggle.evaluate((el) => [el.localName, el.toggle, el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed'), el.label]), ['tanrei-button', true, true, 'true', 'Favorite']);
   await toggle.click();
-  assert.deepEqual(await toggle.evaluate((el) => [el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed'), el.textContent.trim().replace(/^favorite\s*/, '')]), [true, 'true', 'Selected'], 'pressed, it is on and says so');
+  assert.deepEqual(await toggle.evaluate((el) => [el.selected, el.shadowRoot.querySelector('button').getAttribute('aria-pressed')]), [false, 'false'], 'pressed, it is off and says so');
 });
 
 studioTest('a rule’s pattern is a text input in the code face, read from the left; its operation and any JSON are a text field that holds code and says itself what does not parse', { layer }, async ({ page, inspect, saved }) => {

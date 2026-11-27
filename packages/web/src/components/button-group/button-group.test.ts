@@ -10,7 +10,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { atRatio, shoot, stageBehind } from '../../../test/one-shape.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { readSeam } from '../../../test/seam.js';
@@ -36,13 +36,6 @@ const B = (name: string) => `--tanrei-comp-button-${name}`;
 /** The items' text in the placed order: the order of the group's slots, which is the flat tree's. */
 const placed = (page: P, id: string) =>
   group(page, id).evaluate((el) => [...el.shadowRoot!.querySelectorAll('slot')].map((slot) => (slot.assignedElements()[0] as HTMLElement | undefined)?.textContent?.trim() ?? ''));
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The four corners of an element, by physical side (left/right as drawn). */
 const corners = async (locator: Locator, pseudo?: string) => ({
   topLeft: await px(locator, 'border-top-left-radius', pseudo),
@@ -109,9 +102,9 @@ test.describe('layout', () => {
     });
     const standardGap = await resolveToken(page, T('standard-gap'));
     const connectedGap = await resolveToken(page, T('connected-gap'));
-    // The default system draws every Button at least as large as its target, so a standard group needs no room
-    // between its items for their targets: they touch (BGR-4).
-    expect(standardGap).toBe(0);
+    // The default system draws a small Button at its step (28), below its target (36): a standard group keeps the room
+    // the narrowest item's target needs between its items, 36 − 28 (BGR-4).
+    expect(standardGap).toBe(8);
     expect(connectedGap).toBeGreaterThan(0);
     // The default system's separation is divider: a connected fixture that leaves it auto touches (BGR-21).
     const rows = [['standard', standardGap], ['standard-icon-only', standardGap], ['mixed-standard', standardGap], ['connected-gap', connectedGap], ['connected-gap-toggles', connectedGap], ['connected', 0], ['connected-divider', 0], ['connected-large', 0], ['mixed-connected', 0]] as const;

@@ -118,12 +118,13 @@ export function ProgressIndicator({ variant = 'linear', size = 'medium', value =
   // PRG-2 / PRG-7 / PRG-14: one loop while indeterminate — a moving segment or a turning arc, or, under reduced motion,
   // an opacity pulse — that runs only while the app is in the foreground. Determinate: no loop.
   const cycle = tokens.motionCycleDuration;
-  const loop = determinate || motionSetting === null ? null : reduceMotion ? `pulse:${cycle}:${tokens.motionCycleEasing}` : `${form}:${cycle}:${tokens.motionCycleEasing}`;
+  const floor = tokens.motionPulseFloorOpacity;
+  const loop = determinate || motionSetting === null ? null : reduceMotion ? `pulse:${cycle}:${tokens.motionCycleEasing}:${floor}` : `${form}:${cycle}:${tokens.motionCycleEasing}`;
   const progress = useLoop(loop, (at) => {
     if (reduceMotion) {
-      // PRG-7: from 1 to 0 and back to 1 once per cycle, with the cycle easing.
+      // PRG-7: from 1 down to the pulse's floor and back to 1 once per cycle, with the cycle easing; never below the floor.
       const half = { duration: cycle / 2, easing: toEasing(tokens.motionCycleEasing), useNativeDriver: true };
-      return Animated.sequence([Animated.timing(at, { ...half, toValue: 0 }), Animated.timing(at, { ...half, toValue: 1 })]);
+      return Animated.sequence([Animated.timing(at, { ...half, toValue: floor }), Animated.timing(at, { ...half, toValue: 1 })]);
     }
     // PRG-2: a bar's segment eases across with the cycle easing (a layout value: JavaScript-driven); a ring turns at
     // constant speed (a transform: the native driver).

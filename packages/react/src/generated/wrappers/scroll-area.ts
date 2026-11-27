@@ -11,7 +11,7 @@ const ScrollAreaElement = /* @__PURE__ */ createComponent({
   react: React,
   events: {},
 });
-const ScrollAreaAttributes = { scrollEdge: ['scroll-edge', 'auto'], edges: ['edges'], label: ['label', ''] } as const;
+const ScrollAreaAttributes = { scrollEdge: ['scroll-edge', 'auto'], edges: ['edges', ['top', 'bottom']], label: ['label', ''] } as const;
 /**
  * A box that scrolls the product's content with the platform's own scrolling and shows, at each edge it watches, that more lies beyond it — a band in the surface's color, a fade of the content, a line or a blur, as the design system or the instance chooses — without changing its size or moving the content.
  *

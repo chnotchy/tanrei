@@ -254,8 +254,11 @@ export const iconsCss = () => `/*
  * GENERATED from src/styles/icons.ts by scripts/build.js (one source with the components' own icons).
  */
 @layer tanrei.components {
-  /* Says that this stylesheet is loaded, to a stylesheet that draws a glyph only where it is (prose.css's task marks, PRS-10). */
-  :root {
+  /* Says that this stylesheet is loaded, to a stylesheet that draws a glyph only where it is (prose.css's task marks, PRS-10)
+     or keeps a glyph's room beside a label (link.css). Loaded in a shadow root of the product's, it says so there: \`:root\`
+     is the document's alone, and \`:host\` is that root's host, which everything in the root inherits from. */
+  :root,
+  :host {
     --tanrei-icons: 1;
   }
 

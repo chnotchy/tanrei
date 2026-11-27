@@ -1,6 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import { AvailabilityController, FocusedStop, GlyphMirrorController, MirrorWordController, OpenAxesController, hearsMirrorWord, PressController, disabledWaitsWhileFocused, namedByProduct, report, syncFocusStyle } from '../../primitives/index.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { formOf, pressDefaultButton } from '../../primitives/default-button.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { hiddenHost } from '../../primitives/hidden.js';
@@ -156,8 +157,8 @@ export class TanreiRating extends TanreiElement {
   /** The mark a pointer is pressing now. */
   private pressing: number | null = null;
 
-  /** RAT-15: the value it was first given, which a form's reset returns it to. */
-  private initialValue: number | null = null;
+  /** RAT-15: the value it was first given, which a form's reset returns it to, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value ?? 0, 'value', (text) => (text === null ? 0 : Number(text)));
 
   /** The form it belongs to, if any. */
   get form(): HTMLFormElement | null {
@@ -294,13 +295,8 @@ export class TanreiRating extends TanreiElement {
     this.stopElement?.focus(options);
   }
 
-  override connectedCallback() {
-    super.connectedCallback();
-    if (this.initialValue === null) this.initialValue = this.value;
-  }
-
   formResetCallback() {
-    this.value = this.initialValue ?? 0;
+    this.value = this.valueDefault.value;
   }
 
   formStateRestoreCallback(state: string | null) {

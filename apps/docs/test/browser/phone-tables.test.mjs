@@ -45,7 +45,7 @@ after(async () => {
   await host?.close();
 });
 
-// The Select's parts have the longest names (`option-supporting-text`); the Tabs' measure table has notes; the
+// The Select's parts have the longest names (`option-supporting-text`); the Tabs' page has sixty requirements; the
 // Arabic page draws the same tables right to left.
 const PAGES = ['/components/select/', '/components/tabs/', '/ar/components/select/'];
 
@@ -214,14 +214,30 @@ for (const engine of ENGINES) {
       await context.close();
     });
 
-    test('/components/tabs/: a length not drawn is said on a line of its own, under its name', LIMIT, async () => {
+    // A note is written only where a component draws a length other than its token (lib/visuals/lengths-not-drawn.json),
+    // which the Select does not. The test writes one into a row as the figure writes it once it has measured
+    // the component (lib/visuals/blueprint.ts: the row's note shown, the table's `data-differs` sentence in it): the
+    // Japanese Select's, at a phone's width, where a note run into its length's name once broke the tokens' column a
+    // few letters to a line.
+    test('/ja/components/select/: a length not drawn is said on a line of its own, under its name', LIMIT, async () => {
       const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
       const page = await context.newPage();
-      await page.goto(`${origin}/components/tabs/`);
-      // The figure is drawn when it comes near the view, and its table's notes with it.
+      await page.goto(`${origin}/ja/components/select/`);
+      // The figure is drawn when it comes near the view, and writes its table's notes then: the note is written after.
       const figure = page.locator('[data-blueprint-figure="measure"]');
       await figure.scrollIntoViewIfNeeded();
       await page.locator('[data-blueprint-figure="measure"] [data-example-overlay][data-drawn]:not([data-drawing])').waitFor({ state: 'attached', timeout: 30_000 });
+      const written = await page.evaluate(() => {
+        const rows = [...document.querySelectorAll('[data-blueprint-figure="measure"] [data-measure-row]')];
+        for (const row of rows) {
+          const note = row.querySelector('[data-measure-note]');
+          note.textContent = row.closest('table').dataset.differs.replace('{measured}', '32');
+          note.hidden = false;
+        }
+        return rows.length;
+      });
+      assert.ok(written > 0, 'the Select has lengths in its figure');
+      await settlePage(page, { fonts: false });
       const notes = await page.locator('[data-measure-note]:not([hidden])').evaluateAll((all) =>
         all.map((note) => {
           const name = note.parentElement.querySelector('code').getBoundingClientRect();
@@ -229,7 +245,7 @@ for (const engine of ENGINES) {
           return { text: note.textContent.trim(), below: box.top >= name.bottom - 1, display: getComputedStyle(note).display };
         }),
       );
-      assert.ok(notes.length > 0, 'the Tabs draw a length other than its token, and the table says so');
+      assert.equal(notes.length, written, 'every row says its note');
       for (const note of notes) assert.deepEqual([note.below, note.display], [true, 'block'], `"${note.text}" stands under its length's name`);
       await context.close();
     });

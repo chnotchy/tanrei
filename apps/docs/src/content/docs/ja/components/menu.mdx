@@ -390,9 +390,9 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 
 グループのタイトルは、行の内容が始まる位置から始まります。メニューがチェックや先頭アイコンの列を描くときはその列の上から、どちらも描かないときはラベルの上からです。反対側の端からも同じ距離で終わり、折り返し、文字を大きくすると大きくなり、右から左のレイアウトでは反転します。
 
-<ColorRoleMap name="menu" fixture="icons-shortcut" headingLevel={3} />
+<ColorRoleMap name="menu" fixture="submenu-icons-trailing-text" headingLevel={3} />
 
-<ColorRoleMap name="menu" fixture="checkbox-checked" selected />
+<ColorRoleMap name="menu" fixture="marks-icons-shortcut" selected />
 
 <ComponentSpecs name="menu" />
 
@@ -438,7 +438,7 @@ import DoDont from '../../../../components/visuals/DoDont.astro';
 
 ### サイズ
 
-`size` は行が取る広さを決めます。`medium`（既定。行の高さはコントロールの高さで、既定のシステムでは 40、グリフ 24）は、タッチでもポインターでも使われるプロダクト向けです。`small`（行の高さ 36、グリフ 20。[ツリービュー](/ja/components/tree-view/)の small の行）は、マウスで使い、長いメニューを何度も開くツール向けです。文字の大きさはどちらでも変わらず、行がターゲットより低くなることはありません。サブメニューはすべて、そのメニューのサイズに従います。
+`size` は行が取る広さを決めます。`medium`（既定。行の高さはコントロールの高さで、既定のシステムでは 36、グリフ 24）は、タッチでもポインターでも使われるプロダクト向けです。`small`（行の高さ 36、グリフ 20。[ツリービュー](/ja/components/tree-view/)の small の行）は、マウスで使い、長いメニューを何度も開くツール向けです。文字の大きさはどちらでも変わらず、行がターゲットより低くなることはありません。サブメニューはすべて、そのメニューのサイズに従います。
 
 メニューはまわりの要素からサイズを受け取りません。small の[ツールバー](/ja/components/toolbar/)にあるボタンから開くメニューも、メニュー自身に `size` を設定しないかぎり medium です。メニューはページの上に開き、ボタンのまわりのコントロールとは別のものだからです。
 

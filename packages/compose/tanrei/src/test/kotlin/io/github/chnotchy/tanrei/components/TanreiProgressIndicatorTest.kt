@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.chnotchy.tanrei.primitives.TanreiDiagnostics
+import io.github.chnotchy.tanrei.primitives.tanreiPulseAlpha
 import io.github.chnotchy.tanrei.theme.TanreiContrast
 import io.github.chnotchy.tanrei.theme.TanreiTheme
 import io.github.chnotchy.tanrei.theme.TanreiThemeMode
@@ -712,12 +713,15 @@ class TanreiProgressIndicatorReducedMotionTest {
     }
 
     @Test
-    fun `PRG-7 where motion is reduced an indeterminate bar does not move - the whole bar pulses 1 to 0 to 1 per cycle, eased, over a still track`() {
+    fun `PRG-7 where motion is reduced an indeterminate bar does not move - the whole bar pulses 1 to the floor to 1 per cycle, eased, never below the floor, over a still track`() {
         set(TanreiProgressIndicatorVariant.Linear, determinate = true.not())
         val easing = tokens.motionCycleEasing.toEasing()
         val cycle = tokens.motionCycleDuration.toLong()
+        val floor = tokens.motionPulseFloorOpacity
+        assertTrue("the floor is above 0 and below 1: $floor", floor > 0f && floor < 1f)
+        for (step in 0..200) assertTrue("at ${step / 200f}", tanreiPulseAlpha(step / 200f, easing, floor) >= floor - 1e-6f)
         var elapsed = 0L
-        for (at in listOf(0f, 0.25f, 0.5f, 0.75f)) {
+        for (at in listOf(0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.625f, 0.75f, 0.875f)) {
             val target = (at * cycle).toLong()
             if (target > elapsed) rule.mainClock.advanceTimeBy(target - elapsed)
             elapsed = target
@@ -725,6 +729,7 @@ class TanreiProgressIndicatorReducedMotionTest {
             val expected = lerp(track, indicator, alpha)
             val map = map()
             for (x in listOf(0.1f, 0.5f, 0.9f)) assertClose("at $at, x $x: opacity $alpha", bar(map, x), expected, tolerance = PULSE_TOLERANCE)
+            assertTrue("at $at: opacity $alpha is never below the floor $floor", alpha >= floor - 1e-6f)
         }
     }
 
@@ -739,12 +744,13 @@ class TanreiProgressIndicatorReducedMotionTest {
         assertClose("left", map[(stroke / 2).toInt(), map.height / 2], indicator)
         assertClose("right", map[map.width - 1 - (stroke / 2).toInt(), map.height / 2], indicator)
         rule.mainClock.advanceTimeBy(tokens.motionCycleDuration / 2L)
-        assertClose("half a cycle on: the track alone", map()[map.width / 2, (stroke / 2).toInt()], track, tolerance = PULSE_TOLERANCE)
+        assertClose("half a cycle on: the indicator at the floor's opacity over the track", map()[map.width / 2, (stroke / 2).toInt()], lerp(track, indicator, tokens.motionPulseFloorOpacity), tolerance = PULSE_TOLERANCE)
     }
 
     private fun tanreiPulseAlphaExpected(phase: Float, ease: (Float) -> Float): Float {
         val half = phase * 2f
-        return if (half < 1f) 1f - ease(half) else ease(half - 1f)
+        val floor = tokens.motionPulseFloorOpacity
+        return if (half < 1f) 1f - (1f - floor) * ease(half) else floor + (1f - floor) * ease(half - 1f)
     }
 
     private fun lerp(a: Color, b: Color, t: Float) = Color(a.red + (b.red - a.red) * t, a.green + (b.green - a.green) * t, a.blue + (b.blue - a.blue) * t)

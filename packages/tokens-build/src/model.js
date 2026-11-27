@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CONFIG } from './config.js';
-import { COMPONENTS_HELD_IN_EVERY_SCHEME, alignedTokens, ladderReaders, targetFloors } from './invariants.js';
+import { COMPONENTS_HELD_IN_EVERY_SCHEME, alignedTokens, ladderReaders, ownHeights, targetFloors } from './invariants.js';
 import { TokenReadError, readBundle } from './reader.js';
 import { SCHEMES } from './scheme.js';
 
@@ -237,6 +237,12 @@ export function coreAlignedTokens() {
   return (aligned ??= alignedTokens(coreComponentDocuments()));
 }
 
+/** The pressable heights the core vocabulary marks as keeping a size of their own at every control height (`ownHeights`). */
+let own;
+export function coreOwnHeights() {
+  return (own ??= ownHeights(coreComponentDocuments()));
+}
+
 let componentDocuments;
 function coreComponentDocuments() {
   if (componentDocuments) return componentDocuments;
@@ -271,7 +277,7 @@ function modelFrom(resolver, systemId, components, colorsFrom) {
     }
   }
   assertEveryRole(colors);
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors(), ladder: coreLadderReaders(), aligned: coreAlignedTokens() };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors, components, floored: coreTargetFloors(), ladder: coreLadderReaders(), aligned: coreAlignedTokens(), own: coreOwnHeights() };
 }
 
 const SYS_COLOR = `${NS}.sys.color.`;
@@ -303,7 +309,7 @@ function assertEveryRole(colors) {
 function partialModel(base, systemId, components, colors, otherSchemes = {}) {
   const tokens = simplifyAll(base);
   const light = Object.fromEntries(Object.entries(tokens).filter(([id, t]) => id.startsWith(COMP) && t.type === 'color'));
-  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors(), ladder: coreLadderReaders(), aligned: coreAlignedTokens() };
+  return { system: systemId, schemes: SCHEMES, tokens, colors, componentColors: { ...otherSchemes, light }, components, partial: true, floored: coreTargetFloors(), ladder: coreLadderReaders(), aligned: coreAlignedTokens(), own: coreOwnHeights() };
 }
 
 // ── What the invariants read ─────────────────────────────────────────────

@@ -2,7 +2,7 @@
 // fixture has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, typeRole, withoutIconFont } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, setWords, tabTo, typeRole, withoutIconFont, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { motionCount } from '../../../test/motions.js';
@@ -23,13 +23,6 @@ const near = (actual: number, expected: number, message = '', tolerance = 0.6) =
 const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
 const byId = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 const mount = (page: P, fixtures: Fixture[] = spec.fixtures) => mountFixtures(page, spec, { fixtures, icons: true });
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));

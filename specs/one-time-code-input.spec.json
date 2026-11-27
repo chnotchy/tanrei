@@ -115,7 +115,7 @@
     {
       "id": "OTC-1",
       "text": "THE one-time-code input SHALL draw one row of length cells, in the order of the code's characters, each a box at least comp.one-time-code-input.container.height high and comp.one-time-code-input.container.width wide (OTC-23), with corners of comp.one-time-code-input.container.shape (never more than half its height) eased by sys.shape.corner-smoothing, comp.one-time-code-input.container.gap from the next, filled with comp.one-time-code-input.standard.container.color. The row SHALL start at the start edge of the width its layout gives it and SHALL be as wide as its cells, gaps and group marks need; the field SHALL be as tall as its rows. THE one-time-code input SHALL draw no label, no help, no error text, no placeholder and no container around the row: a Field frames it (OTC-22).",
-      "verify": "Under the default system six cells in one group are 6 × 40 and 5 × 6: 270 wide and 40 high, the control height."
+      "verify": "Under the default system six cells in one group are 6 × 40 and 5 × 6: 270 wide and 36 high, the control height."
     },
     {
       "id": "OTC-2",

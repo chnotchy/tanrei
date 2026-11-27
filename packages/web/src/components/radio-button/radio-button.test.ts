@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, typeRole, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { BEHIND, INSIDE, RATIOS, atRatio, depth, endMotion, holdMotionAt, offLine, paintedBehind, shoot, stageBehind, worst } from '../../../test/one-shape.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -104,11 +104,6 @@ const RGBA_SOURCE = `(color) => {
 }`;
 type Rgba = { r: number; g: number; b: number; a: number };
 const rgba = (page: P, color: string) => page.evaluate(([source, c]) => (0, eval)(source)(c) as Rgba, [RGBA_SOURCE, color] as const);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /** Counts every option's click, input and change events on the page, and what each change carried and from whom. */
 const listenAll = (page: P) =>
   page.evaluate(() => {
@@ -1061,10 +1056,10 @@ test.describe('layout', () => {
       for (const stage of document.querySelectorAll<HTMLElement>('#group > .stage')) stage.style.display = 'contents';
     });
     expect(await page.locator('#group > .stage > tanrei-radio-button').count()).toBe(3);
-    // In the default system the token (the touch target, 36) is lower than the container (40): each option is the
-    // container's height, and options stacked with no gap still keep whole targets.
+    // In the default system the token (the touch target, 36) is the container's height (36, the control height): each
+    // option is that height, and options stacked with no gap still keep whole targets.
     const own = await resolveToken(page, T('container-size'));
-    expect(await resolveToken(page, T('option-min-height'))).toBeLessThan(own);
+    expect(await resolveToken(page, T('option-min-height'))).toBeLessThanOrEqual(own);
     for (const id of ['o0', 'o1', 'o2']) expect((await bounds(host(page, id))).height, id).toBeCloseTo(own, 3);
     // Under a 48 touch target (a platform guideline) the token is taller than the container: what this test holds.
     await raiseTargets(page);

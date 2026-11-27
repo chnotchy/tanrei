@@ -270,7 +270,7 @@
                 "$description": "The collapsed item container's width, per size: in the default system the expanded row's least height, so that the collapsed cell is a square as tall as the row, centred in the column; at medium it is the control height.",
                 "medium": {
                   "$value": {
-                    "value": 40,
+                    "value": 36,
                     "unit": "px"
                   },
                   "$extensions": {
@@ -303,7 +303,7 @@
                 "$description": "Above and below the icon indicator inside the collapsed item container, per size, and below the short label where collapsedLabels draws one; with the icon indicator it gives the expanded row's height in the default system, so that the collapsed item container is a square behind the icon whether or not a short label is drawn under it.",
                 "medium": {
                   "$value": {
-                    "value": 8,
+                    "value": 6,
                     "unit": "px"
                   },
                   "$extensions": {
@@ -491,7 +491,7 @@
               "$description": "The expanded item container's least height, per size: the destination's row, which is also its active indicator and carries hover, focus and press. Medium is a menu item's height, the control height, so that a list of places, a list of commands and the controls beside them are rows of one size. Small is a tree view's small row (36 in the default system, the minimum target), for a product used with a pointer whose drawer lists many places; for touch a row is never lower than the touch target, whatever this says (NVD-6). A minimum: a row grows with a label that wraps and with enlarged text.",
               "medium": {
                 "$value": {
-                  "value": 40,
+                  "value": 36,
                   "unit": "px"
                 },
                 "$extensions": {
@@ -546,7 +546,7 @@
             },
             "medium": {
               "$value": {
-                "value": 4,
+                "value": 2,
                 "unit": "px"
               },
               "$extensions": {

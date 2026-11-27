@@ -41,3 +41,50 @@ export const cases = elements.flatMap(({ tag, wrapper, members }) =>
     .filter((c) => c.kind)
     .flatMap((c) => valuesOf(c.kind, c.initial).map((value) => ({ ...c, value }))),
 );
+
+/**
+ * A value for each list prop an element reads from an attribute (a type that ends in `[]`), by `<tag> <prop>`: one the
+ * element's converter reads (a date for a disabled date, a chord for a shortcut, a member of the union), and not its
+ * default. A list prop the manifest gains is missing here until it is given one: `lists` names it with no value, and
+ * the tests fail on it.
+ */
+const LIST_VALUES = {
+  'tanrei-calendar disabledDates': ['2026-01-01', '2026-01-02'],
+  'tanrei-chat-composer accept': ['image/png', '.pdf'],
+  'tanrei-chip-field value': ['ada@example.com', 'grace@example.com'],
+  'tanrei-chip-field separators': [',', ';'],
+  'tanrei-combobox values': ['tokyo', 'osaka'],
+  'tanrei-date-time-picker disabledDates': ['2026-01-01'],
+  'tanrei-drop-zone accept': ['image/*', '.pdf'],
+  'tanrei-file-picker accept': ['image/*'],
+  'tanrei-file-upload accept': ['.pdf', '.txt'],
+  'tanrei-keyboard-shortcut keys': ['mod+k'],
+  'tanrei-list values': ['a', 'b'],
+  'tanrei-menu-checkbox-item shortcut': ['mod+b'],
+  'tanrei-menu-item shortcut': ['mod+c'],
+  'tanrei-menu-radio-item shortcut': ['mod+1'],
+  'tanrei-navigation-drawer filterShortcut': ['mod+k'],
+  'tanrei-popover trigger': ['hover', 'focus'],
+  'tanrei-rating optionLabels': ['Poor', 'Fair', 'Good'],
+  'tanrei-resizable-frame handles': ['start', 'end'],
+  'tanrei-resizable-frame snapWidths': [240, 320],
+  'tanrei-scroll-area edges': ['start'],
+  'tanrei-search shortcut': ['mod+k'],
+  'tanrei-search-result excerpt': ['A ', 'match', ' in its text'],
+  'tanrei-search-result-group excerpt': ['A ', 'match'],
+  'tanrei-segmented-button values': ['day', 'week'],
+  'tanrei-tag-group values': ['a', 'b'],
+  'tanrei-text-field disabledDates': ['2026-01-01'],
+  'tanrei-text-input disabledDates': ['2026-01-01'],
+  'tanrei-toolbar-group values': ['bold', 'italic'],
+  'tanrei-tooltip shortcut': ['mod+s'],
+  'tanrei-tree-view filterShortcut': ['mod+f'],
+  'tanrei-tree-view values': ['a', 'b'],
+};
+
+/** One case per list prop an element reads from an attribute: `{ tag, wrapper, prop, attribute, value }` (`value` is `undefined` where `LIST_VALUES` has none). */
+export const lists = elements.flatMap(({ tag, wrapper, members }) =>
+  members
+    .filter((m) => m.kind === 'field' && !m.static && m.attribute && m.privacy !== 'private' && m.privacy !== 'protected' && /\[\]$/.test(m.type?.text ?? ''))
+    .map((m) => ({ tag, wrapper, prop: m.name, attribute: m.attribute, value: LIST_VALUES[`${tag} ${m.name}`] })),
+);

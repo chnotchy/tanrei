@@ -5,7 +5,7 @@
 // moves) itself.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, type Spec, acmeSystemCss, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from './harness.js';
+import { type Fixture, type FixtureItem, type Spec, acmeSystemCss, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from './harness.js';
 import { pressHoldAsRun } from './harsh.js';
 import { opticalSize } from './icons.js';
 import { motionEnded } from './motions.js';
@@ -47,14 +47,6 @@ export interface DestinationSuiteOptions {
 
 export const destination = (value: string, label: string, icon: string, props: FixtureItem['props'] = {}): FixtureItem => ({ kind: 'destination', props: { value, label, icon, ...props } });
 export const FOUR = [destination('inbox', 'Inbox', 'inbox'), destination('sent', 'Sent', 'send'), destination('starred', 'Starred', 'star'), destination('settings', 'Settings', 'settings')];
-
-export function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 export const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 

@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { MIRRORED, anchorOf, expectDisabledLink, expectDrawnAlike, expectLinkActivation, expectNewContext, expectRefusals, expectTargetLabel, markOf, settledPaint } from '../../../test/links.js';
@@ -16,6 +16,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { simulateMacClickFocus } from '../../../test/click-focus.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
+import { laidOutBox } from '../../../test/laid-out-box.js';
 
 const spec = loadSpec('chip');
 type P = Page;
@@ -25,7 +26,8 @@ const removeOf = (page: P, id: string) => host(page, id).locator('.remove');
 const labelOf = (page: P, id: string) => host(page, id).locator('.label');
 const iconOf = (page: P, id: string) => host(page, id).locator('.icon');
 const checkOf = (page: P, id: string) => host(page, id).locator('.check');
-const bounds = async (locator: Locator) => (await locator.boundingBox())!;
+/** A box as the engine laid it out (test/laid-out-box.ts): a chip below a line of the page's text keeps its size in Firefox. */
+const bounds = laidOutBox;
 const style = (locator: Locator, property: string, pseudo?: string) =>
   locator.evaluate((el, [p, ps]) => getComputedStyle(el, ps ?? undefined).getPropertyValue(p as string), [property, pseudo ?? null] as const);
 const css = (page: P, id: string, property: string, pseudo?: string) => style(inner(page, id), property, pseudo);
@@ -108,11 +110,6 @@ const stillPage = (page: P) =>
   );
 /** Whether focus is on the element or anywhere in its shadow root. */
 const holdsFocus = (locator: Locator) => locator.evaluate((el) => document.activeElement === el || el.shadowRoot!.activeElement !== null);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /** A fixture; `content: null` is one without a leading element. */
 const fixture = (id: string, props: Fixture['props'], content: string | null = null): Fixture => ({ id, props, ...(content === null ? {} : { content }) });
 /** What the chip's container draws: its color, label color, icon color, box-shadow (outline and elevation) and opacity. */

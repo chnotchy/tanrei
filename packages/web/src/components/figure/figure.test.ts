@@ -9,6 +9,8 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { decodePng } from '../../../test/png.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { restyle } from '../../../test/restyle.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('figure');
 type P = Page;
@@ -98,12 +100,8 @@ const fx = (id: string, props: Fixture['props'], parts: Parts, extra: Partial<Fi
 const raw = (id: string, props: Fixture['props'], content: string, extra: Partial<Fixture> = {}): Fixture => ({ id, props, content, ...extra });
 const fixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 const some = (...ids: string[]) => ids.map(fixture);
-/** The figure's width (a fixture cannot state the size of its stage). */
-const size = (page: P, id: string, width: number) =>
-  stage(page, id).evaluate((el, w) => {
-    (el as HTMLElement).style.maxInlineSize = 'none';
-    (el as HTMLElement).style.inlineSize = `${w + 32}px`;
-  }, width);
+/** The figure's width (a fixture cannot state the size of its stage), with a frame after the write (`restyle()`). */
+const size = (page: P, id: string, width: number) => restyle(stage(page, id), { 'max-inline-size': 'none', 'inline-size': `${width + 32}px` });
 const near = (a: number, b: number, tolerance = 0.6) => expect(Math.abs(a - b), `${a} ≈ ${b}`).toBeLessThanOrEqual(tolerance);
 const BOX = (width: number, id = 'box') => `<div id="${id}" style="flex: none; inline-size: ${width}px; block-size: 40px; background: var(--tanrei-sys-color-primary)"></div>`;
 const BUTTON = (glyph: string, id = '') => `<tanrei-button variant="text" label="${glyph}"${id ? ` id="${id}"` : ''}><span slot="icon">${glyph}</span></tanrei-button>`;
@@ -347,7 +345,7 @@ test.describe('the frame and its looks', () => {
     await page.locator('#box-wide').click({ position: { x: 10, y: 10 } });
     expect(await css(s, 'outline-style')).toBe('none');
     // No longer scrolling, it is no stop and no group.
-    await page.locator('#box-wide').evaluate((el) => ((el as HTMLElement).style.inlineSize = '100px'));
+    await restyle(page.locator('#box-wide'), { 'inline-size': '100px' });
     await expect(s).not.toHaveAttribute('tabindex', '0');
     expect(await s.evaluate((el) => [el.hasAttribute('role'), el.hasAttribute('aria-labelledby')])).toEqual([false, false]);
   });
@@ -1227,6 +1225,7 @@ test.describe('the element and its stylesheet', () => {
       root.innerHTML = '<tanrei-figure variant="filled"><figure><div data-part="frame"><header><p data-part="title">In a shadow root</p></header><div data-part="stage"><div style="flex: none; inline-size: 900px; block-size: 20px"></div></div></div><figcaption>Its caption</figcaption></figure></tanrei-figure>';
       document.body.append(outer);
     });
+    await askForFrame(page);
     const inner = page.locator('#outer tanrei-figure');
     await expect(inner.locator('[data-part="stage"]')).toHaveAttribute('role', 'group');
     expect(await css(inner.locator('[data-part="frame"]'), 'background-color')).toBe(await resolveColor(page, T('filled-container-color')));

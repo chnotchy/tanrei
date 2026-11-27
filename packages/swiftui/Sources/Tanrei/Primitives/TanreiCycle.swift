@@ -80,12 +80,14 @@ enum TanreiCycleClock {
     ).value(at: clamped)
   }
 
-  /// PRG-7, LDG-4: the reduced-motion pulse — the opacity eases from 1 to 0 over the first half of a cycle and back to
-  /// 1 over the second, with `easing`. 1 at the start of a cycle.
-  static func pulseOpacity(phase: Double, easing: TanreiCubicBezier) -> Double {
+  /// PRG-7, LDG-4: the reduced-motion pulse — the opacity eases from 1 down to `floor` (the component's
+  /// pulse-floor-opacity token) over the first half of a cycle and back to 1 over the second, with `easing`; it never
+  /// falls below `floor`, so the mark keeps pulsing and is never drawn as nothing. 1 at the start of a cycle.
+  static func pulseOpacity(phase: Double, easing: TanreiCubicBezier, floor: Double) -> Double {
     let half = 0.5
+    let depth = 1 - floor
     let p = phase - phase.rounded(.down)
-    return p < half ? 1 - eased(p / half, easing) : eased((p - half) / half, easing)
+    return p < half ? 1 - depth * eased(p / half, easing) : floor + depth * eased((p - half) / half, easing)
   }
 }
 

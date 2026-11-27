@@ -3,6 +3,7 @@ import { styleMap } from 'lit/directives/style-map.js';
 import { AvailabilityController, DIRECTION_PROBE, DirectionController, FieldControlController, FollowController, OpenAxesController, PressController, anchorGone, cssZoom, report, syncFocusStyle, delegatedAria, namedByProduct, delegatesAria } from '../../primitives/index.js';
 import type { TanreiSliderSizeRegistry } from '../../registry.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { AXES, INDICATOR_REACH, styles } from './slider.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
@@ -112,7 +113,7 @@ const originPoint = (f: number): End => (f <= 0 ? TRACK_START : f >= 1 ? TRACK_E
  * motion.
  *
  * Form-associated: it submits `value` under `name` (a range submits `start-value`, then `value`, under the same name),
- * resets to its attributes and follows a disabled `<fieldset>`.
+ * resets to the values it was first given and follows a disabled `<fieldset>`.
  *
  * @tag tanrei-slider
  * @csspart track - A piece of the track outside the active part (there are two).
@@ -172,7 +173,7 @@ export class TanreiSlider extends TanreiElement {
   /** `horizontal` (the default) or `vertical`. Anything else draws horizontal (SLD-23). */
   orientation: TanreiSliderOrientation = 'horizontal';
 
-  /** The value of the only handle, or of a range's end handle. The `value` attribute is what a form reset returns to. */
+  /** The value of the only handle, or of a range's end handle. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   value = 0;
 
   /** The value of a range's start handle (the `start-value` attribute). Ignored while `range` is false. */
@@ -227,6 +228,9 @@ export class TanreiSlider extends TanreiElement {
   private dragging = false;
 
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` and `startValue` to: what they were first given, as a native control's defaults. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => (text === null ? 0 : Number(text)));
+  private readonly startDefault = new FormDefault(this, () => this.startValue, 'start-value', (text) => (text === null ? 0 : Number(text)));
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   private get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -370,9 +374,8 @@ export class TanreiSlider extends TanreiElement {
   // ─── Form ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
   formResetCallback() {
-    const read = (name: string, fallback: number) => (this.hasAttribute(name) ? Number(this.getAttribute(name)) : fallback);
-    this.value = read('value', 0);
-    this.startValue = read('start-value', 0);
+    this.value = this.valueDefault.value;
+    this.startValue = this.startDefault.value;
   }
 
   formStateRestoreCallback(state: string | File | FormData | null) {

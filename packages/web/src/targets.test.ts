@@ -1,6 +1,6 @@
 // What a component lays out side by side never takes a press meant for its neighbour (BTN-5, BGR-4 and every row after
 // them: SNK-4, CAL-5, IMP-8, the actions of a dialog, a side sheet and a popover, CCM-2, FIG-9, TXI-71, SEL-72,
-// CMB-20). A hit area that reaches past what is drawn (src/primitives/target.ts) stops toward a neighbour at the middle
+// CMB-19, CMB-20). A hit area that reaches past what is drawn (src/primitives/target.ts) stops toward a neighbour at the middle
 // of the gap between them, so that:
 //
 //  - a press on any pressable's visible bounds goes to that pressable (or to one it holds, or one that holds it), never
@@ -354,18 +354,7 @@ async function overreaching(): Promise<Reach> {
  * shrinks. An entry that no longer matches fails too, so it is taken out with the fix.
  */
 const ALL: Setting[] = ['default', 'm3-like', '2px apart', '8px apart'];
-const CHEVRON = {
-  settings: ALL,
-  // What stands at the end of the input's line: the input, or, while several values are chosen, the chip that ends a line
-  // of entries (CMB-74) — in either direction, at whatever place the fonts of the machine wrap the entries.
-  line: /(tanrei-combobox › input|tanrei-chip › button) .*goes to tanrei-combobox › button/,
-  reason:
-    'CMB-19 gives the chevron the whole gap to the input’s end and at least the minimum target’s width, which reaches over the end of the input where the room is less, and in the same way over the end of a chip that ends a line of entries there, or the nearer half of the gap to it (CMB-74). The neighbour clause for a chevron with a hit part of its own is a change to CMB-19: stop at the middle of container.gap toward the input and the entries.',
-};
 const KNOWN: Record<string, { settings: Setting[]; line: RegExp; reason: string }[]> = {
-  combobox: [CHEVRON],
-  'combobox-field': [CHEVRON],
-  field: [CHEVRON],
   'navigation-drawer': [
     {
       settings: ALL,

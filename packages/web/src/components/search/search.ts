@@ -66,6 +66,7 @@ import type { TanreiKeyboardShortcut } from '../keyboard-shortcut/keyboard-short
 import '../loading-indicator/loading-indicator.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { AXES, FIRST_ACTION_CAP, FIRST_FRAMES, groupStyles, rowStyles, styles, suggestionStyles } from './search.styles.js';
 import type { TanreiSearchSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
@@ -764,7 +765,7 @@ export class TanreiSearch extends TanreiElement {
    */
   bar: TanreiSearchBar = 'field';
 
-  /** The query. Setting it shows it and fires nothing. The `value` attribute is what a form reset returns to. */
+  /** The query. Setting it shows it and fires nothing. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   value = '';
 
   /** Names the search field, the trigger, the view, the suggestions and the results for assistive technology ("Search mail"). Drawn only as a button trigger's text while `placeholder` is empty. Required. */
@@ -922,6 +923,8 @@ export class TanreiSearch extends TanreiElement {
   /** The default slot holds the product's own content (anything but the suggestions). */
   protected hasContent = false;
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -1239,7 +1242,7 @@ export class TanreiSearch extends TanreiElement {
   }
 
   formResetCallback() {
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
   }
 
   formStateRestoreCallback(state: string | null) {

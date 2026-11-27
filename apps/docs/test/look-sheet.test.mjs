@@ -132,29 +132,45 @@ test('a sheet for every shipped system a reader may choose but the default, and 
 });
 
 for (const [look, css] of Object.entries(sheets)) {
-  test(`${look}: the root drawn with tokens.css and the look's sheet is the root of a product that ships ${look}, in every state`, (t) => {
+  test(`${look}: the root drawn with tokens.css and the look's sheet is the root of a product that ships ${look}, in every state`, () => {
     const scoped = generated(`systems/${look}.css`);
-    // What the system's own sheet declares for a device that asks for more contrast.
-    const ownMore = new Set(sheetRules(scoped).filter((rule) => rule.path.includes('@media (prefers-contrast: more)')).flatMap((rule) => rule.declarations.map(([property]) => property)));
-    let leaks = 0;
     for (const { attributes, media } of states()) {
       const product = computed([tokensCss, scoped], { ...attributes, [`data-${NS}-system`]: look }, media);
       const docs = computed([tokensCss, css], attributes, media);
       const what = `${look}, ${JSON.stringify({ ...attributes, ...media })}`;
       const differ = [...new Set([...product.keys(), ...docs.keys()])].filter((property) => product.get(property) !== docs.get(property));
-      // The one place the two part, and why: where the device asks for more contrast and the root names no level, the
-      // default system's rule for it (`:root:not([data-…-contrast])`, two attributes' weight) outweighs the system's
-      // scoped rule on the root (one), so a product's root shows the default system's value for more contrast of a
-      // property the system's sheet does not declare again for it. The look's sheet gives the system's own value there,
-      // as it does at each level of contrast the root names; this leak of the scoped sheet is the emitter's to close.
-      const alone = media.more && !attributes[`data-${NS}-contrast`] ? computed([tokensCss], attributes, media) : null;
-      const standard = alone ? computed([tokensCss, css], attributes, { ...media, more: false }) : null;
-      const leaked = (property) => alone !== null && !ownMore.has(property) && product.get(property) === alone.get(property) && docs.get(property) === standard.get(property);
-      leaks += differ.filter(leaked).length;
-      const wrong = differ.filter((property) => !leaked(property));
-      assert.deepEqual(wrong.slice(0, 5).map((property) => `${property}: ${product.get(property)} → ${docs.get(property)}`), [], `${what}: ${wrong.length} properties differ (the product's → the docs')`);
+      assert.deepEqual(differ.slice(0, 5).map((property) => `${property}: ${product.get(property)} → ${docs.get(property)}`), [], `${what}: ${differ.length} properties differ (the product's → the docs')`);
     }
-    t.diagnostic(`${look}: ${leaks} values of the default system's for more contrast that a product's scoped sheet lets through, over all states`);
+  });
+
+  test(`${look}: a product's root that asks for more contrast, or names a level, shows none of the default system's colours for it`, () => {
+    // The default system's rule for a level weighs as much as the scope's on the root (`:root:not([data-…-contrast])`
+    // under prefers-contrast: more), or the same as its base block (`[data-…-contrast="high"]`): a property the scope's
+    // rule for that level left out would show the default system's colour. Each one the default's rules declare, and the
+    // system has a token for, is declared again by the system's own rule for the level.
+    const scoped = generated(`systems/${look}.css`);
+    const declared = (css, pick) => new Set(sheetRules(css).filter(pick).flatMap((rule) => rule.declarations.map(([property]) => property)));
+    const own = declared(scoped, (rule) => !rule.path.includes('@media (prefers-contrast: more)') && !rule.path.at(-1).includes('contrast="'));
+    const levels = [
+      ['more', (rule) => rule.path.includes('@media (prefers-contrast: more)')],
+      ['medium', (rule) => rule.path.at(-1).includes('contrast="medium"')],
+      ['high', (rule) => rule.path.at(-1).includes('contrast="high"')],
+    ];
+    for (const [level, pick] of levels) {
+      const restated = declared(scoped, pick);
+      const leaked = [...declared(tokensCss, pick)].filter((property) => own.has(property) && !restated.has(property));
+      assert.deepEqual(leaked, [], `${look}, ${level}: ${leaked.length} of the default system's properties for this level that the system's sheet does not declare again`);
+    }
+    // And in every state: no property of the product's root takes the value tokens.css alone gives it at a contrast level
+    // when the system's own sheet gives it another without one.
+    for (const { attributes, media } of states()) {
+      if (!media.more && !attributes[`data-${NS}-contrast`]) continue;
+      const product = computed([tokensCss, scoped], { ...attributes, [`data-${NS}-system`]: look }, media);
+      const alone = computed([tokensCss], attributes, media);
+      const docs = computed([tokensCss, css], attributes, media);
+      const leaked = [...product.keys()].filter((property) => product.get(property) === alone.get(property) && docs.get(property) !== alone.get(property));
+      assert.deepEqual(leaked.slice(0, 5), [], `${look}, ${JSON.stringify({ ...attributes, ...media })}: ${leaked.length} properties in the default system's colour`);
+    }
   });
 
   test(`${look}: the sheet is written in the tokens' layer, on the root, a small part of the system's own sheet`, () => {

@@ -14,7 +14,7 @@ import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleF
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { entrances, loadOpen } from '../../../test/mounted-open.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
-import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutIconFont } from '../../../test/harness.js';
+import { type DocumentOptions, type Fixture, type FixtureItem, type MountOptions, dialogWindow, fixturesDocument, iconFaceArrives, innerStrokeAtEdges, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, withoutIconFont, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
@@ -45,7 +45,7 @@ const resolveShadow = (page: P, name: string) =>
 function reports(page: P) {
   const seen: { type: string; text: string }[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push({ type: message.type(), text: message.text() });
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push({ type: message.type(), text: message.text() });
   });
   return seen;
 }
@@ -812,6 +812,23 @@ test.describe('layout', () => {
     const wide = await Promise.all(labels.map((label) => bounds(action(page, 'stacked', label))));
     expect(wide[2].x).toBeLessThan(wide[1].x);
     expect(wide[1].x).toBeLessThan(wide[0].x);
+  });
+
+  test('DLG-10: re-decided while a motion scales the container (WebKit plays the entrance again when a token is written on the root), the row or the column, and the width the container is sized to, are those it then rests at in every frame', async ({ page }) => {
+    await mount(page, [closed('stacked')]);
+    await open(page, 'stacked');
+    await expect(dialog(page, 'stacked').locator('.actions')).toHaveClass(/stacked/);
+    await page.setViewportSize({ width: 1200, height: 800 });
+    // Read in each frame as drawn: the arrangement, and the row the container is sized to (`--_row`).
+    const placed = (root: Element) => ({ stacked: !!root.querySelector('.actions')?.classList.contains('stacked'), row: Number.parseFloat((root as HTMLElement).style.getPropertyValue('--_row')) });
+    const widened = await sampleFrames(dialog(page, 'stacked'), () => override(page, { [T('container-max-width')]: '1000px' }), { probe: placed });
+    const rest = widened.rest.probe as { stacked: boolean; row: number };
+    expect(rest.stacked, 'a wide window gives the row room again').toBe(false);
+    for (const frame of widened.frames) {
+      const seen = frame.probe as { stacked: boolean; row: number };
+      expect(seen.stacked, `frame ${frame.index} is placed as it rests`).toBe(false);
+      expect(seen.row, `frame ${frame.index} is sized as it rests`).toBeCloseTo(rest.row, 0);
+    }
   });
 
   test('DLG-10: end (a system choice) — at their own widths, the row at the end; a column as wide as its widest action, at the end, when the row does not fit', async ({ page }) => {

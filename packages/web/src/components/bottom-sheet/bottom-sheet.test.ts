@@ -5,9 +5,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Page, expect, test } from '@playwright/test';
-import { bounds, css, override, warnings } from '../../../test/destinations.js';
+import { bounds, css, override } from '../../../test/destinations.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
-import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
@@ -21,6 +21,7 @@ import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-rel
 import { expectBaseline } from '../../../test/baseline.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder, focusAmong, setOpenInOneTask } from '../../../test/stacked-surfaces.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('bottom-sheet');
 type P = Page;
@@ -227,16 +228,22 @@ test.describe('drawing', () => {
 
   test('BSH-6: a standard sheet takes its heights from the parent the product placed it in', async ({ page }) => {
     await mount(page, [fx('s', { variant: 'standard' }, LONG)]);
-    await page.locator('[data-fixture="s"]').evaluate((el) => ((el as HTMLElement).style.blockSize = '500px'));
+    await restyle(page.locator('[data-fixture="s"]'), { 'block-size': '500px' });
     await expect.poll(async () => Math.round((await bounds(sheet(page))).height)).toBe(250);
     const stage = await bounds(page.locator('[data-fixture="s"]'));
     const box = await bounds(sheet(page));
     expect(box.y + box.height).toBeCloseTo(stage.y + stage.height, 1);
   });
 
-  test('BSH-8: the content is inset by container.padding at the start, end and bottom (the top too without a handle), reaches the edges when flush, is clipped, and gets content.color and the body role', async ({ page }) => {
+  test('BSH-8: the content is inset by container.padding at the start, end and bottom (the top too without a handle or a header, content.padding-block-start below a header), reaches the edges when flush, is clipped, and gets content.color and the body role', async ({ page }) => {
     const probe = `<span id="t">${SHORT}</span>`;
-    await mount(page, [fx('s', {}, probe), fx('bare', { handle: false }, probe), fx('flush', { inset: false }, probe)]);
+    await mount(page, [
+      fx('s', {}, probe),
+      fx('bare', { handle: false }, probe),
+      fx('flush', { inset: false }, probe),
+      fx('titled', { headline: 'Save photo', closable: true, closeLabel: 'Close' }, probe),
+      fx('titled-flush', { headline: 'Save photo', inset: false }, probe),
+    ]);
     const pad = await px(page, T('container-padding'));
     const row = (await px(page, T('handle-container-height'))) + 2 * (await px(page, T('handle-margin-block')));
     const inner = (id: string) => bounds(host(page, id).locator('.inner'));
@@ -251,6 +258,16 @@ test.describe('drawing', () => {
     const flush = await bounds(sheet(page, 'flush'));
     expect((await inner('flush')).x).toBeCloseTo(flush.x, 1);
     expect((await inner('flush')).y).toBeCloseTo(flush.y + row, 1);
+    // Below a header: the inset content's first line content.padding-block-start under the header (8 in the default
+    // system, clear of the header and its divider); flush content reaches the header.
+    const below = await px(page, T('content-padding-block-start'));
+    expect(below).toBe(8);
+    const titledHeader = await bounds(host(page, 'titled').locator('.header'));
+    expect((await inner('titled')).y).toBeCloseTo(titledHeader.y + titledHeader.height + below, 1);
+    const rule = await bounds(host(page, 'titled').locator('.header .divider'));
+    expect((await inner('titled')).y - (rule.y + rule.height)).toBeGreaterThanOrEqual(below - (await px(page, T('divider-width'))) - 0.5);
+    const flushHeader = await bounds(host(page, 'titled-flush').locator('.header'));
+    expect((await inner('titled-flush')).y).toBeCloseTo(flushHeader.y + flushHeader.height, 1);
     await expect(content(page)).toHaveCSS('overflow-y', 'auto');
     await expect(content(page)).toHaveCSS('overflow-x', 'hidden');
     // Without a handle the content's top corners are the container's.
@@ -1367,7 +1384,7 @@ test.describe('the header and the close button', () => {
     expect(seen.join('\n')).toMatch(/divider-visibility "sometimes" is not a value of the bottom sheet/);
   });
 
-  test('BSH-29: while closable, an icon-only small Button (36 × 36 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant and whatever dismissible says; an empty close-label still draws it and is reported', async ({ page }) => {
+  test('BSH-29: while closable, an icon-only small Button (28 × 28 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant and whatever dismissible says; an empty close-label still draws it and is reported', async ({ page }) => {
     const seen = warnings(page);
     for (const props of [{}, { variant: 'standard' }, { dismissible: false }] as Fixture['props'][]) {
       const name = JSON.stringify(props);
@@ -1380,7 +1397,7 @@ test.describe('the header and the close button', () => {
       expect(await close(page).evaluate((el) => el.textContent?.trim())).toBe('close');
       await expect.poll(() => paint(page), name).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
       const box = await bounds(close(page).locator('button'));
-      expect([box.width, box.height], name).toEqual([36, 36]); // the small Button, held at the minimum target
+      expect([box.width, box.height], name).toEqual([28, 28]); // the small Button, at its step
       await expect(host(page).getByRole('button', { name: 'Close sharing' }), name).toHaveCount(1);
       await close(page).locator('button').click();
       expect(await log(page), name).toEqual(['close:close']);

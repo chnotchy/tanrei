@@ -1,6 +1,7 @@
 import { FacesWatch } from './faces.js';
 import { DRAWN_WIDTH } from './glyph-drawn-width.js';
-import { readTogether } from './read-phase.js';
+import { documentPainted } from './first-paint.js';
+import { type PhaseRead, readInPhase, readTogether } from './read-phase.js';
 
 /**
  * Whether the icon set can draw a glyph yet, for a light-DOM component whose glyphs are drawn by a stylesheet (a
@@ -61,11 +62,15 @@ export class PendingGlyphs {
    * is. The reads are made with every other host's of the turn (`readTogether`): the family of each host in one style of
    * the page, then — where the family is not known to draw — the box the name is measured in, written first and
    * measured with every other host's box in one layout. A hundred trees read the cascade and the layout as often as one.
+   * Until the document has been painted, the family is read in the first frame's read phase instead, after its layout:
+   * a page still loading upgrades its hosts in a task of each module's own, and a read there has the browser style and
+   * lay out the whole page for it. The box is then measured in a microtask of that phase's writes, before the frame is
+   * painted, so the first frame painted draws the mark.
    */
   read() {
     if (this.asked) return;
     this.asked = true;
-    readTogether(() => {
+    const readFamily: PhaseRead = () => {
       this.asked = false;
       const host = this.host;
       if (!host.isConnected) return;
@@ -90,7 +95,9 @@ export class PendingGlyphs {
           return () => this.mark(drawn);
         });
       };
-    });
+    };
+    if (documentPainted()) readTogether(readFamily);
+    else readInPhase(this, readFamily);
   }
 
   /** Writes what was read: the mark, and the measured box kept only while pending. */

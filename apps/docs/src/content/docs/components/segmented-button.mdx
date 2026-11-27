@@ -317,7 +317,7 @@ Known platform gaps:
 - Compose has no radio group role. The set is a selectable group, and each segment is a radio button (single) or a toggleable button (multiple), as the filter chip is.
 - Flutter exposes neither a segment's position nor the number of segments, and a multiple-choice set is a container named by its label rather than a group, because Flutter's semantics have neither property.
 - React Native: the equal widths come from measuring each label after the first layout, so a set whose parent is narrower than it on the first frame can take a width narrower than its widest label. The arrow keys on a hardware keyboard, and the raised selection's shadow over its neighbours on Android, have not been checked on a device.
-- Under the `cupertino` system, the small and medium sets are 30 and 34 tall rather than 28 and 32, and the inner corners of the end segments are rounder than their outer ones. Both wait for a token or spec decision.
+- Under the `cupertino` system, the inner corners of the end segments are rounder than their outer ones. This waits for a token or spec decision.
 
 ### What you need to do
 

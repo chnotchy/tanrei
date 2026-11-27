@@ -6,7 +6,7 @@
 // that was. Turned off, the documentation keeps no layer and shows its own look again.
 import { packLayer, withLayer } from '../address.js';
 import { stringifyLayer } from '../core.js';
-import { type Ctx, type Json, type Layer, button, h } from './dom';
+import { type Ctx, type Json, type Layer, barWord, button, h, tip } from './dom';
 
 /** The documentation that hosts the Studio, as the Studio sees it: the layer it keeps for its "My theme", if any. */
 export interface DocsTheme {
@@ -24,7 +24,11 @@ const REST = 300;
 /** The glyph of the menu's button: declared, so that the docs site's cut-down icon file has it (packages/tools/src/glyphs.js). */
 const SHARE_GLYPH = 'link';
 
-/** Copies the address of the Studio holding this layer; what was said of it (copied, or not). */
+/**
+ * Copies the address of the Studio holding this layer; what was said of it. Where the browser refuses the clipboard,
+ * the way to the link: it is the page's own address, which the Studio keeps on the layer (`address`), so the address
+ * bar holds it.
+ */
 export async function copyLayerLink(ctx: Ctx): Promise<string> {
   const { t, studio } = ctx;
   try {
@@ -33,7 +37,7 @@ export async function copyLayerLink(ctx: Ctx): Promise<string> {
     await navigator.clipboard.writeText(`${location.origin}${location.pathname}${location.search}${withLayer(location.hash, packed)}`);
     return t.exporting.linkCopied;
   } catch {
-    return t.exporting.copyFailed;
+    return t.exporting.linkCopyFailed;
   }
 }
 
@@ -43,7 +47,8 @@ export function createShareMenu(ctx: Ctx, { linked, docs, glyph }: { linked: boo
   const words = t.sharing;
   const system = (studio.systems as Json[]).find((each) => each.id === studio.defaultId)?.name ?? studio.defaultId;
   const id = ctx.uid('ts-share');
-  const opener = h('tanrei-button', { id, variant: 'outlined', size: 'small', 'data-share-open': true }, glyph(SHARE_GLYPH), words.open);
+  const word = barWord(words.open);
+  const opener = h('tanrei-button', { id, variant: 'outlined', size: 'small', label: words.open, 'data-share-open': true }, glyph(SHARE_GLYPH), word);
 
   // The link: what Export's last tab offers too, one press away.
   const linkState = h('span', { class: 'ts-help', role: 'status', 'data-share-link-state': true });
@@ -121,7 +126,10 @@ export function createShareMenu(ctx: Ctx, { linked, docs, glyph }: { linked: boo
   refresh();
 
   return {
-    el: [opener, popover],
+    // (On a phone the button shows its glyph alone: the tooltip shows its name.)
+    el: [tip(opener, words.open, true), popover],
+    opener,
+    word,
     /**
      * The layer this browser keeps (`keeping()`) changed, or may have: while the documentation keeps one of the
      * Studio's, it is given this one once the edits rest — or, while the Studio does not accept it as a file, nothing,

@@ -199,6 +199,23 @@ Cada token es una propiedad personalizada que lleva el nombre de su ruta: `tanre
 
 Para poner un token desde un script, usa `setTokens()` de `@tanrei/web`: `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })` en la raíz, o con `{ on: element }` para una parte de la página. Un solo token puesto en la raíz con `style.setProperty()` hace que Safari vuelva a calcular los estilos de toda la página durante segundos; `setTokens()` lo escribe de forma que no ocurra.
 
+## Tu propio anillo de foco
+
+Cada elemento dibuja su propio indicador de foco de teclado a partir de los tokens de foco del sistema (`--tanrei-sys-focus-offset`, `--tanrei-sys-focus-inner-width`, `--tanrei-sys-focus-outer-width`, `--tanrei-sys-color-focus-ring`, `--tanrei-sys-color-focus-ring-inner`): cámbialos para cambiarlo. La regla de tu página para todo elemento con foco (`:focus-visible { outline: … }`, o la de un reset) puede quedarse. Un elemento cuyo host recibe el foco él mismo, como una pestaña, un panel de pestaña o un elemento de lista, dibuja su anillo por dentro y pone `outline: none !important` en su host. Las reglas de la página ganan a las de una shadow root, pero no a una importante, así que tu contorno no se dibuja también a su alrededor.
+
+Las hojas de estilo para tu propio marcado (`table.css`, `link.css`, `prose.css` y las demás) están en `@layer tanrei.components`, y una regla fuera de toda capa gana a cualquier regla en capas: sin capa, tu regla de foco sustituye sus anillos por el tuyo. Ponla en una capa propia, declarada antes que la de Tanrei en la primera hoja de estilo que carga la página, y los suyos se dibujan tal como son:
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## Estilos de texto
 
 Los estilos de texto se nombran por nivel (`heading-2` es un `h2`, `body` un `p`, `label` el texto de un control), y cada uno es un conjunto de propiedades personalizadas individuales: `--tanrei-sys-typescale-<role>-font-family`, `-font-size`, `-font-weight`, `-line-height`, `-letter-spacing` y `-font-weight-emphasized`. No hay una propiedad abreviada: compón `font` con ellas donde se dibuja el texto, como arriba, y cambia un estilo propiedad por propiedad. `--tanrei-sys-typescale-body-font-size: 1rem`, en la raíz o en un elemento o una sección de la página, cambia el tamaño de ese texto y nada más. Dos hojas de estilos opcionales los aplican a los elementos por ti:

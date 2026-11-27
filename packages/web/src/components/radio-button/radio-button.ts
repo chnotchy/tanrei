@@ -6,6 +6,7 @@ import { styles } from './radio-button.styles.js';
 import { FocusedStop, disabledWaitsWhileFocused } from '../../primitives/disabled-while-focused.js';
 import { focusedAtFirst } from '../../primitives/autofocus.js';
 import { TanreiElement } from '../../primitives/element.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { DEBUG } from '../../primitives/debug.js';
 
 /** What `change` carries: the value of the option that became selected. */
@@ -45,7 +46,7 @@ const STEPS: Record<string, number> = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1
  * through the enabled ones and select as they go (RAD-4), and the group has one tab stop (RAD-5). Put the options in an
  * element with `role="radiogroup"` and a name (`aria-labelledby`), or in a `<fieldset>` with a `<legend>` (RAD-16).
  *
- * Form-associated: while selected it submits `value` under `name`, resets to its `checked` attribute and follows a
+ * Form-associated: while selected it submits `value` under `name`, resets to the `checked` it was first given and follows a
  * disabled `<fieldset>`. It selects itself before it fires `input` and `change`; the option it replaced fires nothing.
  *
  * Read-only (`readonly`, or a read-only radio group around it: RAD-28): it stays focusable and reached by the arrow
@@ -129,6 +130,9 @@ export class TanreiRadioButton extends TanreiElement {
 
   /** RAD-16: the size of its group. Set by the group it stands in; not an attribute. */
   protected groupSize = 1;
+
+  /** What a form's reset returns `checked` to: what it was first given, as a native radio button's `defaultChecked`. */
+  private readonly checkedDefault = new FormDefault(this, () => this.checked, 'checked', (text) => text !== null);
 
   /** Form association, a click on the host, Enter (src/primitives/selection.ts). */
   private readonly selection = new SelectionController(this, () => this.input, {
@@ -249,7 +253,7 @@ export class TanreiRadioButton extends TanreiElement {
   formResetCallback() {
     // RAD-25: in a radio group the group is the form's control, and returns to its own first value.
     if (this.owner) return;
-    this.checked = this.hasAttribute('checked');
+    this.checked = this.checkedDefault.value;
   }
 
   formStateRestoreCallback(state: string | null) {

@@ -175,7 +175,7 @@ export class TanreiButton extends TanreiElement {
   destructive = false;
 
   /**
-   * Visual height: `comp.button.container.height.<size>`, never below `sys.target.minimum` (36 / 40 / 56 under the
+   * Visual height: `comp.button.container.height.<size>`, its hit area never below `sys.target.minimum` (28 / 36 / 52 under the
    * default system, the small one held at the minimum), which is also an icon-only button's width at its default width.
    * The hit area always meets the minimum target. While it is not set the button draws the size its nearest container
    * sets — a button group's or a toolbar's `size` (BTN-48) — and `medium` where none does; reading it then gives
@@ -203,7 +203,7 @@ export class TanreiButton extends TanreiElement {
 
   /**
    * How wide an icon-only button is: `default` as wide as it is high, `comp.button.container.height` of its size
-   * (36 / 40 / 56 in the default system), `narrow` its glyph and
+   * (28 / 36 / 52 in the default system), `narrow` its glyph and
    * `comp.button.container.padding-inline-narrow` on each side of it (28 / 32 / 32 in the default system, whose inset
    * is 4 at every size; it has no narrow width of its own, so it follows its glyph) for a tight row of icon actions,
    * `wide` (40 / 52 / 72) for the one action of a row that should weigh more. Ignored with a label. The height does

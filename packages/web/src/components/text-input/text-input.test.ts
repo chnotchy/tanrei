@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll, warnings } from '../../../test/harness.js';
 import { coveredText } from '../../../test/covered-text.js';
 import { appearingFixture } from '../../../test/first-frame.js';
 import { expectFirstFrameAtRest } from '../../../test/frames.js';
@@ -20,6 +20,7 @@ import { buildSync } from 'esbuild';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('text-input');
 type P = Page;
@@ -44,11 +45,6 @@ const T = inputBoxToken('text-input');
 const GLYPH_UNIT = 1 / 64;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /**
  * A text input inside a Field, as a stage of its own added to the mounted page: what a sentence says of "the Field
  * that frames it". The Field is as wide as the fixtures are drawn; `field` and `props` are set as properties.
@@ -387,6 +383,24 @@ test.describe('behavior', () => {
     await expect(page.locator('fieldset tanrei-text-input').getByRole('textbox', { disabled: true })).toHaveCount(1);
   });
 
+  test('TXI-5, TXI-15: the prefix and the suffix of a disabled field are exposed as part of the disabled control — its own disabled or a fieldset’s — and not once it is enabled again', async ({ page }) => {
+    await mountHtml(
+      page,
+      `<tanrei-text-input id="own" label="Price" value="12" prefix-text="US$" suffix-text="per kg" disabled></tanrei-text-input><fieldset disabled><tanrei-text-input id="fieldset" label="Price" value="12" prefix-text="US$" suffix-text="per kg"></tanrei-text-input></fieldset><tanrei-text-input id="enabled" label="Price" value="12" prefix-text="US$" suffix-text="per kg"></tanrei-text-input>`,
+    );
+    const affixes = (id: string) => page.locator(`#${id}`).locator('[part="prefix"], [part="suffix"]');
+    for (const id of ['own', 'fieldset']) {
+      await expect(affixes(id), id).toHaveCount(2);
+      for (const affix of await affixes(id).all()) await expect(affix, id).toHaveAttribute('aria-disabled', 'true');
+    }
+    for (const affix of await affixes('enabled').all()) await expect(affix).not.toHaveAttribute('aria-disabled');
+    // Still read with the value, as TXI-15 has it: the description names both.
+    await expect(page.locator('#own input')).toHaveAttribute('aria-describedby', 'prefix suffix');
+    await page.locator('#own').evaluate((el: HTMLElement & { disabled: boolean }) => (el.disabled = false));
+    await page.locator('fieldset').evaluate((el: HTMLFieldSetElement) => (el.disabled = false));
+    for (const id of ['own', 'fieldset']) for (const affix of await affixes(id).all()) await expect(affix, `${id} enabled again`).not.toHaveAttribute('aria-disabled');
+  });
+
   test('TXI-6: hovered and focused render every part from their tokens, focused over hovered; pointer focus selects focused', async ({ page }) => {
     for (const [id, variant] of [['filled-empty', 'filled'], ['outlined-empty', 'outlined'], ['stacked-empty', 'stacked']] as const) {
       await page.mouse.move(0, 0);
@@ -475,11 +489,16 @@ test.describe('behavior', () => {
       const hit = await part(page, id, '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(hit, id).toBe(Math.max(box.height, pointer));
       // The label, the padding, the prefix, a decorative icon, and just outside the visual bounds inside the target.
+      // (Where the target is no taller than the box, as in the default system, nothing reaches outside it to press.)
       const spots = [
         [box.x + 4, box.y + box.height / 2],
         [box.x + box.width - 4, box.y + box.height / 2],
-        [box.x + box.width / 2, box.y - (pointer - box.height) / 4],
-        [box.x + box.width / 2, box.y + box.height + (pointer - box.height) / 4],
+        ...(pointer > box.height
+          ? [
+              [box.x + box.width / 2, box.y - (pointer - box.height) / 4],
+              [box.x + box.width / 2, box.y + box.height + (pointer - box.height) / 4],
+            ]
+          : []),
       ];
       const blur = () => page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
       for (const [x, y] of spots) {
@@ -894,12 +913,12 @@ test.describe('behavior', () => {
     for (const [id, size] of [['stacked-filled', 'medium'], ['stacked-large', 'large'], ['stacked-small', 'small']] as const) {
       expect((await bounds(part(page, id, '.field > .container'))).height, id).toBe(await resolveToken(page, T(`stacked-container-height-${size}`)));
     }
-    // Small: the box's small step — as tall as a small Button (36 high in the default system, held at the minimum
-    // target; 12 of padding, the body text style) — for a bar or a toolbar; its hit area still meets the minimum target.
+    // Small: the box's small step — as tall as a small Button (28 high in the default system, its hit area reaching
+    // the minimum target; 12 of padding, the body text style) — for a bar or a toolbar; its hit area still meets the minimum target.
     {
       const small = await bounds(part(page, 'stacked-small', '.field > .container'));
       expect([small.height, (await bounds(input(page, 'stacked-small'))).x - small.x]).toEqual([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]);
-      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([36, 12]);
+      expect([await resolveToken(page, T('stacked-container-height-small')), await resolveToken(page, T('container-padding-inline-small'))]).toEqual([28, 12]);
       expect(Number.parseFloat(await css(input(page, 'stacked-small'), 'font-size'))).toBe(await resolveToken(page, T('input-typescale-small-font-size')));
       const target = await part(page, 'stacked-small', '.field > .container').evaluate((el) => Number.parseFloat(getComputedStyle(el, '::before').height));
       expect(target).toBe(Math.max(small.height, await resolveToken(page, '--tanrei-sys-target-pointer')));
@@ -1920,12 +1939,12 @@ test.describe('behavior', () => {
     const id = 'stacked-multiline-auto-grown';
     const below = async () => (await bounds(page.locator('[data-fixture="stacked-multiline-auto-max"]'))).y;
     const [before, belowBefore] = [await lines(id), await below()];
-    await host(page, id).evaluate((el) => ((el as HTMLElement).style.inlineSize = '140px'));
+    await restyle(host(page, id), { 'inline-size': '140px' });
     await expect.poll(() => lines(id)).toBeGreaterThan(before + 0.9);
     const narrow = await lines(id);
     expect(await input(page, id).evaluate((el) => el.scrollHeight <= el.clientHeight + 1), 'every line fits').toBe(true);
     expect((await below()) - belowBefore).toBeCloseTo((narrow - before) * lineOf, 0);
-    await host(page, id).evaluate((el) => ((el as HTMLElement).style.inlineSize = '280px'));
+    await restyle(host(page, id), { 'inline-size': '280px' });
     await expect.poll(() => lines(id)).toBeCloseTo(before, 1);
     // A value the product sets, and deleting.
     await host(page, id).evaluate((el) => ((el as any).value = 'one\ntwo\nthree'));
@@ -3963,7 +3982,7 @@ test.describe('the resize handle', () => {
     await part(page, 'both', GRIP).evaluate((el) => (el as HTMLElement).click());
     await expect.poll(() => width('both')).toBeCloseTo(240, 0);
     // Never wider than the field's own maximum width.
-    await host(page, 'both').evaluate((el) => (el.style.maxInlineSize = '320px'));
+    await restyle(host(page, 'both'), { 'max-inline-size': '320px' });
     await part(page, 'both', GRIP).click();
     await expect.poll(() => width('both')).toBeCloseTo(320, 0);
     await part(page, 'both', GRIP).click();
@@ -4566,9 +4585,46 @@ test.describe('a field that holds code', () => {
       if (each === id) await page.keyboard.press(LINE_END);
       else for (let presses = 0; presses < 4; presses++) await page.keyboard.press(readOnlyKey);
       await expect.poll(() => boxOf(input(page, each)).then((box) => box.scrollLeft), each).toBeGreaterThan(0);
-      // The input's padding after the longest line scrolls with it: the last character can be brought to the end.
-      const box = await boxOf(input(page, each));
-      if (each === id) expect(box.scrollLeft, each).toBeCloseTo(box.scrollWidth - box.clientWidth, 0);
+      // The input's padding after the longest line scrolls with it: the last character can be brought clear of the edge.
+      // What is measured is that character's ink against the input's view, not the scroll position against its range:
+      // a line of a face whose advance is not a whole pixel is a fraction wider than the whole-pixel scroll range the
+      // engine rounds it to, and WebKit's End stops a pixel short of that range with the last character in full view.
+      // The ink is read from the character's pixels (drawn alone, four times over), the same way in every engine:
+      // WebKit's measureText() gives the advance for a glyph's ink edge.
+      if (each === id) {
+        const { right, view, advance } = await input(page, each).evaluate((el) => {
+          const field = el as HTMLTextAreaElement;
+          const style = getComputedStyle(field);
+          const line = field.value.slice(0, field.selectionStart).split('\n').pop()!;
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+          const font = (scale: number) => `${style.fontStyle} ${style.fontWeight} ${Number.parseFloat(style.fontSize) * scale}px ${style.fontFamily}`;
+          ctx.font = font(1);
+          if (style.letterSpacing !== 'normal' && Number.parseFloat(style.letterSpacing) !== 0) throw new Error('the ink is measured without letter spacing; the code face has none');
+          const last = line.slice(-1);
+          const advance = ctx.measureText(last).width;
+          // The last character's ink: its rightmost painted column, drawn at four times the size.
+          const scale = 4;
+          canvas.width = Math.ceil(advance * scale * 2) + 8;
+          canvas.height = Math.ceil(Number.parseFloat(style.fontSize) * scale * 2);
+          ctx.font = font(scale);
+          ctx.textBaseline = 'middle';
+          ctx.fillText(last, 0, canvas.height / 2);
+          const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let column = -1;
+          for (let x = canvas.width - 1; x >= 0 && column < 0; x--) for (let y = 0; y < canvas.height; y++) if (data[(y * canvas.width + x) * 4 + 3]) { column = x; break; }
+          if (column < 0) throw new Error(`the last character ${JSON.stringify(last)} paints nothing`);
+          ctx.font = font(1);
+          return {
+            // The right edge of the ink of the caret's line, in the input's view.
+            right: Number.parseFloat(style.paddingLeft) + ctx.measureText(line.slice(0, -1)).width + (column + 1) / scale - field.scrollLeft,
+            view: field.clientWidth - Number.parseFloat(style.paddingRight),
+            advance,
+          };
+        });
+        expect(right, `${each}: the last character is in view`).toBeLessThanOrEqual(view);
+        expect(view - right, `${each}: and stands at the end of the view`).toBeLessThan(advance);
+      }
       expect(await places(each), each).toEqual(before);
       expect(await valueOf(page, each), each).toBe(value);
       // Focus is shown on the container, which does not scroll (TXI-7): the stacked field's inner line, in the focused color.

@@ -179,13 +179,38 @@ runs. Import the stylesheet of each one you use (or link `dist/<name>.css`):
 page on the surface, its text on-surface in the body face, no margin on `<body>`); a preset's `systems/<id>.css` is not
 in it, and neither is the cloak.
 
+## Your own focus ring
+
+Every Tanrei element draws its own keyboard focus indicator, from the system's focus tokens
+(`--tanrei-sys-focus-offset`, `-inner-width`, `-outer-width`, `--tanrei-sys-color-focus-ring`, `-ring-inner`): change
+those to change it. A rule of your page for every focused element — `:focus-visible { outline: … }`, a reset's — can
+stay. An element whose host takes focus itself (a tab, a tab panel, a list item, a menubar's menu) draws its ring on a
+box inside it and says `outline: none !important` on its host: a page's own rules win over a shadow root's, except
+over an important one, so your outline is not drawn around it as well.
+
+The stylesheets for your own markup (`table.css`, `link.css`, `prose.css`, `code.css` and the others above) are in
+`@layer tanrei.components`, and a rule outside any layer wins over every layered one: unlayered, your focus rule
+replaces their rings with yours. Put it in a layer of your own named before Tanrei's, in the first stylesheet the page
+loads, and theirs are drawn as they are:
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## Before the elements are defined
 
 Until its script has run, an element is unknown to the browser: the page shows what is written between its tags,
 unstyled, and moves when the element is defined. `cloak.css` hides every Tanrei element until it is defined, holds
 each element whose height its tokens give at that height — a control (a button, a text input, a checkbox, tabs…), a
 field with its label and its help (a text field, a select field…), a group of fields or of choices, a list row, a
-stepper, a snackbar and others — and takes an element whose surface is in the top layer (a dialog, a popover) out of
+stepper, a snackbar, a calendar and others — and takes an element whose surface is in the top layer (a dialog, a popover) out of
 the page:
 
 ```js
@@ -193,10 +218,34 @@ import '@tanrei/web/cloak.css';
 ```
 
 Opt in: it is in no other stylesheet, `tanrei.css` included, because an element stays hidden for as long as it is not
-defined — on a page whose script never arrives, its content is never shown. A control's width is not held, so lay out
-controls that stand side by side in a row of their own (a flex row with a gap) rather than in a line of text. A text is
-held at one line: a label or a help that wraps moves what is below it by the lines it adds. The stylesheet's comment
-lists what it does not hold.
+defined — on a page whose script never arrives, its content is never shown. A control's width is held: its words —
+from an attribute (a tag's `label`, a checkbox's, a radio button's, a switch's, a main action button's, a button with
+menu's, a segment's) or written between its tags (a button's label) — in the label's text style, with the glyph's box
+in place of a glyph's name, between its paddings; a button group and a segmented button lay their items out as they
+will, and a button defined before its connected group keeps the room the group will give it. Whichever of a button
+and its button group or toolbar is defined first, the button is drawn, and held, at the size the group or the toolbar
+sets: a button reads the size of a group or a toolbar that is not defined yet from its `size` attribute. Write a button's glyph before its label (`<span slot="icon">arrow_forward</span>Next`), also where it is drawn
+after it (`icon-position="trailing"`): the cloak gives the first thing written in a button the glyph's box. Two widths
+are not held: a button named by `label` that has words beside its glyph is held as an icon-only one, and a labelled
+copy button is as wide as the texts it is given as attributes (`label`, `copied-label`,
+`failed-label`), not the words of the page's language it falls back to. A text is held at one line — but the label a checkbox, a radio button or a
+switch draws, which wraps where it will: a label or a help that wraps moves what is below it by the lines it adds. The
+stylesheet's comment lists what it does not hold.
+
+A keyboard shortcut in a line of text is not held by the cloak: its width is its keys, and the keys are the reader's
+(⇧⌘K on Apple's platforms, Ctrl+Shift+K elsewhere). A page written on a server writes the keys the element will draw
+between its tags, and `keyboard-shortcut.css` draws them until it is defined, in the reader's convention:
+
+```js
+import { keyboardPlatformScript, keyboardShortcutContent } from '@tanrei/web/keyboard-convention';
+import '@tanrei/web/keyboard-shortcut.css';
+
+const head = `<script>${keyboardPlatformScript()}</script>`; // the platform's convention on <html>, by the element's own test
+const shortcut = `<tanrei-keyboard-shortcut keys="mod+k" label="Command K">${keyboardShortcutContent('mod+k', { label: 'Command K' })}</tanrei-keyboard-shortcut>`;
+```
+
+The content holds the keys in both conventions and the text read in their place; the stylesheet shows the shortcut's
+own `convention`, else an ancestor's `data-tanrei-keyboard-convention`, else the platform's, as the element does.
 
 ## Browser support
 

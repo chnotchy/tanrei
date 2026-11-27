@@ -62,14 +62,17 @@ const customEvents = (el) => (el.events ?? []).filter((e) => !NATIVE_EVENTS.has(
 const marksOf = (el) => (el.attributes ?? []).filter((a) => !a.fieldName && !/^deprecated\b/i.test(a.description ?? ''));
 // What a wrapper writes as attributes when it renders on a server (src/server.ts): each property of the element that
 // has an attribute, under the attribute's name, with the value the element has while the attribute is absent where the
-// manifest's default is a literal; and each mark, by its name (a boolean one is absent while false).
+// manifest's default is a literal — a primitive, or a list of them (`[]`, `['top', 'bottom']`), so that a list at its
+// default writes nothing either; and each mark, by its name (a boolean one is absent while false).
+const primitive = (value) => value === null || ['string', 'number', 'boolean'].includes(typeof value);
 const literal = (text) => {
   if (text === undefined) return undefined;
   const quoted = /^'((?:[^'\\]|\\.)*)'$/.exec(text);
   if (quoted) return { value: quoted[1].replace(/\\(.)/g, '$1') };
   try {
-    const value = JSON.parse(text);
-    return value === null || ['string', 'number', 'boolean'].includes(typeof value) ? { value } : undefined;
+    // A list's strings are written in single quotes in source: as JSON, each is the same string in double ones.
+    const value = JSON.parse(!text.startsWith('[') ? text : text.replace(/'((?:[^'\\]|\\.)*)'/g, (_, inner) => JSON.stringify(inner.replace(/\\(.)/g, '$1'))));
+    return primitive(value) || (Array.isArray(value) && value.every(primitive)) ? { value } : undefined;
   } catch {
     return undefined;
   }
@@ -83,7 +86,7 @@ const serverAttributesOf = (el, marks) => {
     });
   for (const mark of marks) if (!entries.some(([prop]) => prop === mark.name)) entries.push([mark.name, mark.type?.text === 'boolean' ? [mark.name, false] : [mark.name]]);
   const key = (name) => (/^[A-Za-z_$][\w$]*$/.test(name) ? name : JSON.stringify(name));
-  const value = (v) => (typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : JSON.stringify(v));
+  const value = (v) => (typeof v === 'string' ? `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'` : Array.isArray(v) ? `[${v.map(value).join(', ')}]` : JSON.stringify(v));
   return `{ ${entries.map(([prop, entry]) => `${key(prop)}: [${entry.map(value).join(', ')}]`).join(', ')} }`;
 };
 const oneLine = (text) => (text ?? '').replace(/\s+/g, ' ').trim().replace(/\*\//g, '*\\/');

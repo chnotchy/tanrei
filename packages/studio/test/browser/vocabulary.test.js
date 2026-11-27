@@ -88,7 +88,7 @@ studioTest('Add…: a size "3x", a variant, a step and an own token — previewe
 studioTest('Inspect’s tokens: a choice of kind is a name picker, the operations are an ARIA tablist, a font stack gets the stack editor — and the rows’ panels show the same entries', {}, async ({ page, section, inspect, saved, choose }) => {
   await page.evaluate(() => window.tanreiStudio.applyOperation('tanrei.sys.behavior.pressed-feedback', { $value: 1, reason: 'How this product behaves.' }));
   await inspect('tokens');
-  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['tree', 'rules']);
+  assert.deepEqual(await page.locator('[data-inspect-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['tree', 'rules']);
   await page.locator('[data-search] input').fill('pressed-feedback');
   await page.locator('[data-token="tanrei.sys.behavior.pressed-feedback"]').click();
   const editor = page.locator('[data-editor="tanrei.sys.behavior.pressed-feedback"]');
@@ -143,7 +143,7 @@ studioTest('Inspect’s tokens: a choice of kind is a name picker, the operation
 studioTest('Source: text that does not parse is kept word for word — across the panel’s sections, an autosave and a reload — shown as a badge, and never saved', {}, async ({ page, section, inspect, saved, onDisk, file }) => {
   const fs = await import('node:fs');
   await inspect('source');
-  assert.deepEqual(await page.locator('[data-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['source']);
+  assert.deepEqual(await page.locator('[data-inspect-controls] [data-panel]').evaluateAll((els) => els.map((el) => el.dataset.panel)), ['source']);
   const area = page.locator('[data-source]');
   assert.deepEqual(JSON.parse(await area.inputValue()), onDisk(), 'Source IS the layer');
   await area.click();
@@ -153,7 +153,7 @@ studioTest('Source: text that does not parse is kept word for word — across th
   assert.ok(await page.locator('[data-draft-note]').isVisible());
   await section('dials');
   // The badge stands in the bar: it says it, in words, wherever the person is.
-  assert.equal(await page.locator('[data-bar] [data-draft-badge]').evaluate((chip) => chip.label), 'Source has invalid edits');
+  assert.equal(await page.locator('[data-bar] [data-draft-badge]').evaluate((chip) => chip.label), 'The JSON has invalid edits');
   // An edit elsewhere is autosaved: what is saved is a valid layer, never the draft.
   await page.locator('[data-dial="tanrei.dial.space.unit"] tanrei-number-field input').fill('9');
   await page.keyboard.press('Tab');

@@ -4,9 +4,10 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, declarations, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, tab, typeRole } from '../../../test/harness.js';
+import { type Fixture, declarations, loadSpec, mountFixtureAsInAll, mountFixtures, resolveColor, resolveToken, rootTokens, tab, typeRole, warnings } from '../../../test/harness.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { laidOutBox } from '../../../test/laid-out-box.js';
 
 const spec = loadSpec('swatch');
 type P = Page;
@@ -19,19 +20,13 @@ const label = (host: Locator) => host.locator('.label');
 const supporting = (host: Locator) => host.locator('.supporting');
 const T = (name: string) => `--tanrei-comp-swatch-${name}`;
 const token = (page: P, name: string) => resolveToken(page, T(name));
-const box = async (locator: Locator) => (await locator.boundingBox())!;
+/** A box as the engine laid it out (test/laid-out-box.ts): a swatch below a line of the page's text keeps its size in Firefox. */
+const box = laidOutBox;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
 const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
 const mount = (page: P, fixtures: Fixture[] = spec.fixtures, options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { fixtures, ...options });
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));

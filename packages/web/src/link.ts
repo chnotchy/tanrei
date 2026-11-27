@@ -2,7 +2,9 @@
 // uses `class="tanrei-link"` or `.tanrei-prose` without the components. `@tanrei/web` loads it too.
 //
 // The Link is a class on the product's own anchor, and the stylesheet alone draws it in every state. This adds what a
-// stylesheet cannot, through listeners on the document — no anchor is wrapped, replaced or given a listener of its own:
+// stylesheet cannot, through listeners on the document, and on each shadow root an element of the package drawn in the
+// light DOM is used in (an app shell's skip link in a product's view) — no anchor is wrapped, replaced or given a
+// listener of its own:
 //
 //   - the shared press primitive (LNK-8, LNK-9): `data-pressed` named after `sys.behavior.pressed-feedback` (overlay,
 //     ripple, dim, none), on pointer down and on Enter — never Space (LNK-12) — held for press-hold;
@@ -32,8 +34,9 @@ import { isExternal } from './links/index.js';
 import { syncFocusStyle } from './primitives/focus-ring.js';
 import { LINK_KEYS, linkRel, readDestination } from './primitives/link.js';
 import { PressController } from './primitives/press.js';
+import { hearHostRoots } from './primitives/host-roots.js';
 import { report } from './primitives/report.js';
-import { styleQueries } from './primitives/separation.js';
+import { styleQueries, whenNoStyleQueries } from './primitives/separation.js';
 import { setWords, watchWords, wordFor, wordLacking } from './primitives/words.js';
 import { DEBUG } from './primitives/debug.js';
 
@@ -500,20 +503,35 @@ function pressOf(anchor: HTMLAnchorElement): PressController {
  * first one's place instead of answering every press twice.
  */
 const OBSERVING = Symbol.for('tanrei.observe-links');
-type Stop = (() => void) & { owner?: object };
+/** What ends a root's observation, whoever holds it; `callers` is how many of this copy's callers still hold it. */
+type Stop = (() => void) & { owner?: object; callers?: number };
 type Observed = (Document | ShadowRoot) & { [OBSERVING]?: Stop };
 const OWNER = {};
 
+/** One caller's hold on the observation `stop` ends: the first call of the function it returns lets go, once. */
+function holdOn(stop: Stop): () => void {
+  stop.callers = (stop.callers ?? 0) + 1;
+  let held = true;
+  return () => {
+    if (!held) return;
+    held = false;
+    stop.callers = (stop.callers ?? 1) - 1;
+    if (!stop.callers) stop();
+  };
+}
+
 /**
  * Adds the script side of the Link to every `a.tanrei-link` and every anchor of a `.tanrei-prose` under `root`, now
- * and as the page changes. `@tanrei/web` and `@tanrei/web/link` call it for the document when they load; call it
- * yourself for a shadow root of your own, which the document's listeners cannot see into. Calling it twice for one root
- * observes once. Returns a function that stops (what was already written on an anchor stays).
+ * and as the page changes. `@tanrei/web` and `@tanrei/web/link` call it for the document when they load, and for each
+ * shadow root that an element of the package (an app shell, a table, a dialog) is used in, while it is used there
+ * (src/primitives/host-roots.ts). Call it yourself for a shadow root of your own that holds none of them, which the
+ * document's listeners cannot see into. Calling it twice for one root observes once. Returns a function that lets go of
+ * the observation: the root is observed until every caller has let go (what was already written on an anchor stays).
  */
 export function observeLinks(root: Document | ShadowRoot = document): () => void {
   const observed = root as Observed;
   const running = observed[OBSERVING];
-  if (running?.owner === OWNER) return running;
+  if (running?.owner === OWNER) return holdOn(running);
   if (typeof MutationObserver === 'undefined') return () => {};
   running?.();
   let held: { anchor: HTMLAnchorElement; press: PressController } | null = null;
@@ -603,8 +621,8 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
         if (record.target instanceof HTMLAnchorElement) anchors.add(record.target);
         continue;
       }
-      // A glyph or a text added to an anchor changes what names it.
-      const around = record.target instanceof Element ? record.target.closest('a') : null;
+      // A glyph or a text added to an anchor, or its text changed in place, changes what names it and its direction.
+      const around = (record.target instanceof Element ? record.target : record.target.parentElement)?.closest('a');
       if (around) anchors.add(around);
       for (const node of record.addedNodes) {
         if (!(node instanceof Element)) continue;
@@ -614,14 +632,27 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
     }
     readAll(links(anchors));
   });
-  observer.observe(root, { attributes: true, attributeFilter: ATTRIBUTES, childList: true, subtree: true });
+  observer.observe(root, { attributes: true, attributeFilter: ATTRIBUTES, childList: true, characterData: true, subtree: true });
   // Where there are no style queries the root's own attributes may name another design system: its choices are read again.
-  const systemObserver = styleQueries() ? null : new MutationObserver(() => syncSystem(doc));
-  systemObserver?.observe(doc.documentElement, { attributes: true });
+  let systemObserver: MutationObserver | null = null;
+  const watchSystem = () => {
+    if (systemObserver || styleQueries()) return;
+    systemObserver = new MutationObserver(() => syncSystem(doc));
+    systemObserver.observe(doc.documentElement, { attributes: true });
+  };
+  watchSystem();
   syncSystem(doc);
   const reread = () => readAll(links(root.querySelectorAll('a')));
   settings().reread.add(reread);
   reread();
+  // Asked before the document was painted, `styleQueries()` answers yes until its probe has answered: a no then has
+  // the root's choices watched and read, and every link read again.
+  whenNoStyleQueries(() => {
+    if (observed[OBSERVING] !== stop) return;
+    watchSystem();
+    syncSystem(doc);
+    reread();
+  });
 
   const stop = () => {
     observer.disconnect();
@@ -631,8 +662,29 @@ export function observeLinks(root: Document | ShadowRoot = document): () => void
     release();
     if (observed[OBSERVING] === stop) delete observed[OBSERVING];
   };
-  observed[OBSERVING] = Object.assign(stop, { owner: OWNER });
-  return stop;
+  observed[OBSERVING] = Object.assign(stop, { owner: OWNER, callers: 0 });
+  return holdOn(stop);
 }
 
-if (typeof document !== 'undefined') observeLinks(document);
+/** For each element of the package connected in a shadow root, its hold on that root's observation. */
+const heldRoots = new WeakMap<Element, () => void>();
+
+/**
+ * Observes, with `observeLinks()`, each shadow root an element of the package (an app shell, a table, a dialog) is
+ * connected in, while it is connected there: the links the product puts in it — an app shell's skip link, a link in a
+ * cell or slotted into a dialog's body — are given what the script adds, as in the document, whose listeners cannot see
+ * into a shadow root. Each element holds on to its root, so the root is let go when the last one leaves it (or when
+ * nothing else holds it: a product's own call keeps it).
+ */
+function observeLinksWhereUsed(): void {
+  hearHostRoots((host, root) => {
+    heldRoots.get(host)?.();
+    heldRoots.delete(host);
+    if (root) heldRoots.set(host, observeLinks(root));
+  });
+}
+
+if (typeof document !== 'undefined') {
+  observeLinks(document);
+  observeLinksWhereUsed();
+}

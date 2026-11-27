@@ -60,7 +60,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "A key cap's minimum height, per size; also its minimum width, so a single letter sits on a square key. Small sits in a line of body text or a menu row without making the line taller; medium sits with larger text and on its own.",
+            "$description": "A key cap's minimum height, per size; also its minimum width, so a single letter sits on a square key. Small sits in a line of body text or a menu row without making the line taller; medium sits with larger text and on its own. Both are sizes of their own, six and five size units (24 and 20 in the default system), sized by the text and not by the control height: a key cap is no control.",
             "small": {
               "$value": {
                 "value": 20,
@@ -76,7 +76,18 @@
               }
             },
             "medium": {
-              "$value": "{tanrei.sys.control.height.extra-small}"
+              "$value": {
+                "value": 24,
+                "unit": "px"
+              },
+              "$extensions": {
+                "dev.tanrei.derive": {
+                  "fn": "mul",
+                  "of": "{tanrei.dial.size.unit}",
+                  "by": 6,
+                  "round": "{tanrei.dial.size.unit}"
+                }
+              }
             }
           },
           "padding-inline": {

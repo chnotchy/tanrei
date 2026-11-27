@@ -308,9 +308,9 @@ export class TanreiSegment extends TanreiElement {
  * `change`, as a native control does.
  *
  * Every visual value comes from `--tanrei-comp-segmented-button-*` tokens: the set's fill, outline, corners and
- * padding, the dividers, per size the segments' height, paddings, gap, label style, icon and check sizes, and per
- * condition (unselected, selected) and state each segment's colors and elevation. How a press is answered and how
- * keyboard focus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`), read from the cascade.
+ * padding, the dividers, per size the set's height and a segment's paddings, gap, label style, icon and check sizes,
+ * and per condition (unselected, selected) and state each segment's colors and elevation. How a press is answered and
+ * how keyboard focus is drawn are the system's choices of kind (`--tanrei-sys-behavior-*`), read from the cascade.
  *
  * @tag tanrei-segmented-button
  * @slot - `<tanrei-segment>` children: the segments.
@@ -341,7 +341,7 @@ export class TanreiSegmentedButton extends TanreiElement {
   /** The values of the selected segments while `selection` is multiple. Assign a new array to change it; the set assigns one when a segment is switched. */
   values: string[] = [];
 
-  /** Visual height (32 / 36 / 40 in the default system, Button's heights). The hit area always meets the minimum target. */
+  /** Visual height (28 / 36 / 52 in the default system, Button's heights; the hit area of the small one reaches the minimum target). The hit area always meets the minimum target. */
   size: TanreiSegmentedButtonSize = 'medium';
 
   /**

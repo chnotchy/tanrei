@@ -355,7 +355,7 @@ export const itemStyles = css`
   :host {
     display: block;
     /* The ring is drawn on the container, never around the host. */
-    outline: none;
+    outline: none !important;
   }
   ${appearance}
   .container {

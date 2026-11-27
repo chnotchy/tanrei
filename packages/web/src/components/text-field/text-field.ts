@@ -111,7 +111,7 @@ const INPUT_PARTS = exported(TanreiTextInput, { label: { as: 'text-input-label',
  * that the pair by hand does not: while `counter` is set it gives its Field the count its text input keeps, at every
  * change (TXF-67) — by hand a product writes `field.countText = input.countText` in its `input` listener.
  *
- * Form-associated: it submits the value under `name` — nothing while disabled —, resets to its `value` attribute, is
+ * Form-associated: it submits the value under `name` — nothing while disabled —, resets to the value it was first given, is
  * restored on navigation, follows a disabled `<fieldset>`, and reports what its text input reports: a missing value
  * while `required` is set and it is empty, and a date's or a time's entry error. Enter in a single-line
  * field presses the default button of this element's form.

@@ -1,6 +1,7 @@
 import { type PropertyDeclarations, type PropertyValues, css, html } from 'lit';
 import { ComposedControl, type ValueMember, composedHost, exported, forward, fieldDelegatesAria } from '../../primitives/composed.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import type { FormEntry } from '../../primitives/form-says.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { report } from '../../primitives/report.js';
@@ -72,7 +73,7 @@ const BETWEEN = ' – ';
  * element as their target: `event.target.value` is the new value in every listener. It dispatches none itself.
  *
  * Form-associated: it submits the value under `name` — a range the start value and then the value, under the one name;
- * nothing while disabled —, resets to its `value` and `start-value` attributes, is restored on navigation and follows a
+ * nothing while disabled —, resets to the values it was first given, is restored on navigation and follows a
  * disabled `<fieldset>`.
  *
  * The element is not focusable itself and has no role: `focus()` goes to the handle — a range's start handle — and its
@@ -252,15 +253,18 @@ export class TanreiSliderField extends ComposedControl<number> {
     return this.slider;
   }
 
-  /** The value a form's reset returns to — the `value` attribute, as a number; 0 without one, as the Slider's. */
-  protected override firstValue(): number {
-    return this.hasAttribute('value') ? Number(this.getAttribute('value')) : 0;
+  /** The `value` attribute, as a number; 0 without one, as the Slider's. */
+  protected override valueFromAttribute(text: string | null): number {
+    return text === null ? 0 : Number(text);
   }
 
-  /** A form's reset returns a range's start value too, to the `start-value` attribute. */
+  /** What a form's reset returns a range's start value to: what it was first given, as for the value. */
+  private readonly startDefault = new FormDefault(this, () => this.startValue, 'start-value', (text) => (text === null ? 0 : Number(text)));
+
+  /** A form's reset returns a range's start value too. */
   override formResetCallback() {
     super.formResetCallback();
-    this.startValue = this.hasAttribute('start-value') ? Number(this.getAttribute('start-value')) : 0;
+    this.startValue = this.startDefault.value;
   }
 
   /** A restore is passed on: the Slider restores both values; both are then the Slider's. */

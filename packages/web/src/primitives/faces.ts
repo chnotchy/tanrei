@@ -41,11 +41,37 @@ function loadEnded(event: Event) {
 const asked = new Set<FacesWatch>();
 /** Whether a load that was under way when the page's fonts were first listened to (`connect`) is still under way. */
 let unheard = false;
+/**
+ * Whether the page's fonts were first listened to while the document was loading, and the set has not been asked
+ * since whether a load is under way (`connect`). Until it is, a watcher that measures is asked about in the next frame
+ * callback with the others: if a load is under way then, it waits for the faces as one `connect` found would; if none
+ * is, one may have ended since it measured with no event to say so, and it is told to measure again there.
+ */
+let connecting = false;
+/** The frame callback that asks the set (`askStatus`), while one is requested. */
+let frame = 0;
+
+function askSoon() {
+  if (!frame) frame = requestAnimationFrame(askStatus);
+}
 
 function askStatus() {
+  frame = 0;
   const fonts = fontSet();
-  if (fonts?.status === 'loading') for (const watch of asked) if (connected.has(watch)) waitFor(watch, fonts);
+  const watches = [...asked].filter((watch) => connected.has(watch));
   asked.clear();
+  if (!fonts) return;
+  const loading = fonts.status === 'loading';
+  if (connecting) {
+    connecting = false;
+    if (loading) void fonts.ready.then(() => (unheard = false));
+    else {
+      unheard = false;
+      for (const watch of watches) connected.get(watch)?.();
+      return;
+    }
+  }
+  if (loading) for (const watch of watches) waitFor(watch, fonts);
 }
 
 /** `watch` is told when the faces are ready. */
@@ -83,8 +109,16 @@ export class FacesWatch {
       fonts.addEventListener('loadingdone', loadEnded);
       fonts.addEventListener('loadingerror', loadEnded);
       // A load already under way is one no `loadingdone` may tell of (WebKit on Linux): until the faces are ready, a
-      // measurement waits for them without asking.
-      if (fonts.status === 'loading') {
+      // measurement waits for them without asking. While the document is still loading one is taken to be under way,
+      // and the set is asked in the next frame callback (`askStatus`), with the style that frame computes anyway:
+      // `status` is a read of the page's style in WebKit, and `ready` in Chromium, and asked here — in the connection
+      // of the page's first host, while its modules upgrade one kind of element after another — they styled the whole
+      // page there and then, in a task of its own (three quarters of a second of a long page's load in CI's WebKit).
+      if (document.readyState !== 'complete') {
+        unheard = true;
+        connecting = true;
+        askSoon();
+      } else if (fonts.status === 'loading') {
         unheard = true;
         void fonts.ready.then(() => (unheard = false));
       }
@@ -110,8 +144,8 @@ export class FacesWatch {
   measured() {
     const fonts = fontSet();
     if (!fonts || !connected.has(this)) return;
-    if (unheard) return waitFor(this, fonts);
-    if (!asked.size) requestAnimationFrame(askStatus);
+    if (unheard && !connecting) return waitFor(this, fonts);
+    askSoon();
     asked.add(this);
   }
 

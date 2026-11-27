@@ -5,8 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import {
-  type Fixture,
+import { type Fixture,
   type FixtureItem,
   acmeSystemCss,
   iconFaceArrives,
@@ -17,8 +16,7 @@ import {
   tab,
   tabTo,
   withoutIconFont,
-  rootTokens,
-} from '../../../test/harness.js';
+  rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { opticalSizeAxis } from '../../../test/icons.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
@@ -38,13 +36,6 @@ const token = (page: P, name: string) => page.evaluate((n) => getComputedStyle(d
 const T = (name: string) => `--tanrei-comp-segmented-button-${name}`;
 const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** A shadow resolved through a real property, as the browser serializes it. */
 const resolveShadow = (page: P, name: string) =>
   page.evaluate((n) => {
@@ -780,13 +771,14 @@ test.describe('states, press, target, corners and focus style', () => {
 
   test('SEG-6: each segment’s hit area reaches the minimum target above and below the set without changing its size, and each segment is at least the target wide — pointer, and touch for a coarse pointer', async ({ page, browserName }) => {
     await mountFixtures(page, spec, { icons: true });
-    // The default system's medium set is the control height (40), above its targets (36): the set is made shorter than
-    // the targets by a layer that sets them to 48, a platform guideline's.
+    // The default system's medium set is the control height (36), as tall as its targets (36): the set is made shorter
+    // than the targets by a layer that sets them to 48, a platform guideline's.
     await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
     const pointer = await resolveToken(page, '--tanrei-sys-target-pointer');
     expect(pointer).toBe(48);
     const b = await bounds(btn(page, 'icon-only', 1));
-    expect(b.height).toBeCloseTo(await resolveToken(page, T('container-height-medium')), 1);
+    // A segment is the set's height less set.padding above and below (SEG-13, SEG-32).
+    expect(b.height).toBeCloseTo((await resolveToken(page, T('container-height-medium'))) - 2 * (await resolveToken(page, T('set-padding'))), 1);
     expect(b.width).toBeGreaterThanOrEqual(pointer - 0.5);
     const target = await btn(page, 'icon-only', 1).evaluate((el) => {
       const r = getComputedStyle(el, '::before');

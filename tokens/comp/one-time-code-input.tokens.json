@@ -58,10 +58,10 @@
           "height": {
             "$type": "dimension",
             "$value": {
-              "value": 40,
+              "value": 36,
               "unit": "px"
             },
-            "$description": "Minimum height of a cell: the control height (40 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell.",
+            "$description": "Minimum height of a cell: the control height (36 in the default system), a medium text field's, so that a code input and a text field in one form, and the Button that sends the code, are equally tall. Never below the minimum target: a finger aims at each cell.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",

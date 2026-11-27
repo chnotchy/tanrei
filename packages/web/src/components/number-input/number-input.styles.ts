@@ -96,7 +96,7 @@ export const styles = css`
     display: flex;
     flex-direction: column;
     min-inline-size: min-content;
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;

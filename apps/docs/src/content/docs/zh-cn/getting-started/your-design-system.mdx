@@ -54,7 +54,7 @@ npm install --save-dev path/to/tanrei-packages/tanrei-cli-*.tgz path/to/tanrei-p
    npx tanrei init acme --extends tanrei
    ```
 
-   这会写出 `design/acme.system.json` 和 `tanrei.json`。更喜欢用滑块？那就在 [Theme Studio](/zh-cn/foundations/theme-studio/) 里调整这个层，然后把它下载下来。
+   这会写出 `design/acme.system.json` 和 `tanrei.json`。更喜欢用滑块？那就在 [Theme Studio](/zh-cn/foundations/theme-studio/) 里调整这个层，然后把它下载下来：`npx tanrei init --from acme.system.json` 会检查下载的文件，把它复制到 `design/acme.system.json`，并写出 `tanrei.json`。
 
 2. **在 `tanrei.json` 中指明每项输出写到哪里。** 只列出你要发布的平台。
 

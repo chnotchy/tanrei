@@ -1,6 +1,8 @@
 import { type CSSResultGroup, type CSSResultOrNative, LitElement, ReactiveElement } from 'lit';
 import { settleStyles, stillPointerStyles } from '../styles/motion.js';
 import { flatParent, focusedIn } from './flat-tree.js';
+import { takeFormDefaults } from './form-default.js';
+import { hostRoot } from './host-roots.js';
 import { Settle } from './motion.js';
 
 // The base every element of this package extends, so that what each of them owes from its first frame is written once.
@@ -132,12 +134,27 @@ async function keep(element: Element, options: FocusOptions | undefined, was: El
 
 /**
  * An element of this package with a shadow root: MOT-3's settling, its rule composed last in the element's styles, and
- * a `focus()` called before it (or what holds it) has drawn kept until it has.
+ * a `focus()` called before it (or what holds it) has drawn kept until it has. It tells when it is connected and
+ * disconnected, as a light-DOM element does (src/primitives/host-roots.ts): what the product slots into it stays in the
+ * product's shadow root, so a `.tanrei-icon` in a dialog's body or a button's label is marked to mirror in
+ * right-to-left, and a `.tanrei-link` there is given what the Link's script adds. Not in the shadow root of another
+ * element of the package, whose content the package draws itself (an app bar's buttons).
  */
 export abstract class TanreiElement extends LitElement {
   constructor() {
     super();
     new Settle(this);
+  }
+
+  override connectedCallback() {
+    super.connectedCallback();
+    const root = this.getRootNode() as ShadowRoot;
+    hostRoot(this, root.host instanceof TanreiElement ? null : root);
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    hostRoot(this, null);
   }
 
   /**
@@ -171,6 +188,17 @@ export abstract class TanreiElement extends LitElement {
     super.focus(options);
   }
 
+  /**
+   * @internal What the element holds at its next update is what the product gave it first: the default a form's reset
+   * returns its value to (`FormDefault`, src/primitives/form-default.ts). A framework's binding calls it once the element
+   * is mounted with its first props — `@tanrei/react` does, so that a page rendered on a server, whose lists arrive
+   * after the element first drew, resets to them as the same page rendered by the client does. Nothing for an element
+   * that holds no form value.
+   */
+  takeFormDefaults() {
+    takeFormDefaults(this);
+  }
+
   /** `blur()` gives up a focus kept until the element has drawn. */
   protected forgetKeptFocus() {
     if (latest?.element === this) latest = null;
@@ -191,10 +219,26 @@ export abstract class TanreiElement extends LitElement {
   }
 }
 
-/** An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule (`settleRule()`). */
+/**
+ * An element of this package that draws in the light DOM: MOT-3's settling; its stylesheet carries the rule
+ * (`settleRule()`). It tells when it is connected and disconnected, so that what the product puts in it is read in a
+ * shadow root too, as it is in the document, whose observers cannot see into one (src/primitives/host-roots.ts): a
+ * `.tanrei-icon` in an accordion's header or a tree view's row is marked to mirror in right-to-left, and a
+ * `.tanrei-link` (an app shell's skip link) is given what the Link's script adds, its label's own direction among it.
+ */
 export abstract class TanreiLightElement extends ReactiveElement {
   constructor() {
     super();
     new Settle(this);
+  }
+
+  override connectedCallback() {
+    super.connectedCallback();
+    hostRoot(this, this.getRootNode());
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    hostRoot(this, null);
   }
 }

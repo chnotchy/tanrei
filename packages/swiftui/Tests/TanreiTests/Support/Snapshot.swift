@@ -267,4 +267,12 @@ extension Bitmap.RGBA {
     abs(Int(r) - Int(other.r)) <= tolerance && abs(Int(g) - Int(other.g)) <= tolerance
       && abs(Int(b) - Int(other.b)) <= tolerance
   }
+
+  /// The opacity this pixel shows `mark` at over `ground`: how far it stands from `ground` as a fraction of how far
+  /// `mark` does, on the channel where the two stand furthest apart (0 is the ground alone, 1 the mark opaque).
+  func drawnOpacity(of mark: Bitmap.RGBA, over ground: Bitmap.RGBA) -> Double {
+    let channels = [(r, mark.r, ground.r), (g, mark.g, ground.g), (b, mark.b, ground.b)].map { (Double($0), Double($1), Double($2)) }
+    let widest = channels.max { abs($0.1 - $0.2) < abs($1.1 - $1.2) }!
+    return (widest.0 - widest.2) / (widest.1 - widest.2)
+  }
 }

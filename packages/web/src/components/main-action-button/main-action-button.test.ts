@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { decodePng } from '../../../test/png.js';
@@ -15,6 +15,7 @@ import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { type HeldGlyph, expectGlyphsHeldBack } from '../../../test/held-glyphs.js';
 
 const spec = loadSpec('main-action-button');
@@ -42,16 +43,20 @@ const resolveShadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-/** A property as a token makes it compute on a probe (a font weight, an easing). */
-const resolveAs = (page: P, property: string, name: string) =>
-  page.evaluate(([p, n]) => {
+/**
+ * A property as a token makes it compute on a probe (a font weight, an easing). A length in `em` (a letter-spacing)
+ * computes against the probe's font size: give the role's (`size`), not the page's body face.
+ */
+const resolveAs = (page: P, property: string, name: string, size?: string) =>
+  page.evaluate(([p, n, s]) => {
     const probe = document.createElement('div');
     probe.style.setProperty(p, `var(${n})`);
+    if (s) probe.style.setProperty('font-size', `var(${s})`);
     document.body.appendChild(probe);
     const value = getComputedStyle(probe).getPropertyValue(p);
     probe.remove();
     return value;
-  }, [property, name] as const);
+  }, [property, name, size ?? null] as const);
 /** The font's axes as drawn: `"FILL" 1, "wght" 300, "GRAD" 0` → { FILL: 1, wght: 300, GRAD: 0 }. */
 // Axis values to 1/1000: Firefox serializes an opsz computed as tan(atan2(48px, 1px)) as 47.9999.
 const axes = (locator: Locator) =>
@@ -77,12 +82,6 @@ const listen = (locator: Locator) =>
     el.addEventListener('click', () => log.click++);
   });
 const events = (page: P) => page.evaluate(() => (window as any).events as { click: number });
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 /** A fixture; `icon: null` is one without an icon. */
 const fixture = (id: string, props: Fixture['props'], icon: string | null = 'edit'): Fixture => ({ id, props, ...(icon === null ? {} : { slots: { icon } }) });
 /** What the container draws: its color, the label color, the elevation and the opacity. */
@@ -306,7 +305,7 @@ test.describe('behavior', () => {
       const label = labelOf(page, id);
       expect(Number.parseFloat(await style(label, 'font-size')), id).toBe(await resolveToken(page, T(`label-typescale-${size}-font-size`)));
       expect(await style(label, 'font-weight'), id).toBe(await resolveAs(page, 'font-weight', T(`label-typescale-${size}-font-weight`)));
-      expect(await style(label, 'letter-spacing'), id).toBe(await resolveAs(page, 'letter-spacing', T(`label-typescale-${size}-letter-spacing`)));
+      expect(await style(label, 'letter-spacing'), id).toBe(await resolveAs(page, 'letter-spacing', T(`label-typescale-${size}-letter-spacing`), T(`label-typescale-${size}-font-size`)));
       expect(await family(label), id).toBe(await familyToken(page, T(`label-typescale-${size}-font-family`)));
     }
     // The icon size of each size, in either form.
@@ -400,6 +399,17 @@ test.describe('behavior', () => {
         if (pill) expect(radius, where).toBeGreaterThanOrEqual(side / 2);
         else if ((await token(page, '--tanrei-sys-shape-corner-smoothing')) === '0') expect(radius, where).toBe(await resolveToken(page, T(`container-shape-${size}`)));
         await iconCentered(page, id);
+      }
+    }
+  });
+
+  test('MAB-27: the three sizes take their heights from the control height ladder — small the medium step, medium the large step, large a third above the extra-large step on the size unit’s grid — at 32, 36 and 40', async ({ page }) => {
+    if (!(await page.evaluate(() => matchMedia('(pointer: fine)').matches))) test.skip(true, 'measured under a fine pointer');
+    const unit = await resolveToken(page, '--tanrei-dial-size-unit');
+    for (const h of CONTROL_HEIGHTS) {
+      await atControlHeight(page, h);
+      for (const [id, side] of [['filled-small-collapsed', h], ['filled-collapsed', h + 4 * unit], ['filled-large-collapsed', Math.round(((h + 8 * unit) * 4) / 3 / unit) * unit]] as const) {
+        await expect.poll(async () => { const box = await bounds(inner(page, id)); return [box.width, box.height]; }, `${id} at ${h}`).toEqual([side, side]);
       }
     }
   });

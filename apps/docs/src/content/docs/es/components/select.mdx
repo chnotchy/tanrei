@@ -153,7 +153,7 @@ El select le dice a su campo lo que solo él sabe. Su ayuda empieza donde empiez
 
 Las tres variantes son las de la entrada de texto. El sistema predeterminado solo incluye `stacked`; `filled` y `outlined` son para los sistemas que dibujan así sus entradas de texto. Usa un solo estilo en cada formulario.
 
-`small` (32), `medium` (40) y `large` (56) son las alturas de la entrada de texto. `small` es para una barra, una barra de herramientas o una fila densa de controles, donde un selector pequeño y una entrada de texto pequeña quedan a la misma altura.
+`small` (28), `medium` (36) y `large` (52) son las alturas de la entrada de texto en el sistema predeterminado; la pequeña toma la pulsación del objetivo de 36 que la rodea. `small` es para una barra, una barra de herramientas o una fila densa de controles, donde un selector pequeño y una entrada de texto pequeña quedan a la misma altura.
 
 ### Qué es del select y qué es del campo
 
@@ -178,7 +178,7 @@ La lista se abre a una distancia de `comp.select.list.offset` por debajo del con
 
 El glifo de una opción está en una columna delante de su etiqueta. `iconSpace` decide dónde se guarda esa columna en una opción sin glifo. `auto` (predeterminado) la guarda en una sección en la que otra opción tiene glifo, para que las etiquetas de la sección empiecen en una misma línea, y no la guarda en una sección sin glifos; una sección es un grupo, o una serie de opciones seguidas fuera de cualquier grupo. `always` la guarda en todas las opciones, y `never` solo en una opción que tiene glifo. El [menú](/es/components/menu/) tiene el mismo `iconSpace`, con los mismos valores y el mismo valor predeterminado.
 
-Las opciones toman el `size` del select. Un select `small` abre opciones `small` (de 36 de alto con glifos de 20, la fila `small` del [menú](/es/components/menu/)), y uno `medium` o `large` opciones `medium`, a la altura de control (de 40 de alto en el sistema por defecto). El texto conserva su tamaño, y una opción nunca es más baja que el objetivo.
+Las opciones toman el `size` del select. Un select `small` abre opciones `small` (de 36 de alto con glifos de 20, la fila `small` del [menú](/es/components/menu/)), y uno `medium` o `large` opciones `medium`, a la altura de control (de 36 de alto en el sistema por defecto). El texto conserva su tamaño, y una opción nunca es más baja que el objetivo.
 
 Una opción cuyo valor es la cadena vacía es una opción como cualquier otra, para «Ninguno» o «Cualquiera». El select no tiene una forma propia de volver a no tener nada elegido: donde se permita no elegir, ofrece una opción que lo diga.
 

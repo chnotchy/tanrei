@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
 import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
@@ -98,7 +98,7 @@ const events = (page: P) => page.evaluate(() => (window as unknown as { __events
 function warnings(page: P) {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push(message.text());
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
   });
   return seen;
 }

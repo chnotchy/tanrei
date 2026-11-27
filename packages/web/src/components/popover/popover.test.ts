@@ -8,7 +8,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, popoverWindow, resolveColor, resolveToken, roleFont, rootTokens, setWords, tab, tabTo, warnings } from '../../../test/harness.js';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, expectSlideExitEnd, expectSlidOnly, expectTurnedAlone, resolveEasing, sheetProbe, slidOut, turnHeld } from '../../../test/appear.js';
 import { type Frames, expectAnimated, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
@@ -24,6 +24,7 @@ import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { STACKED_DIALOG, STACKED_LAYER, addStackedSurfaces, expectStackedInOrder } from '../../../test/stacked-surfaces.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('popover');
 /** The fixtures drawn in place on their stages; the `compact-` ones are the real overlay, each alone in its window (POP-39). */
@@ -68,13 +69,6 @@ const resolveShadow = (page: P, name: string) =>
     probe.remove();
     return value;
   }, name);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /**
  * A page of the test's own markup, wired as a product wires a popover: `toggle` sets `open` to the value it asks for,
@@ -770,13 +764,13 @@ test.describe('size and layout', () => {
     await host(page).evaluate((el) => (el.textContent = 'Trash counts.'));
     await set(page, { width: 'anchor' });
     await expect.poll(width).toBeCloseTo(240, 1);
-    await page.locator('#a').evaluate((el) => (el.style.inlineSize = '520px'));
+    await restyle(page.locator('#a'), { 'inline-size': '520px' });
     await expect.poll(width).toBeCloseTo(520, 1);
     expect(520).toBeGreaterThan(max);
-    await page.locator('#a').evaluate((el) => (el.style.inlineSize = '60px'));
+    await restyle(page.locator('#a'), { 'inline-size': '60px' });
     await expect.poll(width).toBeCloseTo(min, 1);
     // The window: never wider than it less the margin on each side, in either mode — below the least width where it must.
-    await page.locator('#a').evaluate((el) => (el.style.inlineSize = '520px'));
+    await restyle(page.locator('#a'), { 'inline-size': '520px' });
     await page.setViewportSize({ width: 320, height: 600 });
     await expect.poll(width).toBeCloseTo(320 - 2 * margin, 1);
     await set(page, { width: 'content' });
@@ -1121,10 +1115,10 @@ test.describe('size and layout', () => {
     expect(await button.evaluate((el) => [el.getAttribute('size'), el.hasAttribute('variant'), el.querySelector('[slot="icon"]')!.textContent, el.getAttribute('part')])).toEqual(['small', false, 'close', 'close-button']);
     await page.mouse.move(0, 0);
     expect(await button.locator('button').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolveColor(page, '--tanrei-comp-button-tonal-container-color'));
-    // Small: 36 × 36 in the default system, the small Button's own height (held at the minimum target).
+    // Small: 28 × 28 in the default system, the small Button's own height, its step.
     const box = await rect(button.locator('button'));
     expect(box.height).toBeCloseTo(await resolveToken(page, '--tanrei-comp-button-container-height-small'), 1);
-    expect([Math.round(box.width), Math.round(box.height)]).toEqual([36, 36]);
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([28, 28]);
     await expect(page.getByRole('button', { name: 'Close storage', exact: true })).toHaveCount(1);
     // It answers as any Button does: hover paints the Button's own hovered container.
     await button.hover();
@@ -2864,6 +2858,9 @@ test.describe('triggers', () => {
       await onAnchor(page);
       await expect.poll(() => isShown(page)).toBe(true);
       await settle(page);
+      // At rest: while its open motion (POP-26) runs, its content is still fading in, and axe reads a color part of the
+      // way there (WebKit: the link at 58 % of its opacity over the dark surface, 3.38:1).
+      await motionEnded(surface(page).locator('> .motion'));
       const results = await new AxeBuilder({ page }).analyze();
       expect(results.violations, `${theme}: ${results.violations.map((v) => `${v.id} ${v.nodes.map((n) => n.target).join(' ')}`).join(', ')}`).toEqual([]);
     }

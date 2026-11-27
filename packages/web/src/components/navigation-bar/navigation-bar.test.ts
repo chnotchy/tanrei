@@ -5,7 +5,7 @@
 // src/primitives/delegated-aria.test.ts.
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { FOUR, bounds, css, destination, destinationSuite, override } from '../../../test/destinations.js';
-import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { HOLD_NOW, motionCount } from '../../../test/motions.js';
@@ -1676,7 +1676,7 @@ test.describe('links', () => {
 
   test('NVB-32, NVB-16: in links Help opens a new tab that has no handle to this page, is drawn as the other three with no mark, and is described by targetLabel after its badge’s description; a plain click on it emits nothing and leaves the indicator on Search; without the words it still renders and is reported', async ({ page, browserName }) => {
     const seen: string[] = [];
-    page.on('console', (message) => message.type() === 'warning' && seen.push(message.text()));
+    page.on('console', (message) => message.type() === 'warning' && !isRobotoMonoGlyphWarning(message) && seen.push(message.text()));
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [...fixtures('links'), { id: 'own', props: { value: '#a', label: 'Own' }, items: [link('A', '#a', 'home'), link('Badged', 'about:blank', 'help', { target: 'new', targetLabel: 'opens in a new tab', badge: true, badgeCount: 3, badgeLabel: '3 unread' }), link('Quiet', '#quiet', 'star', { target: 'new' }), link('Here', '#here', 'send', { targetLabel: 'ignored' })] }],
@@ -1720,7 +1720,7 @@ test.describe('links', () => {
 
   test('NVB-33: an unknown target is same and is reported; an href of white space makes a button and says nothing; a javascript: address and one that cannot be read make a button and are reported; without an href target and targetLabel are ignored', async ({ page }) => {
     const seen: string[] = [];
-    page.on('console', (message) => message.type() === 'warning' && seen.push(message.text()));
+    page.on('console', (message) => message.type() === 'warning' && !isRobotoMonoGlyphWarning(message) && seen.push(message.text()));
     await mountFixtures(page, spec, {
       icons: true,
       fixtures: [{ id: 'odd', props: { value: 'a', label: 'Main' }, items: [destination('a', 'Named', 'home', { href: '#named', target: 'sidebar' }), destination('b', 'Blank', 'search', { href: '   ' }), destination('c', 'Script', 'star', { href: ' JavaScript:alert(1)' }), destination('d', 'Unread', 'send', { href: 'http://[' }), destination('e', 'Plain', 'help', { target: 'new', targetLabel: 'opens in a new tab' })] }],

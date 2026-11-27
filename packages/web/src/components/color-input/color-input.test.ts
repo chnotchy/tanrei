@@ -12,10 +12,11 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, warnings } from '../../../test/harness.js';
 import { PICKER_START, channels, fromChannels, given, isValue, picked, read as readText, readCommitted, sameColor, valueOf } from './color-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('color-input');
 type P = Page;
@@ -55,13 +56,6 @@ const edgeMotion = (edge: Locator) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
@@ -375,8 +369,8 @@ test.describe('behavior: the box, its name and its Field', () => {
       } else near(c.x + c.width - (field.x + field.width), await token(page, `container-padding-inline-${size}`), `${id}: the input ends padding-inline from the end edge`);
       near(c.width, (await box(host(page, id))).width, `${id}: as wide as the field`);
     }
-    // The default system's numbers: a stacked box 40 and 56 high, as tall as a Button of its size; the swatch 24, 12 from the start edge; the value 16 after it.
-    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([40, 56, 24, 12, 16]);
+    // The default system's numbers: a stacked box 36 and 52 high, as tall as a Button of its size; the swatch 24, 12 from the start edge; the value 16 after it.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'icon-size-medium'), await token(page, 'container-padding-inline-with-icon-medium'), await token(page, 'container-gap-medium')]).toEqual([36, 52, 24, 12, 16]);
     // As wide as its layout gives it: the host is a block.
     expect(await css(host(page, 'stacked-filled'), 'display')).toBe('block');
     await host(page, 'stacked-filled').evaluate((el) => (el.parentElement!.style.inlineSize = '400px'));
@@ -426,6 +420,7 @@ test.describe('behavior: the box, its name and its Field', () => {
         },
         [variant, size] as const,
       );
+      await askForFrame(page);
       const [mine, theirs] = [page.locator('[data-fixture="pair"] > tanrei-color-field'), page.locator('[data-fixture="pair"] > tanrei-text-field')];
       await expect(mine.locator('.field > .container')).toBeVisible();
       await expect(theirs.locator('.field > .container')).toBeVisible();
@@ -466,6 +461,7 @@ test.describe('behavior: the box, its name and its Field', () => {
       field.style.inlineSize = '280px';
       stage.append(field);
     });
+    await askForFrame(page);
     const field = page.locator('[data-fixture="stacked-picker"] > tanrei-text-input');
     await expect(field.locator('.picker-button')).toBeVisible();
     await frames(page, 4);
@@ -658,7 +654,9 @@ test.describe('behavior: the box, its name and its Field', () => {
       const s = await box(swatch(page, id));
       near(await px(label, 'font-size'), await token(page, 'label-typescale-medium-font-size'), `${id}: resting in label.typescale`);
       near(resting.y + resting.height / 2, c.y + c.height / 2, `${id}: resting in the input line`);
-      near(resting.x - (s.x + s.width), await token(page, 'container-gap-medium'), `${id}: after the swatch`);
+      // After the box of the icon's size the swatch stands in (an outlined swatch is drawn smaller inside it, CLI-25).
+      const side = await token(page, 'icon-size-medium');
+      near(resting.x - (s.x + s.width) - (side - s.width) / 2, await token(page, 'container-gap-medium'), `${id}: after the swatch`);
       const height = c.height;
       await focusInput(page, id);
       await frames(page);

@@ -9,16 +9,21 @@
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%23111'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%23fff'/%3E%3C/svg%3E" />
   </head>
   <body>
-    <!-- The app's items of the Studio's bar: its brand and the file it edits at the start, its language and its theme at
-         the end. main.ts hands them to the Studio, which moves them into its bar. -->
+    <!-- The app's items of the Studio's bar: its brand and the file it edits at the start, and at the end a menu that
+         holds its language and its theme. main.ts hands them to the Studio, which moves them into its bar. -->
     <div class="app-bar">
       <div class="app-start">
         <a class="app-brand" href="./"><span class="app-mark" aria-hidden="true"></span><bdi class="app-name" dir="ltr">Tanrei <span>Theme Studio</span></bdi></a>
         <p class="app-session" id="session" aria-live="polite"></p>
       </div>
       <div class="app-tools">
-        <tanrei-select class="app-language" id="lang" size="small" label="Language" label-hidden></tanrei-select>
-        <tanrei-button class="app-tool" id="theme" variant="outlined" size="small">Dark</tanrei-button>
+        <tanrei-tooltip id="app-menu-tip" no-describe>
+          <tanrei-button id="app-menu-open" variant="text" size="small" label="Language and theme"><span class="tanrei-icon" slot="icon" aria-hidden="true" translate="no">settings</span></tanrei-button>
+        </tanrei-tooltip>
+        <tanrei-menu id="app-menu" anchor="app-menu-open">
+          <tanrei-menu-group id="lang" label="Language"></tanrei-menu-group>
+          <tanrei-menu-group id="theme" label="Theme"></tanrei-menu-group>
+        </tanrei-menu>
       </div>
     </div>
     <div id="studio"></div>

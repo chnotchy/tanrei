@@ -39,8 +39,10 @@ test('a value is a target and an optional aspect, or says why the part has no bo
   assert.deepEqual(readPart('tanrei-thing-item', tags), { child: ['tanrei-thing-item'], aspect: undefined });
   assert.deepEqual(readPart('tanrei-thing tanrei-thing-item container', tags), { child: ['tanrei-thing', 'tanrei-thing-item'], part: 'container', aspect: undefined });
   assert.deepEqual(readPart('tanrei-thing-item container@focus-ring', tags), { child: ['tanrei-thing-item'], part: 'container', aspect: 'focus-ring' });
+  // A child word may name several elements, any of which draws the part.
+  assert.deepEqual(readPart('tanrei-thing-item|tanrei-member container', tags), { child: ['tanrei-thing-item|tanrei-member'], part: 'container', aspect: undefined });
   assert.deepEqual(readPart({ noBox: 'The caret is drawn by the browser in the text.' }, tags), { noBox: 'The caret is drawn by the browser in the text.' });
-  for (const bad of ['container@border', 'container@outline@focus-ring', 'Container', 'a b', 'tanrei-thing-item a b', 'container tanrei-thing-item', 'slot:', '.']) {
+  for (const bad of ['container@border', 'container@outline@focus-ring', 'Container', 'a b', 'tanrei-thing-item a b', 'container tanrei-thing-item', 'slot:', '.', 'tanrei-thing-item|nope container', 'tanrei-thing-item| container', 'container|label']) {
     assert.ok(readPart(bad, tags).problem, bad);
   }
 });
@@ -84,6 +86,9 @@ test('validate holds every anatomy id mapped, every key an id, and every target 
   assert.match(problems({ container: 'container', label: 'nope' }).join('\n'), /tanrei-thing exports no part "nope"/);
   assert.match(problems({ container: 'container', label: 'slot:nope' }).join('\n'), /has no slot "nope"/);
   assert.match(problems({ container: 'tanrei-thing-item label', label: 'label' }).join('\n'), /tanrei-thing-item exports no part "label"/);
+  // Each element a child word names exports the part.
+  assert.match(problems({ container: 'tanrei-thing|tanrei-thing-item label', label: 'label' }).join('\n'), /tanrei-thing-item exports no part "label"/);
+  assert.deepEqual(problems({ container: 'tanrei-thing|tanrei-thing-item container', label: 'label' }), []);
   assert.match(problems({ container: 'container@border', label: 'label' }).join('\n'), /aspect "@border"/);
   assert.match(problems({ container: '.tanrei-thing', label: 'label' }).join('\n'), /the class \.tanrei-thing is not in the web stylesheet/);
   assert.deepEqual(partsProblems([spec('thing', ['container'], { container: '.tanrei-thing' })], manifest, () => '.tanrei-thing { color: red }'), []);

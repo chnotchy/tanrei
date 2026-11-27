@@ -76,14 +76,14 @@ test('a size is a measure of the box: the box alone declares the size axis, with
 test('a stacked box is as tall as a Button of the same size, and a box that floats its label as tall as the step of its size', async () => {
   const model = await buildModel();
   const px = (id) => model.tokens[`${CONFIG.namespace}.comp.${id}`].value.value;
-  // The small one is held at the default system's minimum target (36), as the small Button is.
-  for (const [size, height] of [['small', 36], ['medium', 40], ['large', 56]]) {
+  // The steps of the ladder: the small one, as the small Button, is drawn at its step and reaches the target past it.
+  for (const [size, height] of [['small', 28], ['medium', 36], ['large', 52]]) {
     assert.equal(px(`${BOX}.stacked.container.height.${size}`), height, size);
     assert.equal(px(`button.container.height.${size}`), height, size);
   }
   // A filled or an outlined box reads the same steps (the medium one the control height): a filled box that draws its
   // label grows to hold it above the value's line.
-  assert.deepEqual(['small', 'medium', 'large'].map((size) => px(`${BOX}.container.height.${size}`)), [36, 40, 56]);
+  assert.deepEqual(['small', 'medium', 'large'].map((size) => px(`${BOX}.container.height.${size}`)), [28, 36, 52]);
   // A line of the size's input text fits in the height, with the padding above and below it, in every look.
   for (const size of ['small', 'medium', 'large']) {
     const type = model.tokens[`${CONFIG.namespace}.comp.${BOX}.input.typescale.${size}`].value;
@@ -101,10 +101,13 @@ test('the invariant refuses a stacked height that is not its ladder step\'s, and
   assert.deepEqual(about(checkInvariants(model)), []);
   const failures = about(checkInvariants(moved));
   assert.equal(failures.length, 1, failures.join('\n'));
-  assert.match(failures[0], /^comp\.input-box\.stacked\.container\.height\.medium: 48px, but a control of the medium size is as tall as sys\.control\.height\.medium \(40px\) — read the step/);
+  assert.match(failures[0], /^comp\.input-box\.stacked\.container\.height\.medium: 48px, but a control of the medium size is as tall as sys\.control\.height\.medium \(36px\) — read the step/);
   // A floored one names the minimum it is held at.
-  const small = `${CONFIG.namespace}.comp.button.container.height.small`;
+  const small = `${CONFIG.namespace}.comp.tree-view.container.height.small`;
   const pinned = about(checkInvariants({ ...model, tokens: { ...model.tokens, [small]: { ...model.tokens[small], value: { value: 32, unit: 'px' } } } }));
-  assert.deepEqual(pinned, [`comp.button.container.height.small: 32px, but a control of the small size is as tall as sys.control.height.small (32px), held at sys.target.minimum (36px) — read the step, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.small}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }`]);
+  assert.deepEqual(pinned, [`comp.tree-view.container.height.small: 32px, but a control of the small size is as tall as sys.control.height.small (28px), held at sys.target.minimum (36px) — read the step, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.small}", "by": 1, "min": "{${CONFIG.namespace}.sys.target.minimum}" }`]);
+  // One that stands alone is told its step alone.
+  const button = `${CONFIG.namespace}.comp.button.container.height.small`;
+  assert.deepEqual(about(checkInvariants({ ...model, tokens: { ...model.tokens, [button]: { ...model.tokens[button], value: { value: 32, unit: 'px' } } } })), [`comp.button.container.height.small: 32px, but a control of the small size is as tall as sys.control.height.small (28px) — read the step, { "fn": "mul", "of": "{${CONFIG.namespace}.sys.control.height.small}", "by": 1 }`]);
   assert.deepEqual(about(checkInvariants({ ...moved, system: 'm3-like' })), []);
 });

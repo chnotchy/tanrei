@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, withoutIconFont, rootTokens, warnings } from '../../../test/harness.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { holdTransitions, stepTransitions } from '../../../test/stepped-transitions.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
@@ -32,13 +32,6 @@ const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): 
 const fixture = (id: string) => spec.fixtures.find((f) => f.id === id)!;
 const only = (...ids: string[]) => spec.fixtures.filter((f) => ids.includes(f.id));
 const WORDS = { label: 'Copy', copiedLabel: 'Copied', failedLabel: 'Could not copy' };
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 /** The glyph it shows, the form it is in, and what its two live regions hold. */
 const shows = (page: P, id: string) =>

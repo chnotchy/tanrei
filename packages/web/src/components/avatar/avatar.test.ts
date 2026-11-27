@@ -10,10 +10,11 @@ import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
-import { type Fixture, type FixtureItem, avatarPicture, declarations, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, typeRole, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, avatarPicture, declarations, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, typeRole, withoutIconFont, rootTokens, warnings } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
 import { decodePng } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { laidOutBox } from '../../../test/laid-out-box.js';
 
 const spec = loadSpec('avatar');
 type P = Page;
@@ -34,17 +35,11 @@ const container = (host: Locator) => host.locator('.container').first();
 const overflow = (page: P, id: string) => group(page, id).locator('.overflow');
 const T = (name: string) => `--tanrei-comp-avatar-${name}`;
 const token = (page: P, name: string) => resolveToken(page, T(name));
-const box = async (locator: Locator) => (await locator.boundingBox())!;
+/** A box as the engine laid it out (test/laid-out-box.ts): an avatar below a line of the page's text keeps its size in Firefox. */
+const box = laidOutBox;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const member = (label: string, initials = '', props: Fixture['props'] = {}): FixtureItem => ({ kind: 'member', props: { label, ...(initials ? { initials } : {}), ...props } });
 const fx = (id: string, props: Fixture['props'], extra: Partial<Fixture> = {}): Fixture => ({ id, props, ...extra });
 const mount = (page: P, fixtures: Fixture[], options: Parameters<typeof mountFixtures>[2] = {}) => mountFixtures(page, spec, { icons: true, fixtures, ...options });
@@ -778,15 +773,19 @@ test.describe('behavior', () => {
   test('AVT-11: with the text enlarged the avatar keeps its box and its glyph at their sizes, and its initials are held to the glyph’s box of the size, so they still stand inside the avatar (the initials’ text role itself follows the text dial)', async ({ page }) => {
     await mountSpec(page, 'initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square', 'group-max');
     const ids = ['initials', 'initials-small', 'initials-large', 'glyph', 'glyph-small', 'glyph-large', 'square'];
-    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then((b) => [b.width, b.height]), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then((b) => [b.width, b.height]) : null]] as const)));
+    const size = (b: { width: number; height: number }) => [b.width, b.height];
+    const measure = async () => Object.fromEntries(await Promise.all(ids.map(async (id) => [id, [await box(avatar(page, id)).then(size), id.startsWith('glyph') ? await box(avatar(page, id).locator('.icon')).then(size) : null]] as const)));
     const before = await measure();
-    const groupBefore = await box(group(page, 'group-max'));
+    // The group's size, not its place: the page's body text is enlarged too, so the lines of the stages above it are
+    // taller and the group stands further down.
+    const groupSize = async () => box(group(page, 'group-max')).then(size);
+    const groupBefore = await groupSize();
     const sizeBefore = Number.parseFloat(await css(avatar(page, 'initials').locator('.label'), 'font-size'));
     // 200 % text.
     await override(page, { '--tanrei-dial-type-base': '32px' });
     await frames(page);
     expect(await measure()).toEqual(before);
-    expect(await box(group(page, 'group-max'))).toEqual(groupBefore);
+    expect(await groupSize()).toEqual(groupBefore);
     const sizes = { 'initials-small': 'small', initials: 'medium', 'initials-large': 'large', square: 'medium' } as const;
     for (const [id, size] of Object.entries(sizes)) {
       const label = avatar(page, id).locator('.label');
@@ -1451,6 +1450,8 @@ test.describe('behavior', () => {
       <p class="line"><tanrei-avatar id="glyph" label="Build service"><span slot="icon">smart_toy</span></tanrei-avatar> <span class="mark">after the glyph</span></p>
       ${['small', 'medium', 'large'].map((size) => `<p class="line"><tanrei-avatar-group id="group-${size}" label="Authors" size="${size}"${size === 'large' ? ' shape="square"' : ''}>${people.map(([label, initials]) => `<tanrei-avatar label="${label}" initials="${initials}"></tanrei-avatar>`).join('')}</tanrei-avatar-group> <span class="mark">after ${size}</span></p>`).join('')}
       <p class="line"><tanrei-avatar-group id="total" label="Members" max="4" total="240">${people.map(([label, initials]) => `<tanrei-avatar label="${label}" initials="${initials}"></tanrei-avatar>`).join('')}</tanrei-avatar-group><span class="mark" id="after-total">after total</span></p>
+      <p class="line"><tanrei-avatar-group id="max" label="Reviewers" max="3">${[...people, ...people].map(([label, initials]) => `<tanrei-avatar label="${label}" initials="${initials}"></tanrei-avatar>`).join('')}</tanrei-avatar-group><span class="mark" id="after-max">after max</span></p>
+      <p class="line"><tanrei-avatar-group id="within" label="Reviewers" max="3" total="2">${people.slice(0, 2).map(([label, initials]) => `<tanrei-avatar label="${label}" initials="${initials}"></tanrei-avatar>`).join('')}</tanrei-avatar-group><span class="mark" id="after-within">after within</span></p>
       <p class="line">The last line.</p>`;
     // The page as a server sends it: the tokens, the stylesheet, the content — and no script yet.
     await page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>before definition</title>
@@ -1476,6 +1477,11 @@ test.describe('behavior', () => {
     expect(before.avatars['group-medium'].slice(2)).toEqual([112, 40]);
     expect(before.avatars['group-small'].slice(2)).toEqual([3 * 24 - 2 * 2, 24]);
     expect(before.avatars['group-large'].slice(2)).toEqual([3 * 56 - 2 * 8, 56]);
+    // A group that will draw an overflow box holds it: three members and the box for a total above them; two members
+    // and the box for six members over a max of three; two members and no box where max and total are not passed.
+    expect(before.avatars.total.slice(2)).toEqual([4 * 40 - 3 * 4, 40]);
+    expect(before.avatars.max.slice(2)).toEqual([3 * 40 - 2 * 4, 40]);
+    expect(before.avatars.within.slice(2)).toEqual([2 * 40 - 4, 40]);
     await expect(page.locator('#glyph > [slot="icon"]')).toBeHidden();
     sameColor(await painted(page.locator('#medium'), 'background-color'), await tokenColor(page, 'container-color'), 'the box before it is defined');
     expect(await css(page.locator('#large'), 'border-top-left-radius')).toBe('6px');
@@ -1486,13 +1492,10 @@ test.describe('behavior', () => {
     await settled(page);
     const after = await measure();
     const close = (a: number[], b: number[], what: string) => a.forEach((v, i) => expect(Math.abs(v - b[i]), `${what}: ${a.join(',')} → ${b.join(',')}`).toBeLessThanOrEqual(0.5));
-    // Nothing moved: every avatar, every group, every member, and what follows each — but for the group that counts
-    // what it was not given, which gains its overflow box (the stylesheet cannot count: the README says so).
-    for (const [id, was] of Object.entries(before.avatars)) if (id !== 'total') close(was, after.avatars[id], id);
-    for (const [id, was] of Object.entries(before.marks)) if (id !== 'after-total') close(was, after.marks[id], id);
-    // Only the text after the counting group moves, by one box less its overlap.
-    expect(after.marks['after-total'][0] - before.marks['after-total'][0]).toBe(36);
-    expect(after.avatars.total[2] - before.avatars.total[2]).toBe(36);
+    // Nothing moved: every avatar, every group with the overflow box it draws, every member, and what follows each.
+    // (The members a group does not draw are boxes of no room, before and after.)
+    for (const [id, was] of Object.entries(before.avatars)) close(was, after.avatars[id], id);
+    for (const [id, was] of Object.entries(before.marks)) close(was, after.marks[id], id);
     // …and they are the elements now.
     await expect(page.locator('#medium').locator('.label')).toHaveText('AL');
     await expect(page.locator('#total').locator('.count')).toHaveText('99+');

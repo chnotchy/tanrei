@@ -74,10 +74,10 @@
         "container": {
           "height": {
             "$type": "dimension",
-            "$description": "A row's least height, per size: the box that carries hover, focus, press and the selected fill. Medium is a navigation drawer's row, drawn at the control height (40 in the default system). Small is the small step of the control heights, never below the minimum target (36 in the default system), for a tool used with a pointer and for a small tree inside text; a row is never lower than the target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
+            "$description": "A row's least height, per size: the box that carries hover, focus, press and the selected fill. Medium is a navigation drawer's row, drawn at the control height (36 in the default system). Small is the small step of the control heights, never below the minimum target (36 in the default system), for a tool used with a pointer and for a small tree inside text; a row is never lower than the target, whatever this says (TRV-26). A minimum: a row grows with a label that wraps and with enlarged text.",
             "medium": {
               "$value": {
-                "value": 40,
+                "value": 36,
                 "unit": "px"
               },
               "$extensions": {
@@ -110,7 +110,7 @@
             "$description": "Above the first line and below the last line of a row's text, per size. With one line of the label it gives the height or leaves room; it holds the room when the label wraps or the text is enlarged.",
             "medium": {
               "$value": {
-                "value": 8,
+                "value": 6,
                 "unit": "px"
               },
               "$extensions": {

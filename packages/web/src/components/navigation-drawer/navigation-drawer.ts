@@ -1959,13 +1959,25 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private static readonly resizeWatched = new WeakMap<Element, TanreiNavigationDrawer>();
   /** What this drawer's resize watch observes now. */
   private resizeTargets: Element[] = [];
+  /** The drawer's border box when `readResize()` last read it beside the content; null where it read nothing. */
+  private resizeSeen: [width: number, height: number] | null = null;
+
+  /** Whether a report of the resize watch finds the drawer as `readResize()` last read it, to half a pixel. */
+  private readAtSize(entry: ResizeObserverEntry): boolean {
+    const seen = this.resizeSeen;
+    const box = entry.borderBoxSize?.[0];
+    return !!seen && !!box && Math.abs(seen[0] - box.inlineSize) < 0.5 && Math.abs(seen[1] - box.blockSize) < 0.5;
+  }
 
   private static watchResize(): ResizeObserver {
     return (TanreiNavigationDrawer.resizeWatch ??= new ResizeObserver((entries) => {
       const drawers = new Set<TanreiNavigationDrawer>();
       for (const entry of entries) {
         const drawer = TanreiNavigationDrawer.resizeWatched.get(entry.target);
-        if (drawer) drawers.add(drawer);
+        // A drawer the report finds at the size it was last read at — its first report, after the read phase read it —
+        // has nothing new to read: read here, after another observer's report had written, it had the page laid out
+        // again for nothing.
+        if (drawer && !drawer.readAtSize(entry)) drawers.add(drawer);
       }
       const writes: (() => void)[] = [];
       for (const drawer of drawers) {
@@ -2196,6 +2208,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private painted = false;
   /** Who asks for the drawer's first frame in the read phase. */
   private readonly firstFrame = {};
+  /** NVD-97: what asks for `readResize()` in the read phase, before the document has been painted. */
+  private readonly resizeRead = {};
   /** NVD-62: the first frame's order is owed: the cells are drawn, and the items wait for the phase to be placed. */
   private firstLook = false;
 
@@ -3195,24 +3209,23 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /** NVD-62: the first frame is laid out, its order taken, and about to be painted. */
   private firstFrameDrawn() {
     this.painted = true;
-    // The first frame is about to be drawn: an offset that was written into it has done its work, and what was given so
-    // far is settled in the styles before the motions are given back (the frame's own style, unless a write of the
-    // phase changed it since).
+    // The first frame is about to be drawn: an offset that was written into it has done its work.
     if (!this.unwritten) this.givenOffset = null;
-    // Settled once for every drawer of the phase, after all its writes and before its paint: a drawer that settled the
-    // styles itself would have the browser style the page again for each, after the one before gave its motions back.
+    // The motions are given back in a task after this frame, which the frame has styled with them held — what was given
+    // so far, and what the phase writes, included: they come back with no value changed, and start nothing. Nothing is
+    // read for it. Given back in the phase instead, the frame's style had to be taken first (a read of the layout after
+    // every write of the phase), or the motions would have started from it: on a loading page that read had the browser
+    // style and lay out the whole page once more before its first paint. One task for every drawer of the phase.
     const arrived = TanreiNavigationDrawer.arrived;
     if (!arrived.length) {
-      queueMicrotask(() => {
-        const due = arrived.splice(0);
-        void due.find((drawer) => drawer.isConnected)?.offsetHeight;
-        for (const drawer of due) drawer.removeAttribute('data-arriving');
+      setTimeout(() => {
+        for (const drawer of arrived.splice(0)) drawer.removeAttribute('data-arriving');
       });
     }
     arrived.push(this);
   }
 
-  /** NVD-62: the drawers whose first frame is drawn, given their motions back together once the phase has written. */
+  /** NVD-62: the drawers whose first frame is drawn, given their motions back together in a task after that frame. */
   private static readonly arrived: TanreiNavigationDrawer[] = [];
 
   // ---- what the drawer is drawn as (NVD-30, NVD-53…55) ----
@@ -3364,6 +3377,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.removeAttribute('data-person-resize');
     this.unwatchWidths();
     cancelPhaseRead(this.firstFrame);
+    cancelPhaseRead(this.resizeRead);
     cancelAnimationFrame(this.instantFrame);
     cancelPhaseRead(this.pinsRead);
     this.watchPinnedRows(false);
@@ -3633,8 +3647,11 @@ export class TanreiNavigationDrawer extends TanreiElement {
 
   /** What syncResize reads, returning what it then writes: the reads of many drawers can be made together, before any write. */
   private readResize(): (() => void) | void {
+    this.resizeSeen = null;
     if (!this.beside) return;
     const metrics = this.resizeMetrics();
+    const box = this.getBoundingClientRect();
+    this.resizeSeen = [box.width, box.height];
     // NVD-97: where the parent gives less room than the width, the rows are laid out at the room (the host is drawn
     // there by its `max-inline-size`, and keeps asking for its width, so that it sees the room come back).
     const narrowed = metrics.narrowed === null ? '' : `${metrics.narrowed}px`;
@@ -4847,7 +4864,13 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (this.beside) {
       // Read with every other host's of the turn (src/primitives/read-phase.ts), once the drawer is drawn: what the
       // handle says follows what it was given. An update that only drew what was read reads nothing again.
-      if (!(changed.size === 1 && changed.has('resizeValues' as keyof TanreiNavigationDrawer))) readTogether(() => this.readResize());
+      // Until the document has been painted, in the read phase of the coming frame instead, after its layout and before
+      // its paint: read in the turn of the render, it had the browser lay the whole page out, while a loading page's
+      // modules upgrade one kind of element after another.
+      if (!(changed.size === 1 && changed.has('resizeValues' as keyof TanreiNavigationDrawer))) {
+        if (documentPainted()) readTogether(() => this.readResize());
+        else readInPhase(this.resizeRead, () => this.readResize());
+      }
       if (DEBUG && this.resizeShown && (changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
         report(this, 'NVD-102', 'resizeLabel and label are empty, so the resize handle has no accessible name; give the drawer a label');
       }

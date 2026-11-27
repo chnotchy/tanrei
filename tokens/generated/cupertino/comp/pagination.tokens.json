@@ -75,8 +75,7 @@
                 "dev.tanrei.derive": {
                   "fn": "mul",
                   "of": "{tanrei.sys.control.height.small}",
-                  "by": 1,
-                  "min": "{tanrei.sys.target.minimum}"
+                  "by": 1
                 }
               }
             },

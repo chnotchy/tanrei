@@ -14,8 +14,9 @@
 // - **The contrast** is the token's color against what is drawn behind the part (the first fill under it that is not
 //   transparent, laid over the ones beneath), computed by the token build's own contrast check (`contrast` of
 //   packages/tokens-build/src/invariants.js), the WCAG 2 ratio.
-// - **A leader** joins each part drawn to its row. Focusing a row (or pointing at it) outlines its part with a dashed
-//   ring and draws its leader heavier: what joins them is a shape, not a color alone.
+// - **A leader** joins each part drawn to its row; a part drawn transparent has none, as it has nothing to end on.
+//   Focusing a row (or pointing at it) outlines its part with a dashed ring and draws its leader heavier: what joins
+//   them is a shape, not a color alone.
 import { contrast } from '../../../../../packages/tokens-build/src/invariants.js';
 import { targetBox } from './blueprint';
 import type { PartTarget } from './anatomy';
@@ -80,18 +81,21 @@ function edgeOf(style: CSSStyleDeclaration): Rgba | null {
 /**
  * The color a part is drawn in, as its paint reads it: a fill's background, a text's color, and an edge where the
  * part draws it — on its own box, on a box it generates before or after its content (`::before`, `::after`), or on
- * the boxes it is drawn in pieces of (a notched outline's), the nearest first; an edge drawn nowhere is transparent.
+ * the boxes it is drawn in pieces of (a notched outline's), or the boxes those generate, the nearest first; an edge
+ * drawn nowhere is transparent.
  */
 function drawnColor(element: Element, paint: 'fill' | 'text' | 'edge'): Rgba {
   const style = getComputedStyle(element);
   if (paint === 'fill') return rgbaOf(style.backgroundColor);
   if (paint === 'text') return rgbaOf(style.color);
-  const generated = (pseudo: string) => {
-    const box = getComputedStyle(element, pseudo);
+  const generated = (of: Element, pseudo: string) => {
+    const box = getComputedStyle(of, pseudo);
     return box.content && box.content !== 'none' && box.content !== 'normal' ? edgeOf(box) : null;
   };
+  // A piece drawn as no element draws its edge by its `::before` (the web package's `drawnAsNoElement`).
+  const pieceEdge = (piece: Element) => edgeOf(getComputedStyle(piece)) ?? generated(piece, '::before') ?? generated(piece, '::after');
   const pieces = [...element.children, ...[...element.children].flatMap((child) => [...child.children])];
-  return edgeOf(style) ?? generated('::before') ?? generated('::after') ?? pieces.map((piece) => edgeOf(getComputedStyle(piece))).find(Boolean) ?? [0, 0, 0, 0];
+  return edgeOf(style) ?? generated(element, '::before') ?? generated(element, '::after') ?? pieces.map(pieceEdge).find(Boolean) ?? [0, 0, 0, 0];
 }
 
 /** The element a node is drawn in: its parent, its slot, or its shadow root's host. */
@@ -145,7 +149,7 @@ function drawFigure(frame: HTMLElement, overlay: HTMLElement, subject: HTMLEleme
     if (name) name.textContent = role?.role ? role.role.split('.').slice(1).join('.') : value[3] === 0 ? words.transparent : words.fixed;
     const derived = tr.querySelector<HTMLElement>('[data-role-derived]');
     if (derived) derived.hidden = !(role?.role && role.derived);
-    const found = targetBox(host, row.target);
+    const found = targetBox(host, row.target, { firstOfOne: true });
     const element = found?.element ?? (row.target && 'host' in row.target ? host : null);
     const cell = tr.querySelector<HTMLElement>('[data-role-contrast]');
     Object.assign(tr.dataset, { value: hex(value), role: role?.role ?? '' });
@@ -182,7 +186,10 @@ function drawFigure(frame: HTMLElement, overlay: HTMLElement, subject: HTMLEleme
     for (const [key, at] of Object.entries({ x: box.left - origin.left - pad, y: box.top - origin.top - pad, width: box.right - box.left + 2 * pad, height: box.bottom - box.top + 2 * pad, rx: pad })) ring.setAttribute(key, String(at));
     ring.setAttribute('class', 'highlight');
     ring.dataset.roleRing = String(index);
-    svg.append(leader, dot, ring);
+    // A part drawn transparent (a divider the system leaves out) draws nothing for a leader to end on: it has none, and
+    // its row, focused or pointed at, outlines its box.
+    if (drawn[3] > 0) svg.append(leader, dot);
+    svg.append(ring);
   });
   probe.remove();
   const active = table.querySelector<HTMLElement>('[data-role-row][data-active]');

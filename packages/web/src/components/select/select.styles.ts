@@ -106,7 +106,7 @@ export const styles = css`
     vertical-align: middle;
     min-inline-size: 0;
     max-inline-size: 100%;
-    outline: none;
+    outline: none !important;
   }
   /* SEL-49: a select a Field frames is a block that fills the width that Field gives it (select.ts says the state). */
   :host(:state(framed)) {

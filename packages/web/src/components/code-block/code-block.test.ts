@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, roleFont, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, roleFont, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
 
@@ -61,13 +61,6 @@ const lineOf = (page: P, font: string) =>
 const near = (actual: number, expected: number, what: string, tolerance = 0.6) => expect(Math.abs(actual - expected), `${what}: ${actual} ≠ ${expected}`).toBeLessThanOrEqual(tolerance);
 const unquoted = (family: string) => family.replaceAll(/["']/g, '').replaceAll(/\s*,\s*/g, ', ').trim();
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The boxes of the characters of one line's code, one per row it is drawn on: where each row begins and ends. */
 const rows = (target: Locator): Promise<Box[]> =>
   target.evaluate((el) => {

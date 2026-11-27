@@ -27,7 +27,7 @@ A design system should feel right by default and follow you when you change one 
 | `dial.type.contrast` | 1 | how far headings stand apart from body text |
 | `dial.space.unit` | 8px | every distance |
 | `dial.size.unit` | 4px | the distance between the control sizes, and icon sizes |
-| `dial.control.height` | 40px | how tall controls and rows are at their default size; small and large are whole size units from it ([Size and density](/foundations/size-and-density/)) |
+| `dial.control.height` | 36px | how tall controls and rows are at their default size; small and large are whole size units from it ([Size and density](/foundations/size-and-density/)) |
 | `dial.shape.unit` | 2px | every corner |
 | `dial.stroke.unit` | 1px | borders, rings, the focus indicator |
 | `dial.motion.unit` | 50ms | every duration |
@@ -68,6 +68,7 @@ A design system is a small JSON file that *extends* another. Mostly it changes v
 | This token to use a different step | re-point the alias |
 | This one value to stay put whatever the dials do | pin `$value` with a `reason` |
 | A brand or domain color with its own `on-` and `-container` roles, contrast-checked | declare a palette with `"roles": "intent"` |
+| Your brand color on the main action and the selected controls | declare a palette named `primary`: the primary roles are drawn from it in every scheme, contrast-checked, wherever the system you extend drew them from before |
 
 Because every platform's code is generated from the same resolved system, one pull request changes the web, SwiftUI, Compose, Flutter and React Native together.
 

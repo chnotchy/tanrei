@@ -7,7 +7,7 @@
 // the start has no fixture: the tests that need one build it (`fixture(id, { heroAlignment: 'start' })`).
 import AxeBuilder from '@axe-core/playwright';
 import { type Browser, type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { decodePng } from '../../../test/png.js';
@@ -18,9 +18,11 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { CarouselGeometry, type CarouselMetrics } from './carousel-geometry.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
 import { type Frame, type Frames, expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { bezierOf, cubicBezier, resolveEasing } from '../../../test/appear.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('carousel');
 type P = Page;
@@ -254,14 +256,6 @@ const listen = (page: P, id: string) =>
     for (const el of host.querySelectorAll('tanrei-carousel-item')) el.addEventListener('click', () => (log[el.getAttribute('label')!] = (log[el.getAttribute('label')!] ?? 0) + 1));
   });
 const clicks = (page: P) => page.evaluate(() => (window as any).clicks as Record<string, number>);
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** What has keyboard focus: an item by its label, or the carousel's own control by its class. */
 const focused = (page: P) =>
   page.evaluate(() => {
@@ -1106,10 +1100,10 @@ test.describe('behavior', () => {
     expect(under[1][0] + under[1][1]).toBeGreaterThan(400);
     expect(await carousel(page, id).locator('.stage').evaluate((el) => getComputedStyle(el).overflowX)).toBe('clip');
     // The product sizes it through CSS: the items follow the height, less the controls row where there is one.
-    await carousel(page, id).evaluate((el) => (el.style.blockSize = '120px'));
+    await restyle(carousel(page, id), { 'block-size': '120px' });
     await expect.poll(async () => (await bounds(item(page, id, 0))).height).toBe(120);
     const controls = await resolveToken(page, T('controls-height'));
-    await carousel(page, 'indicator').evaluate((el) => (el.style.blockSize = '300px'));
+    await restyle(carousel(page, 'indicator'), { 'block-size': '300px' });
     await expect.poll(async () => (await bounds(item(page, 'indicator', 0))).height).toBe(300 - controls);
   });
 
@@ -1863,7 +1857,7 @@ test.describe('behavior', () => {
     expect((await boxes(page, id))[1]).toEqual([16 + 280, 208]);
     // Without motion: every offset it passed through is a final one.
     expect(new Set(await traced(page)).size).toBeLessThanOrEqual(2);
-    await page.locator(`[data-fixture="${id}"]`).evaluate((el) => (el.style.inlineSize = '400px'));
+    await restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': '400px' });
     await expect.poll(async () => (await boxes(page, id))[1][1]).toBe(200);
     expect((await boxes(page, id))[1]).toEqual([100, 200]);
   });
@@ -2987,6 +2981,16 @@ test.describe('behavior', () => {
     expect(await offset(page, id), 'from zero').toBe(0);
     await page.clock.runFor(200);
     await expect.poll(() => offset(page, id)).toBe(s);
+  });
+
+  test('CRL-44: the playback control and the dots’ container are the control height at 32, 36 and 40', async ({ page }) => {
+    if (!(await page.evaluate(() => matchMedia('(pointer: fine)').matches))) test.skip(true, 'measured under a fine pointer');
+    await mountFixtures(page, spec, { icons: true, fixtures: only('playback-control', 'indicator') });
+    for (const h of CONTROL_HEIGHTS) {
+      await atControlHeight(page, h);
+      await expect.poll(async () => { const box = await bounds(playback(page, 'playback-control')); return [box.width, box.height]; }, `the playback control at ${h}`).toEqual([h, h]);
+      await expect.poll(async () => (await bounds(indicator(page, 'indicator'))).height, `the dots' container at ${h}`).toBe(h);
+    }
   });
 
   test('CRL-35: the playback control — pause while playing, play_arrow while paused, named by pauseLabel and playLabel, no pressed state; it toggles paused, fires pausedchange and keeps focus', async ({ page }) => {

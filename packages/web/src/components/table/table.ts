@@ -198,11 +198,17 @@ let groups = 0;
  * in the frame's read phase (src/primitives/read-phase.ts), after its layout and before its paint: every table of the
  * frame is read there with every other element that reads, at no cost, and what they write is drawn in that frame.
  * One observer of sizes serves every table, for the same reason: its entries arrive together.
+ *
+ * A table the page does not draw now — in content the browser skips (`content-visibility`, a closed disclosure) or
+ * under no box at all — is not measured: the browser would lay out what it skips there and then, for the read (in
+ * WebKit, the tokens table of a component's page: a quarter of a second as the page loaded). Its sizes say nothing yet
+ * either. The observer reports it once it is drawn, and it is measured then, in that frame.
  */
 const unmeasured = new Set<TanreiTable>();
 const MEASURE = {};
+const drawnNow = (table: TanreiTable) => table.isConnected && (typeof table.checkVisibility !== 'function' || table.checkVisibility({ contentVisibilityAuto: true }));
 function measureAll(tables: Iterable<TanreiTable>) {
-  const read = [...tables].filter((table) => table.isConnected).map((table) => [table, table.sizes()] as const);
+  const read = [...tables].filter(drawnNow).map((table) => [table, table.sizes()] as const);
   for (const [table, sizes] of read) table.sized(sizes);
 }
 function measureSoon(table: TanreiTable) {
@@ -210,18 +216,34 @@ function measureSoon(table: TanreiTable) {
   readInPhase(MEASURE, () => {
     const all = [...unmeasured];
     unmeasured.clear();
-    const read = all.filter((each) => each.isConnected).map((each) => [each, each.sizes()] as const);
+    const read = all.filter(drawnNow).map((each) => [each, each.sizes()] as const);
     return () => {
       for (const [each, sizes] of read) each.sized(sizes);
     };
   });
 }
 const observed = new WeakMap<Element, TanreiTable>();
+/** The border box of each box the observer watches, as the table's last measure read it (`sizes()`). */
+const measuredBoxes = new WeakMap<Element, [width: number, height: number]>();
+/**
+ * Whether a report says nothing to measure: the box has no size (a table not drawn: in content the browser skips, or
+ * under no box), or it is as the table's last measure read it — the first report of a box just watched, after the read
+ * phase measured it. Measured in the observer's report, after another observer's report wrote, it had the page laid out
+ * again for nothing.
+ */
+const nothingNew = (entry: ResizeObserverEntry) => {
+  const box = entry.borderBoxSize?.[0];
+  if (!box) return false;
+  if (box.inlineSize === 0 && box.blockSize === 0) return true;
+  const read = measuredBoxes.get(entry.target);
+  return !!read && Math.abs(read[0] - box.inlineSize) < 0.5 && Math.abs(read[1] - box.blockSize) < 0.5;
+};
 const resizes =
   typeof ResizeObserver === 'undefined'
     ? null
     : new ResizeObserver((entries) => {
-        measureAll(new Set(entries.map((entry) => observed.get(entry.target)).filter((table): table is TanreiTable => !!table)));
+        const changed = entries.filter((entry) => !nothingNew(entry));
+        if (changed.length) measureAll(new Set(changed.map((entry) => observed.get(entry.target)).filter((table): table is TanreiTable => !!table)));
       });
 function observeSize(element: Element, table: TanreiTable) {
   observed.set(element, table);
@@ -1506,6 +1528,10 @@ export class TanreiTable extends TanreiLightElement {
     const lead = first?.matches(SELECTION_CELL) ? (first.nextElementSibling as HTMLElement | null) : first;
     const select = first && first !== lead && this.mode !== 'none' ? first : null;
     const released = !!lead && lead.offsetWidth + (select?.offsetWidth ?? 0) > this.clientWidth / 2;
+    for (const box of table ? [this, table] : [this]) {
+      const { width, height } = box.getBoundingClientRect();
+      measuredBoxes.set(box, [width, height]);
+    }
     return {
       scrolls: !!table && (range > SLACK || this.scrollHeight - this.clientHeight > SLACK),
       released,

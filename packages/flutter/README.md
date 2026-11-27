@@ -262,7 +262,7 @@ composable).
   elevation: ring as a border, the rest as shadows) and shaped by `container.shape`, with the arc
   centered on it in `contained.indicator.color` (LDG-3). It is never mirrored (LDG-8).
 - **Reduced motion** (`MediaQuery.disableAnimations`): the whole circle, still, its opacity eased
-  1 → 0 → 1 once per cycle with `sys.motion.easing.standard`; the container does not move or fade
+  1 → `motion.pulse-floor-opacity` → 1 once per cycle, never below that floor, with `sys.motion.easing.standard`; the container does not move or fade
   (LDG-4). The ring geometry and the pulse are shared with the progress indicator
   (`TanreiRing`, `tanreiPulseOpacity`).
 - **Semantics.** The label is the name, with no value; never focusable, no live region, nothing

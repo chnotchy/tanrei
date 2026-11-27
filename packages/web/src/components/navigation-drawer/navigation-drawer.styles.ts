@@ -1013,7 +1013,7 @@ const PILL_X = `calc(${COLUMN} / 2 - ${D('--_nvd-pill')} / 2 - ${PAD_INLINE})`;
 export const cellStyles = css`
   :host {
     display: block;
-    outline: none;
+    outline: none !important;
     /* NVD-65: the glyph sizes of the drawer's size, as properties the icon helper reads. */
     --_nvd-cell-icon: ${d('--_nvd-icon')};
     --_nvd-cell-trailing-icon: ${d('--_nvd-trailing-icon')};

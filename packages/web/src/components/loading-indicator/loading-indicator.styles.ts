@@ -81,10 +81,12 @@ export const styles = css`
     stroke-dashoffset: calc(var(--_stroke) / -2);
   }
 
-  /* LDG-4: under reduced motion it does not turn — the whole circle, its opacity easing from 1 to 0 and back once per
-     cycle with sys.motion.easing.standard; a container stays still and opaque. */
+  /* LDG-4: under reduced motion it does not turn — the whole circle, its opacity easing from 1 down to the pulse's floor
+     and back once per cycle with sys.motion.easing.standard, never fading to nothing; a container stays still and
+     opaque. */
   ${reducedMotion(css`
     .indicator {
+      --_pulse-floor: ${T('motion-pulse-floor-opacity')};
       animation: pulse ${T('motion-cycle-duration')} var(--tanrei-sys-motion-easing-standard) infinite;
     }
     circle {

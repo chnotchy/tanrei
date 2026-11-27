@@ -193,8 +193,13 @@ to know:
   `<tanrei-text-field label="Name" maxlength="40" required="">`. The attribute's name and the element's default come
   from the manifest, and the text from the element's own converter, so a prop at its default writes nothing (a
   `false` is never written as present) and a boolean that is on by default and turned off writes what the element
-  reads as off (`icon-only="false"`, `no-handle`). Handlers, objects and arrays are set in the browser once the
-  component mounts; the attributes it hydrates over are not reported as a mismatch.
+  reads as off (`icon-only="false"`, `no-handle`). A list the element reads from an attribute is written too, as the
+  element's converter writes it or as JSON (`<ChipField value={['a', 'b']} />` is `<tanrei-chip-field
+  value="[&quot;a&quot;,&quot;b&quot;]">`, a multiple `<Combobox values={…}>` likewise), so its entries are in the HTML
+  and drawn as soon as the element is defined, before the page is hydrated. A text is written only where the element
+  reads it back as the very value it was given (strings stay strings, entries keep their order); anything else —
+  handlers, a list the element reads in another form, a list no attribute carries (a checkbox group's `value`) — is set
+  in the browser once the component mounts. The attributes it hydrates over are not reported as a mismatch.
 - **No shadow root is rendered on the server.** Lit's server renderer (`@lit-labs/ssr-react`, `@lit-labs/nextjs`) is
   not supported: many of the elements read their children and the document while they render, which it does not
   provide, and they fail under it. The element draws itself when its definition loads.

@@ -199,6 +199,23 @@ import { themeScript } from '@tanrei/web/theme-script';
 
 要从脚本设置令牌，请使用 `@tanrei/web` 的 `setTokens()`：在根上是 `setTokens({ '--tanrei-sys-color-primary': '#0b57d0' })`，对页面的一部分则加上 `{ on: element }`。在根上用 `style.setProperty()` 单独设置一个令牌，会让 Safari 花几秒钟重新计算整个页面的样式；`setTokens()` 的写法不会这样。
 
+## 自己的焦点环
+
+每个元素都会用系统的焦点令牌（`--tanrei-sys-focus-offset`, `--tanrei-sys-focus-inner-width`, `--tanrei-sys-focus-outer-width`, `--tanrei-sys-color-focus-ring`, `--tanrei-sys-color-focus-ring-inner`）自行绘制键盘焦点指示；要改变它，请修改这些令牌。页面上作用于所有获得焦点元素的规则（`:focus-visible { outline: … }`，或重置样式表中的同类规则）可以保留。宿主自身获得焦点的元素（例如标签页、标签面板、列表项）把焦点环画在内部，并在宿主上设置 `outline: none !important`。页面自己的规则优先于影子根中的规则，但胜不过 `!important` 的规则，所以页面的轮廓不会再叠加画在它的周围。
+
+为你自己的标记准备的样式表（`table.css`、`link.css`、`prose.css` 等）位于 `@layer tanrei.components` 中，而不在任何层中的规则会胜过所有层内的规则：不放进层里的焦点规则会用你的焦点环替换它们的焦点环。在页面最先加载的样式表中，把你自己的层声明在 Tanrei 之前，再把规则放进去，它们的焦点环就会照原样绘制：
+
+```css
+@layer base, tanrei;
+
+@layer base {
+  :focus-visible {
+    outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);
+    outline-offset: var(--tanrei-sys-focus-offset);
+  }
+}
+```
+
 ## 文本样式
 
 文本样式按层级命名（`heading-2` 对应 `h2`，`body` 对应 `p`，`label` 对应控件上的文字），每个样式都是一组单独的自定义属性：`--tanrei-sys-typescale-<role>-font-family`、`-font-size`、`-font-weight`、`-line-height`、`-letter-spacing` 和 `-font-weight-emphasized`。没有简写属性：像上面的例子那样，在绘制文本的地方用这些属性组合出 `font`；修改样式时也一次只改一个属性。在根元素上，或在页面的某个元素、某个区域上设置 `--tanrei-sys-typescale-body-font-size: 1rem`，只会改变那里文本的字号，其他一概不变。另有两份可选的样式表，可以替你把它们应用到元素上：

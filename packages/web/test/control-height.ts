@@ -1,7 +1,7 @@
 /**
  * One control height. A product sets `dial.control.height` once and every control and row of its default size is drawn
- * at it: these are the heights a test draws the rows of a family at — a compact product's, HeroUI's desktop height and
- * the default.
+ * at it: these are the heights a test draws the rows of a family at — a compact product's, the default (HeroUI's desktop
+ * height) and the presets' 40.
  */
 import type { Page } from '@playwright/test';
 import { resolveToken, rootTokens } from './harness.js';

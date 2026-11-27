@@ -6,7 +6,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo } from '../../../test/harness.js';
+import { type Fixture, dialogWindow, loadSpec, mountFixtures, resolveColor, resolveToken, rootTokens, tab, tabTo, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectScrimTakenAwayAtClose } from '../../../test/scrim-at-close.js';
@@ -25,7 +25,7 @@ const bounds = async (locator: Locator) => (await locator.boundingBox())!;
 function reports(page: P) {
   const seen: { type: string; text: string }[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push({ type: message.type(), text: message.text() });
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push({ type: message.type(), text: message.text() });
   });
   return seen;
 }

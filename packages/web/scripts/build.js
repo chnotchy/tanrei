@@ -35,12 +35,12 @@ fs.copyFileSync('src/generated/tokens.css', 'dist/tokens.css');
 fs.writeFileSync('dist/text.css', sheet('src/styles/text.css'));
 // The callout before its element is defined (CLO-13, CLO-22): the box its server-rendered content keeps a place in.
 fs.writeFileSync('dist/callout.css', sheet('src/components/callout/callout.css'));
-// The avatar before its element is defined (AVT-1, AVT-16): the box it will have, so a page of avatars does not move.
-fs.copyFileSync('src/components/avatar/avatar.css', 'dist/avatar.css');
+// The avatar before its element is defined: below, where the counted rules are written.
 // The empty state before its element is defined (EMP-1, EMP-2): the place its server-rendered words keep.
 fs.writeFileSync('dist/empty-state.css', sheet('src/components/empty-state/empty-state.css'));
 // The menu drawn in place before its elements are defined (MNU-19's verify): the block size its surface will have.
 fs.copyFileSync('src/components/menu/menu.css', 'dist/menu.css');
+fs.copyFileSync('src/components/keyboard-shortcut/keyboard-shortcut.css', 'dist/keyboard-shortcut.css');
 // The menubar before its elements are defined, and where script does not run (MBR-45): its link items, as links that work.
 fs.copyFileSync('src/components/menubar/menubar.css', 'dist/menubar.css');
 // The app bar before its element is defined (APB-34): the block size it will have, so the page under it does not move.
@@ -63,7 +63,22 @@ const CLOAK_ELEMENTS = ':where(tanrei-elements:not(:defined))';
 // light-DOM stylesheet's is (`writeReducedMotion()`).
 const cloakSource = writeReducedMotion(fs.readFileSync('src/styles/cloak.css', 'utf8'));
 if (cloakSource.split(CLOAK_ELEMENTS).length !== 2) throw new Error(`cloak.css: expected one ${CLOAK_ELEMENTS} to write the element names into`);
-fs.writeFileSync('dist/cloak.css', cloakSource.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')));
+// An attribute whose number gives a size — a multi-line input's fewest rows (`min-rows`), an avatar group's `max` and
+// `total` — is counted where the browser does not read an attribute as a number: each rule that names `tanrei-count` is
+// written once for each whole count from 1 to COUNTED (a count beyond it is held as the element's default, never
+// higher than it is drawn), as code.css counts a code block's `max-lines` (src/components/code-block/code-block.before.ts).
+const COUNTED = 50;
+const COUNT = /^ *[^\n{}]*tanrei-count[^\n{}]*\{[^{}]*\}\n/gm;
+const counted = (source, file) => {
+  const rules = source.match(COUNT) ?? [];
+  if (!rules.length) throw new Error(`${file}: expected a rule naming tanrei-count to write the counts into`);
+  return source.replace(COUNT, (rule) => Array.from({ length: COUNTED }, (_, index) => rule.replaceAll('tanrei-count', String(index + 1))).join(''));
+};
+// The avatar before its element is defined (AVT-1, AVT-16): the box it will have, so a page of avatars does not move;
+// a group's overflow box is counted by its `max` and its `total`.
+fs.writeFileSync('dist/avatar.css', counted(fs.readFileSync('src/components/avatar/avatar.css', 'utf8'), 'avatar.css'));
+const cloakCounted = counted(cloakSource, 'cloak.css');
+fs.writeFileSync('dist/cloak.css', cloakCounted.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')));
 // The corner-smoothing rule is one source (src/styles/shape.ts, shared by the components' shadow styles); for a
 // light-DOM box it is the same text as a stylesheet.
 const { SHAPE_CSS } = await import('../dist/styles/shape.js');
@@ -392,4 +407,4 @@ for (const file of fs.readdirSync('dist', { recursive: true })) {
 fs.mkdirSync('dist/links/node', { recursive: true });
 for (const file of fs.readdirSync('src/links/node')) if (/\.(?:js|d\.ts)$/.test(file)) fs.copyFileSync(`src/links/node/${file}`, `dist/links/node/${file}`);
 fs.chmodSync('dist/links/node/cli.js', 0o755);
-console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/menubar.css, dist/app-bar.css, dist/cloak.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/<id>.theme-color.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));
+console.log('✔ web: dist/tokens.css, dist/icons.css, dist/text.css, dist/prose.css, dist/link.css, dist/steps.css, dist/timeline.css, dist/previous-next-links.css, dist/code.css, dist/table.css, dist/accordion.css, dist/table-of-contents.css, dist/description-list.css, dist/figure.css, dist/app-shell.css, dist/page-header.css, dist/link-card.css, dist/tree-view.css, dist/breadcrumbs.css, dist/skeleton.css, dist/shape.css, dist/callout.css, dist/empty-state.css, dist/avatar.css, dist/keyboard-shortcut.css, dist/menubar.css, dist/app-bar.css, dist/cloak.css, dist/systems/*.css, dist/systems/*.components.json, dist/systems/<id>.theme-color.json, dist/<id>.js, dist/all.js, dist/custom-elements/*.json, dist/tanrei.bundle.js' + conditionedForSystems.map((file) => `, ${file}`).join(''));

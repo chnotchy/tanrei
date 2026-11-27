@@ -319,7 +319,7 @@ export const itemStyles = css`
   :host {
     display: block;
     /* MNU-11: the ring is drawn inside the row, never around the host. */
-    outline: none;
+    outline: none !important;
     /* MNU-64: the glyphs' boxes of the menu's size, as properties the glyph rules name. */
     --_mi-leading-icon-size: ${d('leading-icon-size')};
     --_mi-trailing-icon-size: ${d('trailing-icon-size')};

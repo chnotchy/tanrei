@@ -14,7 +14,7 @@ const MenuItemElement = /* @__PURE__ */ createComponent({
     onClick: 'click' as EventName<TanreiEvent<TanreiMenuItemElement, MouseEvent>>,
   },
 });
-const MenuItemAttributes = { current: ['current', false], destructive: ['destructive', false], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null], trailingIcon: ['trailing-icon', ''], shortcut: ['shortcut'], label: ['label', ''], supportingText: ['supporting-text', ''], leadingIcon: ['leading-icon', ''], trailingText: ['trailing-text', ''], disabled: ['disabled', false] } as const;
+const MenuItemAttributes = { current: ['current', false], destructive: ['destructive', false], href: ['href', ''], target: ['target', 'same'], targetLabel: ['target-label', ''], rel: ['rel', null], download: ['download', null], trailingIcon: ['trailing-icon', ''], shortcut: ['shortcut', []], label: ['label', ''], supportingText: ['supporting-text', ''], leadingIcon: ['leading-icon', ''], trailingText: ['trailing-text', ''], disabled: ['disabled', false] } as const;
 /**
  * An action in a menu — the spec's item kind `item`: it does something and closes the menu.
  *

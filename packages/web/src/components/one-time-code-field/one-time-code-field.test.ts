@@ -10,7 +10,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, requirementDrawn, resolveToken, setWords, tab, twinOf } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, requirementDrawn, resolveToken, setWords, tab, twinOf, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { decodePng } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
 
@@ -44,7 +44,7 @@ const focusPath = (page: P) =>
 function warnings(page: P) {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push(message.text());
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
   });
   return seen;
 }

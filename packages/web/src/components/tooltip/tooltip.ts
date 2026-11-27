@@ -159,6 +159,7 @@ export class TanreiTooltip extends TanreiElement {
     showDelay: { attribute: 'show-delay', converter: numeric },
     hideDelay: { attribute: 'hide-delay', converter: numeric },
     touchTimeout: { attribute: 'touch-timeout', converter: numeric },
+    inline: { type: Boolean, reflect: true },
     layers: { state: true },
     confirming: { attribute: false },
   };
@@ -242,6 +243,14 @@ export class TanreiTooltip extends TanreiElement {
    */
   touchTimeout: number | null = null;
 
+  /**
+   * For tests and documentation: draws the open container in place — inside its positioned ancestor, which stands for
+   * the window — not in the top layer. It then answers no Escape and no press elsewhere, closes only when its anchor is
+   * removed or hidden, and, in a window of its own, neither closes another tooltip nor is closed by one (TIP-8): a page
+   * can show several open as pictures.
+   */
+  inline = false;
+
   private hovering = false;
   private keyboard = false;
   /** TIP-4, TIP-6: closed by Escape, an activation or a press on it: it stays closed until the pointer comes back or focus does. */
@@ -306,7 +315,7 @@ export class TanreiTooltip extends TanreiElement {
     if (fading === this) fading = null;
     this.shown = false;
     this.side = null;
-    this.surface?.classList.remove('open');
+    this.surface?.classList.remove('open', 'in-place');
     this.describe(null);
     this.key(null, null);
   }
@@ -390,8 +399,8 @@ export class TanreiTooltip extends TanreiElement {
     if (open && (!this.hasText || this.confirming)) return;
     if (this.open === open) return;
     if (open) this.tookOver = this.takesOver;
-    // TIP-8: the other tooltip closes first, at once.
-    if (open && showing && showing !== this) showing.giveWay();
+    // TIP-8: the other tooltip closes first, at once — one in its window: drawn in place, it is in a window of its own.
+    if (open && !this.inline && showing && showing !== this) showing.giveWay();
     this.open = open;
     this.dispatchEvent(new CustomEvent<TanreiTooltipToggleDetail>('toggle', { detail: { open } }));
   }
@@ -416,6 +425,7 @@ export class TanreiTooltip extends TanreiElement {
    * was left, or one closed that way within the warm time. It then waits for no show delay and makes no motion.
    */
   private get takesOver(): boolean {
+    if (this.inline) return false;
     return (showing !== null && showing !== this) || (fading !== null && fading !== this) || warm;
   }
 
@@ -601,17 +611,36 @@ export class TanreiTooltip extends TanreiElement {
 
   // ── Presentation (TIP-9, TIP-13, TIP-15, TIP-22 to TIP-29) ────────────────────────────────────────────────────────
 
-  /** TIP-9: places the container against the anchor, in viewport coordinates; closes when the anchor has gone. */
+  /**
+   * TIP-9: the window the container is kept in, in the window's pixels: the browser's, or, in place (`inline`), the
+   * padding box of the positioned ancestor that stands for it, where the container's `top` and `left` are counted from.
+   */
+  private frame(surface: HTMLElement): { x: number; y: number; width: number; height: number } {
+    const root = document.documentElement;
+    if (!this.inline) return { x: 0, y: 0, width: root.clientWidth, height: root.clientHeight };
+    const parent = (surface.offsetParent as HTMLElement | null) ?? root;
+    const box = parent.getBoundingClientRect();
+    // Its client lengths are in its own pixels (`cssZoom()`).
+    const zoom = cssZoom(parent);
+    return { x: box.x + parent.clientLeft * zoom, y: box.y + parent.clientTop * zoom, width: parent.clientWidth * zoom, height: parent.clientHeight * zoom };
+  }
+
+  /** TIP-9: places the container against the anchor, in the coordinates of its window; closes when the anchor has gone. */
   private place() {
     const surface = this.surface;
     const motion = this.motion;
     const container = this.renderRoot?.querySelector<HTMLElement>('.bubble');
     if (!surface || !motion || !container || !this.shown) return;
     const element = this.anchor ?? this;
-    const anchor = element.getBoundingClientRect();
-    const viewport = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
-    // Removed, hidden (display: none, visibility: hidden, a closed <details>) or out of sight (src/primitives/placement.ts).
-    const gone = !this.isConnected || anchorGone(element, anchor, viewport);
+    const box = element.getBoundingClientRect();
+    const frame = this.frame(surface);
+    const viewport = { width: frame.width, height: frame.height };
+    // In the window's coordinates, or in place in those of the box that stands for it.
+    const anchor = { x: box.x - frame.x, y: box.y - frame.y, width: box.width, height: box.height };
+    // Removed, hidden (display: none, visibility: hidden, a closed <details>) or out of sight (src/primitives/placement.ts);
+    // in place, removed or hidden only: it is in a window of its own, which the browser's window does not scroll away.
+    const hidden = typeof element.checkVisibility === 'function' && !element.checkVisibility({ visibilityProperty: true });
+    const gone = !this.isConnected || (this.inline ? !element.isConnected || hidden : anchorGone(element, box, viewport));
     if (gone) {
       this.clearTimers();
       this.setBySelf(false);
@@ -691,7 +720,9 @@ export class TanreiTooltip extends TanreiElement {
     // The surface's own size too, unrounded: its text reflowing (a web font arriving after it opened) moves the centre.
     const size = surface?.getBoundingClientRect();
     // TIP-19: the layout direction too — `start` and `end` are sides of it (TIP-20), so a change of it places the container again.
-    const layout = `${box.x},${box.y},${box.width},${box.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${size?.width},${size?.height},${this.drawnAs}`;
+    // In place, the box that stands for the window, which moves and changes size as the page lays out.
+    const frame = surface && this.inline ? Object.values(this.frame(surface)).join(',') : '';
+    const layout = `${box.x},${box.y},${box.width},${box.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${size?.width},${size?.height},${frame},${this.drawnAs}`;
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();
@@ -726,20 +757,34 @@ export class TanreiTooltip extends TanreiElement {
     const surface = this.surface;
     const motion = this.motion;
     if (!surface || !motion || !this.isConnected) return;
-    const whole = !(!this.shown && surface.matches(':popover-open')) && (this.tookOver || this.takesOver);
+    const whole = !(!this.shown && this.presented(surface)) && (this.tookOver || this.takesOver);
     this.tookOver = false;
-    // TIP-8, TIP-28: at most one tooltip in a window, and the one before disappears at once.
-    if (showing && showing !== this) showing.giveWay();
-    if (fading && fading !== this) fading.hide(false);
-    if (fading === this) fading = null;
-    showing = this;
+    // TIP-8, TIP-28: at most one tooltip in a window, and the one before disappears at once. In place, it is in a window
+    // of its own (the box that stands for it): it takes no part in the browser window's one.
+    if (!this.inline) {
+      if (showing && showing !== this) showing.giveWay();
+      if (fading && fading !== this) fading.hide(false);
+      if (fading === this) fading = null;
+      showing = this;
+    }
     // Into the top layer and placed with every other host's reads of the turn, after the renders
     // (src/primitives/read-phase.ts), and only if it is still the one showing then: of a hundred tooltips opened at
     // once, the ninety-nine that gave way never enter the top layer, nor have the page laid out to be placed.
     const presenting = ++this.presenting;
     readTogether(() => () => {
-      if (presenting === this.presenting && showing === this && this.open && this.isConnected) this.present(whole);
+      if (presenting === this.presenting && (this.inline || showing === this) && this.open && this.isConnected) this.present(whole);
     });
+  }
+
+  /** Whether the placed box is presented: in the top layer, or, in place, drawn where it stands. */
+  private presented(surface: HTMLElement): boolean {
+    return this.inline ? surface.classList.contains('in-place') : surface.matches(':popover-open');
+  }
+
+  /** Takes the placed box out of the top layer, or, in place, stops drawing it. */
+  private withdraw(surface: HTMLElement) {
+    surface.classList.remove('in-place');
+    if (surface.matches(':popover-open')) surface.hidePopover();
   }
 
   /** What `show` does once it is still the tooltip showing after the renders of the turn. */
@@ -747,10 +792,11 @@ export class TanreiTooltip extends TanreiElement {
     const surface = this.surface;
     const motion = this.motion;
     if (!surface || !motion) return;
-    const leaving = !this.shown && surface.matches(':popover-open');
+    const leaving = !this.shown && this.presented(surface);
     // Shown again even when still open, so it is the newest in the top layer: above a dialog opened since — and, still
-    // leaving, put back where its exit has got to (TIP-29).
-    if (surface.matches(':popover-open'))
+    // leaving, put back where its exit has got to (TIP-29). In place, it is drawn where it stands.
+    if (this.inline) surface.classList.add('in-place');
+    else if (surface.matches(':popover-open'))
       this.appear.keep(() => {
         surface.hidePopover();
         surface.showPopover();
@@ -767,8 +813,11 @@ export class TanreiTooltip extends TanreiElement {
       this.following.stop();
       return;
     }
-    document.addEventListener('pointerdown', this.onDocumentPress, true);
-    window.addEventListener('keydown', this.onEscape, true);
+    // In place, it answers no Escape and no press elsewhere: it is a picture of an open tooltip.
+    if (!this.inline) {
+      document.addEventListener('pointerdown', this.onDocumentPress, true);
+      window.addEventListener('keydown', this.onEscape, true);
+    }
     // Placed, it starts from the side it was placed on (its style was read for its size before it had one); a tooltip
     // still leaving goes on from where it is; one that takes over is whole at once (TIP-28), drawn so by its entrance —
     // drawn first where it was placed as well, its style was read once more for nothing.
@@ -790,12 +839,12 @@ export class TanreiTooltip extends TanreiElement {
     this.presenting++;
     if (showing === this) showing = null;
     // Never presented (it gave way in the turn it was opened in), or gone already: there is nothing drawn to take away.
-    if (!surface || !motion || (!this.shown && !surface.matches(':popover-open'))) return;
+    if (!surface || !motion || (!this.shown && !this.presented(surface))) return;
     const finish = () => {
       if (this.shown) return;
       if (fading === this) fading = null;
       this.side = null;
-      if (surface.matches(':popover-open')) surface.hidePopover();
+      this.withdraw(surface);
     };
     if (!this.shown) {
       // Already leaving: told to go at once, it goes (TIP-28).
@@ -812,8 +861,8 @@ export class TanreiTooltip extends TanreiElement {
       finish();
       return;
     }
-    // TIP-28: tooltips stay warm from now, for the warm time.
-    if (left) {
+    // TIP-28: tooltips stay warm from now, for the warm time — in the browser's window: one in place has a window of its own.
+    if (left && !this.inline) {
       warmFor(this.tokenTiming().warm);
       fading = this;
     }
@@ -902,6 +951,17 @@ export class TanreiTooltip extends TanreiElement {
   protected override willUpdate(changed: PropertyValues<this>) {
     // TIP-16: without text it never opens.
     if (changed.has('open') && this.open && !this.hasText) this.open = false;
+    // Drawn in place or in the top layer from now: what it showed the other way is taken away, and shown again (`updated`).
+    const surface = this.surface;
+    if (changed.has('inline') && changed.get('inline') !== undefined && surface) {
+      this.stopFollowing();
+      this.presenting++;
+      if (showing === this) showing = null;
+      if (fading === this) fading = null;
+      this.shown = false;
+      surface.classList.remove('open');
+      this.withdraw(surface);
+    }
   }
 
   protected override updated(changed: PropertyValues<this>) {
@@ -938,7 +998,7 @@ export class TanreiTooltip extends TanreiElement {
       // A style query follows a system switched on the root by itself; here the choice is read again when it is.
       this.systemWatch ??= new SystemWatchController(this);
     }
-    if (changed.has('open')) {
+    if (changed.has('open') || (changed.has('inline') && changed.get('inline') !== undefined)) {
       if (this.open) this.show();
       else {
         this.touchShown = false;
@@ -957,7 +1017,7 @@ export class TanreiTooltip extends TanreiElement {
       <slot @slotchange=${() => this.sync()}></slot>
       <div
         class="surface"
-        popover="manual"
+        popover=${this.inline ? nothing : 'manual'}
         role="tooltip"
         aria-hidden=${(!this.noDescribe && this.hasText) || this.confirming ? 'true' : nothing}
         @pointerenter=${() => clearTimeout(this.hideTimer)}

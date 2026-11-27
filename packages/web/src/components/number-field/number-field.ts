@@ -93,7 +93,7 @@ const INPUT_PARTS = exported(TanreiNumberInput, { label: { as: 'number-input-lab
  * level down.
  *
  * Form-associated (NUM-48): it submits the value under `name` as a plain decimal number ("12.5") whatever the locale
- * shows — nothing while disabled —, resets to its `value` attribute, is restored on navigation, follows a disabled
+ * shows — nothing while disabled —, resets to the value it was first given, is restored on navigation, follows a disabled
  * `<fieldset>`, and reports what its number input reports: a missing value while `required` is set and it
  * holds none, and a bad input while it holds a text that is not a number. Enter presses the default button of this
  * element's form.
@@ -296,9 +296,9 @@ export class TanreiNumberField extends ComposedControl<number | null> {
     this.input?.select();
   }
 
-  /** NUM-48: the value a form's reset returns to, the first value, is the `value` attribute, read as the number input reads it — a plain decimal number, or none. */
-  protected override firstValue(): number | null {
-    return numberOrNull(this.getAttribute('value'));
+  /** NUM-48: the `value` attribute, read as the number input reads it — a plain decimal number, or none. */
+  protected override valueFromAttribute(text: string | null): number | null {
+    return numberOrNull(text);
   }
 
   /**

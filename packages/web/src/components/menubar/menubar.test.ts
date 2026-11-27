@@ -9,13 +9,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens, typeRoleOf } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, rootTokens, typeRoleOf, warnings } from '../../../test/harness.js';
 import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-leaves.js';
 import { type Frames, type Probe, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { restyle } from '../../../test/restyle.js';
 
 const spec = loadSpec('menubar');
 type P = Page;
@@ -36,13 +37,6 @@ const css = (locator: Locator, property: string, pseudo?: string) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const box = async (locator: Locator) => locator.evaluate((el) => (({ x, y, width, height }) => ({ x, y, width, height, right: x + width, bottom: y + height }))(el.getBoundingClientRect()));
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 /** The colors have arrived: nothing of the bar is still moving between two states. */
 const settled = (page: P) =>
   page.evaluate(async () => {
@@ -131,8 +125,8 @@ async function focusTitle(page: P, id: string, label: string) {
   await menu(page, id, label).focus();
   await expect.poll(() => focus(page, id)).toBe(`title:${label}`);
 }
-/** The stage's inline size: what the bar's parent gives it. */
-const stageWidth = (page: P, id: string, width: number) => page.locator(`[data-fixture="${id}"]`).evaluate((el, w) => ((el as HTMLElement).style.inlineSize = `${w}px`), width);
+/** The stage's inline size: what the bar's parent gives it, with a frame after the write (`restyle()`), so that the bar's observer of sizes is told. */
+const stageWidth = (page: P, id: string, width: number) => restyle(page.locator(`[data-fixture="${id}"]`), { 'inline-size': `${width}px` });
 /** Whether the focused row of a menu was focused by a pointer's act (no ring), as the menu marks it. */
 const quiet = (page: P) =>
   page.evaluate(() => {
@@ -191,7 +185,7 @@ test.describe('the row and a title', () => {
     }
     // The label's style is the token's: another role changes it.
     const before = await px(container(page, 'default', 'File').locator('.label'), 'font-size');
-    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-headline'));
+    await override(page, typeRoleOf(T('label-typescale'), '--tanrei-sys-typescale-heading-2'));
     expect(await px(container(page, 'default', 'File').locator('.label'), 'font-size')).toBeGreaterThan(before);
   });
 
@@ -897,8 +891,8 @@ test.describe('the keys', () => {
 test.describe('targets and disabled', () => {
   test('MBR-17: a title’s hit area reaches the minimum target on both axes without changing what is drawn; two neighbours’ hit areas meet at the middle of the gap and never overlap; a title narrower than the target is given the room by moving its neighbours apart', async ({ page }) => {
     await mountFixtures(page, spec);
-    // In the default system the target (36) is lower and narrower than a title's container (40 high, a short title
-    // 43 wide), so nothing reaches; a system whose targets are 48 (a platform guideline) is where a title reaches them
+    // In the default system the target (36) is as tall as a title's container (36 high) and narrower than a short
+    // title, so nothing reaches; a system whose targets are 48 (a platform guideline) is where a title reaches them
     // and a short one is given the room.
     await override(page, { '--tanrei-sys-target-pointer': '48px', '--tanrei-sys-target-touch': '48px' });
     const [gap, pointer, touch, height] = [await resolveToken(page, T('bar-gap')), await resolveToken(page, '--tanrei-sys-target-pointer'), await resolveToken(page, '--tanrei-sys-target-touch'), await resolveToken(page, T('container-height'))];

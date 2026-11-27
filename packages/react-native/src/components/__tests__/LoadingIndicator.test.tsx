@@ -5,6 +5,7 @@ import { AccessibilityInfo, Animated, AppState, View, type AppStateStatus } from
 import { tanrei } from '../../generated/systems/tanrei';
 import type { TanreiCoreLoadingIndicatorSize, TanreiLoadingIndicatorTokens, TanreiPaint, TanreiScheme, TanreiSystem } from '../../generated/vocabulary';
 import { describeFixtureBaselines, painted, settleMotion, viewStyle, withComponent, type Instance } from '../../testing/harness';
+import { expectPulseKeepsFloor } from '../../testing/pulse';
 import { loadSpec } from '../../testing/spec';
 import { createTanreiTheme, TanreiProvider, type TanreiProviderProps } from '../../theme/TanreiProvider';
 import { resetLookupReports } from '../../theme/lookup';
@@ -155,7 +156,7 @@ describe('behavior', () => {
     expect(part('elevation-ring')).toBeNull();
   });
 
-  test.each([false, true])('LDG-4: under reduced motion (contained: %s) it does not turn: the whole circle at the indicator\'s size and stroke, its opacity 1 → 0 → 1 once per cycle with sys.motion.easing.standard; a container stays still and opaque', async (contained) => {
+  test.each([false, true])('LDG-4: under reduced motion (contained: %s) it does not turn: the whole circle at the indicator\'s size and stroke, its opacity 1 → floor → 1 once per cycle with sys.motion.easing.standard, never below the floor; a container stays still and opaque', async (contained) => {
     const loops = captureLoops();
     const timing = jest.spyOn(Animated, 'timing');
     await mount({ contained });
@@ -166,12 +167,16 @@ describe('behavior', () => {
     expect(part('indicator.start-cap')).toBeNull();
     expect(loops).toHaveLength(1);
     const pulse = timing.mock.calls.slice(-2);
-    expect(pulse.map(([, config]) => config.toValue)).toEqual([0, 1]);
+    const floor = tokens.motionPulseFloorOpacity;
+    expect(floor).toBeGreaterThan(0);
+    expect(floor).toBeLessThan(1);
+    expect(pulse.map(([, config]) => config.toValue)).toEqual([floor, 1]);
     const standard = toEasing(tanrei.motion.easing.standard);
     for (const [, config] of pulse) {
       expect(config).toMatchObject({ duration: tokens.motionCycleDuration / 2, useNativeDriver: true });
       expect(config.easing!(0.3)).toBeCloseTo(standard(0.3), 10);
     }
+    expectPulseKeepsFloor(pulse.map(([, config]) => config), floor);
     // The container is the host: no opacity, no transform.
     expect(viewStyle(host()).opacity).toBeUndefined();
     expect(viewStyle(host()).transform).toBeUndefined();

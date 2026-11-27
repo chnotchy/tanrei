@@ -33,6 +33,7 @@ import { markdownPathOf } from '../../lib/page-markdown.mjs';
 import { sampleGlyph } from '../../lib/repo';
 import { translations } from '../../../i18n/locales.mjs';
 import { ns, tokensIn } from '../../lib/tokens';
+import { keyboardPlatformScript } from '@tanrei/web/keyboard-convention';
 
 const FILES: Record<string, string> = { Inter: inter, 'Roboto Mono': robotoMono };
 
@@ -52,6 +53,13 @@ const files = firstFamilies(stacks).map((family) => {
 // Laying the probes out asks for the faces at once; the switch comes off in the frame a probe's width changes to one
 // em. Once the page has loaded, `document.fonts.load` waits for each family's face to arrive or fail: a family that
 // cannot draw then never will.
+//
+// While the page loads, the script reads nothing of the layout itself: each probe's width is the one the resize
+// observer reports, after the layout of a frame and before its paint, and the switch is set or taken off there. A
+// probe measured as it was laid out — in the head, and again at DOMContentLoaded — had the browser lay the page out
+// for it there and then: at DOMContentLoaded, the whole page as it had been read and upgraded (in WebKit, on the Arabic
+// button page, 0.8 s). In the head, before the faces are registered, a probe could draw only from a family installed on
+// the machine.
 //
 // The probes are first laid out from the head, under the root element, not once the body has been read: the switch is
 // an inherited value on the root, and taking it off has the browser style every element of the page again. Taken off
@@ -75,10 +83,18 @@ const iconsReady = `(() => {
   root.style.setProperty(SWITCH, 'hidden');
   let probes = [];
   let waiting = false;
-  const drawn = () => probes.every((probe) => { const width = probe.getBoundingClientRect().width; return width > 0 && width <= EM * 1.5; });
-  const sizes = new ResizeObserver(() => drawn() && ready());
+  const draws = (width) => width > 0 && width <= EM * 1.5;
+  const drawn = () => probes.every((probe) => draws(probe.getBoundingClientRect().width));
+  // Each probe's width as the observer last reported it, after the layout of its frame and before its paint.
+  const widths = new Map();
+  const sizes = new ResizeObserver((entries) => {
+    for (const entry of entries) widths.set(entry.target, entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+    if (probes.every((probe) => draws(widths.get(probe) ?? 0))) return ready();
+    if (!root.style.getPropertyValue(SWITCH)) root.style.setProperty(SWITCH, 'hidden');
+  });
   const ready = () => {
     sizes.disconnect();
+    widths.clear();
     for (const probe of probes) probe.remove();
     probes = [];
     if (root.style.getPropertyValue(SWITCH)) root.style.removeProperty(SWITCH);
@@ -92,8 +108,6 @@ const iconsReady = `(() => {
       probe.style.cssText = 'position: absolute; inset-block-start: 0; inset-inline-start: 0; visibility: hidden; pointer-events: none; white-space: nowrap; font: normal ' + EM + 'px/1 var(' + family + '); letter-spacing: normal; font-feature-settings: \\'liga\\'; text-transform: none';
       return root.appendChild(probe);
     });
-    if (drawn()) return ready();
-    if (!root.style.getPropertyValue(SWITCH)) root.style.setProperty(SWITCH, 'hidden');
     for (const probe of probes) sizes.observe(probe);
     if (waiting) return;
     waiting = true;
@@ -115,6 +129,10 @@ const iconsReady = `(() => {
   // of the page as it was read are asked again.
   document.addEventListener('DOMContentLoaded', () => probes.length || measure(), { once: true });
 })();`;
+// And it puts the platform's keyboard convention on the root before anything is drawn (`data-tanrei-keyboard-platform`,
+// by the Keyboard shortcut's own test of the platform): a keyboard table draws its keys in both conventions until the
+// element is defined, and shows the reader's by it, so a row is as wide before as after (visuals/KeyboardMap.astro).
+const keyboardPlatform = keyboardPlatformScript();
 const route = Astro.locals.starlightRoute;
 const markdown = route.entry.data.pagefind === false ? undefined : markdownPathOf(Astro.url.pathname, translations.map(({ dir }) => dir));
 ---
@@ -125,6 +143,7 @@ const markdown = route.entry.data.pagefind === false ? undefined : markdownPathO
 <link rel="stylesheet" href={tokens} />
 <Default />
 <script is:inline set:html={iconsReady} />
+<script is:inline set:html={keyboardPlatform} />
 
 <script>
   import '../../lib/link-fallback';

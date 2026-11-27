@@ -153,7 +153,7 @@
               "value": 44,
               "unit": "px"
             },
-            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: 40 in the default system.",
+            "$description": "The controls row below the items, drawn while the dots or the playback control are. As tall as a touch target, and never lower than the controls it holds (controls.button-size), so both controls keep their whole target inside it: the control height in the default system.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
@@ -169,13 +169,15 @@
               "value": 40,
               "unit": "px"
             },
-            "$description": "The playback control's square, and the height of the dots' container, 40, around a 24 glyph.",
+            "$description": "The playback control's square, and the height of the dots' container, around a 24 glyph: the control height (36 in the default system), held at the minimum target, so that the controls row stands as tall as an icon-only Button of the default size.",
             "$extensions": {
               "dev.tanrei.derive": {
                 "fn": "mul",
-                "of": "{tanrei.dial.size.unit}",
-                "by": 10
-              }
+                "of": "{tanrei.sys.control.height.medium}",
+                "by": 1,
+                "min": "{tanrei.sys.target.minimum}"
+              },
+              "dev.tanrei.aligned": "control"
             }
           },
           "shape": {

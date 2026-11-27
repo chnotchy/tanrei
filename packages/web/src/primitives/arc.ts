@@ -10,7 +10,9 @@ import { css } from 'lit';
  * at the top. SVG is never mirrored by the direction: a ring turns clockwise in every language (PRG-13, LDG-8).
  *
  * Two keyframes: `ring-turn`, one clockwise turn (run it with `sys.motion.easing.linear` for constant speed), and
- * `pulse`, the reduced-motion form — opacity from 1 to 0 and back to 1 (LDG-4, PRG-7).
+ * `pulse`, the reduced-motion form — opacity from 1 down to `--_pulse-floor` and back to 1 (LDG-4, PRG-7). The component
+ * sets `--_pulse-floor` from its pulse-floor-opacity token on the element that pulses: the pulse never fades it to
+ * nothing.
  */
 export const arcStyles = css`
   svg {
@@ -43,7 +45,7 @@ export const arcStyles = css`
       opacity: 1;
     }
     50% {
-      opacity: 0;
+      opacity: var(--_pulse-floor);
     }
   }
 `;

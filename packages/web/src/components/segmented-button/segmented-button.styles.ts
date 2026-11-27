@@ -171,7 +171,7 @@ export const segmentStyles = css`
     position: relative;
     display: flex;
     min-inline-size: 0;
-    outline: none;
+    outline: none !important;
   }
   :host([hidden]) {
     display: none;

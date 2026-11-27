@@ -88,7 +88,8 @@ test.describe('every fixture is drawn inside the stage its baseline records', ()
       await page.addStyleTag({ content: `body { padding: ${AROUND}px; }` });
       // What still moves (but what never ends) comes to rest first.
       await motionEnded(page);
-      const surface = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+      // The page paints its surface on the root, as the base does on a product’s page.
+      const surface = await page.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
       const [sr, sg, sb] = surface.match(/\d+(\.\d+)?/g)!.map(Number);
       const hide = await page.addStyleTag({ content: '/* the other stages, hidden */' });
       const found: Record<string, Outside> = {};

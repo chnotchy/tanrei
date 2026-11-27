@@ -14,7 +14,7 @@ const ToolbarGroupElement = /* @__PURE__ */ createComponent({
     onChange: 'change' as EventName<TanreiEvent<TanreiToolbarGroupElement, CustomEvent<TanreiToolbarGroupChangeDetail>>>,
   },
 });
-const ToolbarGroupAttributes = { label: ['label', ''], selection: ['selection', 'none'], value: ['value', ''], values: ['values'] } as const;
+const ToolbarGroupAttributes = { label: ['label', ''], selection: ['selection', 'none'], value: ['value', ''], values: ['values', []] } as const;
 /**
  * A run of related items in a toolbar (Bold, Italic, Underline), optionally named. It draws nothing of its own: its items are laid out in the toolbar's line as the toolbar's items, and the toolbar sets the group apart from what is next to it as its separation says (TBR-22, TBR-23).
  *

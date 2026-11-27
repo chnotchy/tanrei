@@ -7,7 +7,7 @@
 // src/primitives/delegated-aria.test.ts.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
+import { type Fixture, type FixtureItem, acmeSystemCss, iconFaceArrives, includingSystem, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens, warnings } from '../../../test/harness.js';
 import { pressHoldAsRun } from '../../../test/harsh.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectFromNextFrame, motionCount, motionEnded } from '../../../test/motions.js';
@@ -166,14 +166,6 @@ const surround = (page: P) =>
     main.prepend(make('before'));
     main.append(make('after'));
   });
-/** Captures what the page reports in debug builds (console warnings). Call before mounting. */
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 
 test.describe('behavior', () => {
   // Building the acme fixture system, and the products that include the FAB menu, takes longer than a test's budget on a
@@ -577,8 +569,8 @@ test.describe('behavior', () => {
     expect(stage.x + stage.width - (square.x + square.width)).toBe(16);
     expect(stage.y + stage.height - (square.y + square.height)).toBe(16);
     const first = await bounds(box(page, 'filled-open', 'Document'));
-    // Three items of 40 — a menu item's height at the default control height (FBM-29) — above the toggle.
-    expect(first.y - stage.y).toBeCloseTo(320 - 208, 0);
+    // Three items of 36 — a menu item's height at the default control height (FBM-29) — above the toggle.
+    expect(first.y - stage.y).toBeCloseTo(320 - 196, 0);
     expect(await list(page, 'filled-open').evaluate((el) => el.matches(':popover-open'))).toBe(false);
     // Closed fixtures present nothing.
     expect(await list(page, 'filled-closed').evaluate((el) => getComputedStyle(el).display)).toBe('none');

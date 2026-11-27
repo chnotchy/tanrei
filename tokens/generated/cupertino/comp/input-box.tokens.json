@@ -132,7 +132,7 @@
           },
           "height": {
             "$type": "dimension",
-            "$description": "Minimum height of the container of a box of one line that floats its label inside it — a filled or an outlined box — per size: the step of the control height ladder of its size (36 / 40 / 56 in the default system, the small one held at the minimum target), so that a medium box stands as tall as the Buttons and the stacked boxes beside it. An outlined box floats its label onto its edge and is that tall; a filled box that draws its label holds it above the value's line and is as tall as the two lines and padding-block-with-label need where that is more. Small is for a bar or a toolbar, where the target reaches beyond the drawn box. A stacked box reads stacked.container.height instead. This is the one literal of the set: stacked.container.height aliases the Button's heights, and no other group holds a height of the box.",
+            "$description": "Minimum height of the container of a box of one line that floats its label inside it — a filled or an outlined box — per size: the step of the control height ladder of its size (28 / 36 / 52 in the default system, the small one at its step, its hit area reaching the minimum target), so that a medium box stands as tall as the Buttons and the stacked boxes beside it. An outlined box floats its label onto its edge and is that tall; a filled box that draws its label holds it above the value's line and is as tall as the two lines and padding-block-with-label need where that is more. Small is for a bar or a toolbar, where the target reaches beyond the drawn box. A stacked box reads stacked.container.height instead. This is the one literal of the set: stacked.container.height aliases the Button's heights, and no other group holds a height of the box.",
             "small": {
               "$value": {
                 "value": 34,
@@ -390,7 +390,7 @@
             },
             "height": {
               "$type": "dimension",
-              "$description": "Minimum height of the container of a stacked box of one line, per size: as tall as a Button of the same size (36 / 40 / 56 in the default system, the small one held at the minimum target), so that an input and a Button set side by side in one row stand as tall as each other. A stacked box draws no label inside it — the label of the Field that frames it stands above it — so nothing but the value's line needs the room. Where a system's target is taller than the box, its hit area reaches beyond the drawn box.",
+              "$description": "Minimum height of the container of a stacked box of one line, per size: as tall as a Button of the same size (28 / 36 / 52 in the default system, the small one at its step, its hit area reaching the minimum target), so that an input and a Button set side by side in one row stand as tall as each other. A stacked box draws no label inside it — the label of the Field that frames it stands above it — so nothing but the value's line needs the room. Where a system's target is taller than the box, its hit area reaches beyond the drawn box.",
               "small": {
                 "$value": "{tanrei.comp.input-box.container.height.small}",
                 "$extensions": {}

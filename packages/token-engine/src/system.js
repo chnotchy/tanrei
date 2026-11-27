@@ -30,7 +30,10 @@ export { SystemError };
  */
 export function mergeLayers(layers, { namespace = DEFAULT_NAMESPACE, lend } = {}) {
   const SYS_COLOR = `${namespace}.sys.color.`;
-  const merged = { id: layers.at(-1).id, namespace, name: layers.at(-1).name, specVersion: layers[0].specVersion, palettes: {}, tokens: {}, rules: [], chain: layers.map((l) => l.id), vocabulary: collectVocabulary(layers, { namespace, lend }) };
+  // `paletteLayers`: the layer that gave the chain each palette in force — the first to declare it since it was last
+  // dropped. A core intent's roles valued from another palette before the intent had one of its own follow the palette
+  // of its name once a layer gives it one (`roleOperation`, ./palette.js).
+  const merged = { id: layers.at(-1).id, namespace, name: layers.at(-1).name, specVersion: layers[0].specVersion, palettes: {}, paletteLayers: {}, tokens: {}, rules: [], chain: layers.map((l) => l.id), vocabulary: collectVocabulary(layers, { namespace, lend }) };
   for (const layer of layers) {
     // The rules that value a component's own states come with its vocabulary, at the layer that brings it — the one
     // that holds it, or the one that includes it — and before that layer's own rules, which win a tie.
@@ -43,8 +46,13 @@ export function mergeLayers(layers, { namespace = DEFAULT_NAMESPACE, lend } = {}
     }
     if (layer.specVersion) merged.specVersion = layer.specVersion;
     for (const [name, declaration] of Object.entries(layer.palettes ?? {})) {
-      if (declaration === null) delete merged.palettes[name]; // drop an inherited palette
-      else merged.palettes[name] = clone(declaration);
+      if (declaration === null) {
+        delete merged.palettes[name]; // drop an inherited palette
+        delete merged.paletteLayers[name];
+      } else {
+        merged.paletteLayers[name] ??= layer.id;
+        merged.palettes[name] = clone(declaration);
+      }
     }
     merged.rules.push(...clone(layer.rules ?? []).map((rule) => ({ ...rule, layer: undefined })));
     for (const [id, op] of Object.entries(layer.tokens ?? {})) {

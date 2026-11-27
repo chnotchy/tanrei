@@ -6,6 +6,7 @@ import { ComposedElement, composedHost, exported, fieldDelegatesAria, forward } 
 import { forwardedOwnSize } from '../../primitives/size-cascade.js';
 import { delegatedAria } from '../../primitives/delegated-aria.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { ambientLocale } from '../../primitives/locale-date.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -231,8 +232,8 @@ export class TanreiChipField extends ComposedElement {
    * The entries, in the order they were made: the one value the chip field holds. Each is a text; none is empty. The
    * chip field writes it as the person makes, removes and takes back entries, and fires `change`. What the product
    * sets is shown as given and is not checked — assign a new array — and fires nothing; an entry that is empty or only
-   * white space is left out. The `value` attribute is read once, as a JSON array of strings, and is what a form reset
-   * returns to.
+   * white space is left out. The `value` attribute is read once, as a JSON array of strings; the list it is first given —
+   * by the attribute or as the property — is what a form reset returns to.
    */
   get value(): string[] {
     return this.list;
@@ -379,8 +380,8 @@ export class TanreiChipField extends ComposedElement {
 
   /** The `value` attribute has been read: it is read once. */
   private attributeRead = false;
-  /** CHF-24: the list it was first given, where no `value` attribute says it. */
-  private first: string[] | null = null;
+  /** CHF-24: the list it was first given — by its `value` attribute or as the property — which a reset returns to. */
+  private readonly valueDefault = new FormDefault(this, () => [...this.list], 'value', STRINGS.fromAttribute);
   /** CHF-7: an input method is composing in the typing part. */
   private composing = false;
   /** CHF-9: the text of the typing part as the chip field last read or wrote it: what an edit is compared with. */
@@ -471,7 +472,7 @@ export class TanreiChipField extends ComposedElement {
     return this.internals.reportValidity();
   }
 
-  /** CHF-24: the `value` attribute is read once — for markup — and is what a reset returns to. */
+  /** CHF-24: the `value` attribute is read once — for markup —; written again it is what a reset returns to. */
   override attributeChangedCallback(name: string, old: string | null, value: string | null) {
     if (name === 'value') {
       if (this.attributeRead) return;
@@ -482,7 +483,7 @@ export class TanreiChipField extends ComposedElement {
 
   /** CHF-24: the list it was first given, an empty typing part and no entry error. */
   formResetCallback() {
-    this.value = this.hasAttribute('value') ? STRINGS.fromAttribute(this.getAttribute('value')) : [...(this.first ?? [])];
+    this.value = [...this.valueDefault.value];
     this.inputValue = '';
   }
 
@@ -868,11 +869,6 @@ export class TanreiChipField extends ComposedElement {
   }
 
   // ── Updates ──────────────────────────────────────────────────────────────────────────────────────────────────
-
-  protected override firstUpdated() {
-    // CHF-24: the list it was first given, where markup did not say it.
-    this.first = [...this.list];
-  }
 
   protected override updated(changed: PropertyValues) {
     super.updated(changed);

@@ -11,7 +11,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll } from '../../../test/harness.js';
+import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll, warnings } from '../../../test/harness.js';
 import { coveredText } from '../../../test/covered-text.js';
 import { motionEnded } from '../../../test/motions.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -19,6 +19,7 @@ import { firstStrong, runDirection } from '../../styles/product-text.js';
 import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberForm, numberOf, read as readText, round, stepped } from './number-text.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
+import { askForFrame } from '../../../test/frame-asked.js';
 
 const spec = loadSpec('number-input');
 type P = Page;
@@ -91,13 +92,6 @@ const edgeMotion = (edge: Locator) =>
 const px = async (locator: Locator, property: string, pseudo?: string) => Number.parseFloat(await css(locator, property, pseudo));
 const near = (actual: number, expected: number, message = '', tolerance = 0.6) => expect(Math.abs(actual - expected), `${message}: ${actual} ≈ ${expected}`).toBeLessThanOrEqual(tolerance);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
 const frames = (page: P, count = 3) =>
   page.evaluate(async (n) => {
     for (let i = 0; i < n; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
@@ -344,8 +338,8 @@ test.describe('behavior: the box', () => {
       near(await px(container(page, id), 'border-top-left-radius'), await token(page, 'container-shape'), `${id} corner`);
       near(await px(container(page, id), 'border-bottom-right-radius'), await token(page, 'container-shape'), `${id} bottom corner`);
     }
-    // The default system's numbers: a stacked box 40 and 56, as tall as a Button of its size, and 16.
-    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([40, 56, 16]);
+    // The default system's numbers: a stacked box 36 and 52, as tall as a Button of its size, and 16.
+    expect([await token(page, 'stacked-container-height-medium'), await token(page, 'stacked-container-height-large'), await token(page, 'container-padding-inline-medium')]).toEqual([36, 52, 16]);
     // The row: the prefix, the input, the suffix, the steppers — in that order, on one line.
     const id = 'stacked-prefix';
     const [prefix, field, suffix, down, up] = [await box(part(page, id, '.prefix')), await box(input(page, id)), await box(part(page, id, '.suffix')), await box(stepper(page, id, 'down')), await box(stepper(page, id, 'up'))];
@@ -395,6 +389,7 @@ test.describe('behavior: the box', () => {
         },
         [variant, size] as const,
       );
+      await askForFrame(page);
       const field = page.locator('[data-fixture="pair"] > tanrei-text-input');
       await expect(field.locator('.container')).toBeVisible();
       await frames(page);
@@ -1218,9 +1213,9 @@ test.describe('behavior: the steppers, the unit and what the product sets', () =
     // Each keeps the touch target along the row: two buttons narrower than it stand apart by what is missing.
     near(up.x - (down.x + down.width), Math.max(await token(page, 'stepper-gap'), touch - button), 'the two stand apart by what their targets lack');
     near(c.x + c.width - (up.x + up.width), await token(page, 'stepper-inset'), 'stepper.inset from the end edge');
-    // Under the default system: 40 each, wider than the touch target (36), so touching — 80 of the container's width —
+    // Under the default system: 36 each, as wide as the touch target (36), so touching — 72 of the container's width —
     // and 4 from its end.
-    expect([button, up.x + up.width - down.x, await token(page, 'stepper-inset')]).toEqual([40, 80, 4]);
+    expect([button, up.x + up.width - down.x, await token(page, 'stepper-inset')]).toEqual([36, 72, 4]);
     // Buttons, named, outside the focus order: the native button carries tabindex -1 and is still a button.
     for (const [which, name] of [['down', 'Decrease'], ['up', 'Increase']] as const) {
       const native = stepper(page, id, which).locator('button');

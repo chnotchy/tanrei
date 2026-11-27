@@ -3,7 +3,7 @@
 // system resolves it to. The chain is the core's, as written in `tokens/comp/` (a layer may alias the same token to
 // another role, and its resolved value says so); the values are each system's own. A role map (below) reads each
 // system's own chain instead, as that system writes it, states and derivations included.
-import { anatomyOf, blueprintStageOf, webPartsOf, webPartTargets, type BlueprintStage, type PartTarget } from './anatomy';
+import { anatomyOf, blueprintStageOf, drawnWithOf, webPartsOf, webPartTargets, type BlueprintStage, type PartTarget } from './anatomy';
 import { below, componentTokens } from './groups';
 import { PSEUDO_STATES, withAttributes } from './states';
 import { getSpec, webAttribute } from '../repo';
@@ -31,14 +31,16 @@ function chainOf(token: string): string[] {
 /** Every color token of a component; with `keys`, those whose path holds every key (`['filled', 'selected']`). */
 export function rolesOf(name: string, keys: string[] = []): Role[] {
   const parts = new Set(anatomyOf(name).map((part) => part.id));
+  const drawnWith = drawnWithOf(name);
   const sys = `${ns}.sys.color.`;
   return componentTokens(name)
     .filter((token) => token.type === 'color' && keys.every((key) => below(token, name).includes(key)))
     .map((token) => {
       const chain = chainOf(token.name);
+      const path = below(token, name);
       return {
         token: token.name,
-        part: below(token, name).find((key) => parts.has(key)) ?? null,
+        part: drawnWith.of(path)?.part ?? path.find((key) => parts.has(key) && !drawnWith.declared.has(key)) ?? null,
         chain,
         role: chain.find((alias) => alias.startsWith(sys)) ?? null,
         values: Object.fromEntries(shippedSystems.map((system) => [system.id, systemValue(system, token.name)])),
@@ -131,12 +133,12 @@ export function roleIn(system: string, token: string): RoleIn {
  * component built from others (a text field: a field and its text input) names its members' parts `<member>.<part>`,
  * and reads each member's tokens and the shared sets beside them.
  */
-function roleGroups(name: string): { group: string; prefix: string; layer?: string }[] {
+function roleGroups(name: string): { group: string; prefix: string; owner: string; layer?: string }[] {
   const spec = getSpec(name);
-  const own = [spec.tokens, ...sharedSetsOf(spec.name)].map((group) => ({ group, prefix: '', layer: spec.layer }));
+  const own = [spec.tokens, ...sharedSetsOf(spec.name)].map((group) => ({ group, prefix: '', owner: spec.name, layer: spec.layer }));
   const members = (spec.builtFrom ?? []).flatMap((member) => {
     const of = getSpec(member);
-    return [of.tokens, ...sharedSetsOf(of.name)].map((group) => ({ group, prefix: `${member}.`, layer: of.layer }));
+    return [of.tokens, ...sharedSetsOf(of.name)].map((group) => ({ group, prefix: `${member}.`, owner: of.name, layer: of.layer }));
   });
   return [...members, ...own.filter((entry) => !members.some((member) => member.group === entry.group))];
 }
@@ -168,13 +170,16 @@ export function roleMapOf(name: string, options: RoleMapOptions = {}): RoleMap |
   const wanted = [options.variant, state === 'enabled' ? undefined : state, options.selected ? 'selected' : undefined, options.destructive ? 'destructive' : undefined].filter((key): key is string => Boolean(key));
   const targets = new Map([...webPartTargets(name)].filter(([, target]) => target.aspect !== 'focus-ring' && target.aspect !== 'backdrop'));
   const found = new Map<string, { token: Token; score: number; plain: boolean }>();
-  for (const { group, prefix, layer } of roleGroups(name)) {
+  for (const { group, prefix, owner, layer } of roleGroups(name)) {
     const depth = `${ns}.${group}`.split('.').length;
+    // A part the spec says is drawn with tokens of another part's name (`drawnWith`) takes those tokens, and only those.
+    const drawnWith = drawnWithOf(owner);
     for (const token of tokensIn(`${ns}.${group}`, 'light', layer)) {
       if (token.type !== 'color' || token.path.at(-1) !== 'color') continue;
-      const keys = token.path.slice(depth, -1);
+      const declared = drawnWith.of(token.path.slice(depth));
+      const keys = declared ? [...declared.keys, declared.part] : token.path.slice(depth, -1);
       const key = keys.at(-1);
-      if (!key) continue;
+      if (!key || (!declared && drawnWith.declared.has(key))) continue;
       const modifiers = keys.slice(0, -1);
       // A token of another variant, state or flag than the figure's is not one it draws; `standard` names a
       // component's one look, and `unselected` the plain look of a component that writes no other.

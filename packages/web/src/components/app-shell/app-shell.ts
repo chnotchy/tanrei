@@ -17,6 +17,8 @@ import {
   styleQueries,
   takesText,
 } from '../../primitives/index.js';
+import { documentPainted } from '../../primitives/first-paint.js';
+import { readInPhase } from '../../primitives/read-phase.js';
 import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { writeCounted } from '../../set-tokens.js';
 import { TanreiLightElement } from '../../primitives/element.js';
@@ -57,11 +59,6 @@ const SHELL_CSS: string = (() => {
   }
 })();
 
-/** The values of each, the default first (APS-29). */
-const SCROLLS: readonly string[] = ['page', 'main'];
-const HEADER_POSITIONS: readonly string[] = ['sticky', 'static'];
-const MAIN_WIDTHS: readonly string[] = ['contained', 'full'];
-const ASIDE_ORDERS: readonly string[] = ['after', 'before'];
 /** The mark of the header's one button that opens the navigation (APS-6). */
 const MENU = '[data-app-shell-menu]';
 /** What the frame gives the page: the height it keeps over the top of the scrolling view, and over its bottom (APS-17). */
@@ -383,10 +380,13 @@ export class TanreiAppShell extends TanreiLightElement {
 
   override connectedCallback() {
     // Asked for before the element's own first update is (which `super` asks for): the frames connected in one turn
-    // are all read before any of them is drawn.
-    this.watchTogether();
+    // are all read before any of them is drawn. Before the first paint they are read in the read phase, after the
+    // question whether the root draws the frame (`adoptUnlessDrawn`), whose sheet is the one that names the widths.
+    const painted = documentPainted();
+    if (painted) this.watchTogether();
     super.connectedCallback();
     adoptUnlessDrawn(this, sheet(), '--_aps-breakpoint-medium');
+    if (!painted) this.watchTogether();
     this.mutations?.observe(this, { childList: true });
     // APS-5: the window's width as the page has it, of which the navigation is left what the main region and the aside
     // do not need.
@@ -444,32 +444,51 @@ export class TanreiAppShell extends TanreiLightElement {
    */
   private watchTogether() {
     const due = TanreiAppShell.connecting;
-    if (!due.size) {
-      queueMicrotask(() => {
-        const all = [...due];
-        due.clear();
-        const read = all.map((each) => each.readWidths());
-        all.forEach((each, index) => each.takeWidths(read[index]));
-      });
+    // Until the document has been painted once, in the read phase of the coming frame, after its layout and before its
+    // paint: read in a microtask of the turn that connected them, the widths had the browser style the whole page for
+    // them there and then, while a loading page's modules upgrade one kind of element after another.
+    if (!documentPainted()) {
+      due.add(this);
+      readInPhase(due, TanreiAppShell.readConnected);
+      return;
     }
+    // Its two halves at once: the stylesheet was adopted when the frame was connected, so a second read finds nothing new.
+    if (!due.size) queueMicrotask(() => TanreiAppShell.readConnected()());
     due.add(this);
   }
 
-  /** The reading half of `watch()`: the widths the frame's stylesheet was written for, and the tokens' here. */
-  private readWidths(): { medium: string; expanded: string; tokens: string } | null {
+  /**
+   * `watch()` for the frames connected together: all read, then all told their class — in the read phase for those
+   * connected before the first paint, and in one microtask for those connected after it.
+   */
+  private static readonly readConnected = () => {
+    const all = [...TanreiAppShell.connecting];
+    TanreiAppShell.connecting.clear();
+    const read = all.map((each) => each.readWidths());
+    return () => {
+      // A frame whose stylesheet was added in this phase (`adoptUnlessDrawn`) is read again, now that it has it.
+      const again = all.filter((each, index) => !read[index] && each.isConnected);
+      const late = again.map((each) => each.readWidths());
+      all.forEach((each, index) => each.takeWidths(read[index] ?? late[again.indexOf(each)]));
+    };
+  };
+
+  /** The reading half of `watch()`: the widths the frame's stylesheet was written for, and in a debug build the tokens' here. */
+  private readWidths(): { medium: string; expanded: string; tokens?: string } | null {
     if (!this.isConnected || typeof matchMedia !== 'function') return null;
     const style = getComputedStyle(this);
     const [medium, expanded] = ['medium', 'expanded'].map((name) => style.getPropertyValue(`--_aps-breakpoint-${name}`).trim());
     // Before its stylesheet has arrived nothing names the widths: nothing is decided on a guess (APS-24).
     if (!medium || !expanded) return null;
-    const tokens = DEBUG ? ['medium', 'expanded'].map((name) => style.getPropertyValue(`--tanrei-comp-app-shell-breakpoint-${name}`).trim()).join(' ') : '';
-    return { medium, expanded, tokens };
+    const read: { medium: string; expanded: string; tokens?: string } = { medium, expanded };
+    if (DEBUG) read.tokens = ['medium', 'expanded'].map((name) => style.getPropertyValue(`--tanrei-comp-app-shell-breakpoint-${name}`).trim()).join(' ');
+    return read;
   }
 
   /** The writing half of `watch()`: the widths are listened to, and the window's class decided. */
-  private takeWidths(read: { medium: string; expanded: string; tokens: string } | null) {
+  private takeWidths(read: { medium: string; expanded: string; tokens?: string } | null | undefined) {
     if (!read || !this.isConnected) return;
-    const { medium, expanded, tokens } = read;
+    const { medium, expanded } = read;
     const text = `${medium} ${expanded}`;
     if (this.widths?.text !== text) {
       this.unwatch();
@@ -478,8 +497,8 @@ export class TanreiAppShell extends TanreiLightElement {
       this.widths.expanded.addEventListener('change', this.onWidth);
       // The stylesheet's conditions are written by the build from the tokens of one system: a system or a layer that
       // moves the widths needs the stylesheet written for it, or the frame and a navigation drawer in it part.
-      if (DEBUG && tokens.trim() && tokens !== text) {
-        report(this, 'APS-2', `the stylesheet was written for the window widths ${text}, and comp.app-shell.breakpoint is ${tokens} here: load the app-shell stylesheet built for this design system`);
+      if (DEBUG && read.tokens?.trim() && read.tokens !== text) {
+        report(this, 'APS-2', `the stylesheet was written for the window widths ${text}, and comp.app-shell.breakpoint is ${read.tokens} here: load the app-shell stylesheet built for this design system`);
       }
     }
     this.decide();
@@ -697,36 +716,42 @@ export class TanreiAppShell extends TanreiLightElement {
   // ---- APS-17: the scroll offset ----
 
   private resized(entries: ResizeObserverEntry[]) {
+    // Twice over the report: first what reads the layout (the top and the bar, which write only on the root once they
+    // have read), then the lengths written on the frame and on its navigation region. A length written on the frame
+    // before a read had the browser style the whole frame — the page — again for that read, and once more for the frame
+    // (a frame whose main region scrolls, or that has no header: 0.3 s in WebKit and 0.14 s in Chromium, on a page of
+    // 17 000 elements). The window's own width is read with them.
+    const whole = px(innerWidth);
     for (const entry of entries) {
       const size = entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height;
+      if (entry.target === this.top) this.measure(size);
+      else if (entry.target === this.announcement) this.measure();
+      else if (entry.target === this.bar) this.measureBar(size);
+    }
+    for (const entry of entries) {
       // APS-5: the root's content width, not 100vw: a scrollbar that takes room in the window (a classic one, or the
       // gutter scrollbar-gutter keeps) is no room of the row's. The root, never the frame: the root's width does not
       // follow what it holds, where a frame in a box as wide as its content would follow the room it gives and shrink
       // by it in every frame.
       if (entry.target === document.documentElement) {
         const width = px(entry.contentRect.width);
-        this.rooms[WINDOW] = width === px(innerWidth) ? '' : width;
-        this.room();
+        this.rooms[WINDOW] = width === whole ? '' : width;
       }
       // APS-5: the sheet's width in every frame it slides, so that the navigation leaves it room as it comes.
-      else if (entry.target === this.sheet) {
-        this.rooms[ASIDE] = px(entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
-        this.room();
-      }
-      else if (entry.target === this.top) this.measure(size);
-      else if (entry.target === this.announcement) this.measure();
-      else if (entry.target === this.bar) this.measureBar(size);
+      else if (entry.target === this.sheet) this.rooms[ASIDE] = px(entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
       // APS-11: where the navigation and the aside stop staying in view (a browser keeps a sticky part inside the
       // frame, not inside its row: the stylesheet takes this much off the end of what it may reach).
-      else if (entry.target === this.footer) writeCounted(this.style, { [FOOTER]: px(size) });
+      else if (entry.target === this.footer) writeCounted(this.style, { [FOOTER]: px(entry.borderBoxSize?.[0]?.blockSize ?? entry.contentRect.height) });
     }
+    // APS-5: the window's and the sheet's widths, in one write.
+    this.room();
   }
 
   /**
    * APS-5: the room the row leaves the navigation, as last measured: the window's width as the page has it (nothing
    * where it is the window's own, `100vw`), and a side sheet's in the aside (nothing without one).
    */
-  private readonly rooms: Record<string, string> = { [WINDOW]: '', [ASIDE]: '' };
+  private readonly rooms: Record<string, string> = { ...NO_ROOM };
 
   /** APS-5: the room written on the navigation region, which alone reads it — or, `NO_ROOM`, taken off it. */
   private room(values = this.rooms) {
@@ -752,6 +777,7 @@ export class TanreiAppShell extends TanreiLightElement {
     // block-start margin) from the top of the window.
     const kept = top !== this.header ? size + (parseFloat(getComputedStyle(top).marginBlockStart) || 0) : this.headerPosition !== 'static' ? size : null;
     const page = this.scrolls !== 'main';
+    // Both read before either is written: the object is whole before `publish()` writes it.
     publish(this, { [OFFSET]: page ? kept : null, [INSET_TOP]: page ? kept : top.getBoundingClientRect().bottom - this.getBoundingClientRect().top });
   }
 
@@ -1153,20 +1179,25 @@ export class TanreiAppShell extends TanreiLightElement {
 
   protected override willUpdate() {
     // The stylesheet may have arrived since the element was connected (a page that loads it late).
-    if (!this.widths) this.watch();
+    if (!this.widths && !TanreiAppShell.connecting.has(this)) this.watch();
   }
 
   protected override updated(changed: PropertyValues) {
     // APS-29: a value the frame does not define renders with the default (no rule matches it); a debug build says so.
-    const known: [string, readonly string[]][] = [
-      ['scrolls', SCROLLS],
-      ['headerPosition', HEADER_POSITIONS],
-      ['mainWidth', MAIN_WIDTHS],
-      ['asideOrder', ASIDE_ORDERS],
-    ];
-    for (const [name, values] of known) {
-      const value = String((this as unknown as Record<string, unknown>)[name]);
-      if (DEBUG && changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${values[0]}"`);
+    // One statement that the constant guards, so that a production bundle leaves the whole check out — the values with
+    // it, which are written here and nowhere else for that reason (the default first).
+    if (DEBUG) {
+      (
+        [
+          ['scrolls', ['page', 'main']],
+          ['headerPosition', ['sticky', 'static']],
+          ['mainWidth', ['contained', 'full']],
+          ['asideOrder', ['after', 'before']],
+        ] as [string, string[]][]
+      ).forEach(([name, values]) => {
+        const value = String((this as unknown as Record<string, unknown>)[name]);
+        if (changed.has(name) && !values.includes(value)) report(this, 'APS-29', `${name === 'scrolls' ? 'scroll' : name} "${value}" is not a value the app shell defines; it is rendered as "${values[0]}"`);
+      });
     }
     // APS-18: a separation the frame does not define is auto.
     if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {

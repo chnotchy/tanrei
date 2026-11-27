@@ -36,6 +36,11 @@ export interface Ctx {
   /** Called after every update while the controls stay: refresh what you show. */
   onUpdate(refresh: () => void): void;
   announce(message: string): void;
+  /**
+   * Say that a step replaced the layer (a new start, a reset), in a snackbar with the way to undo it there — what the
+   * Studio does instead of asking first. The step is undone only while nothing was committed after it.
+   */
+  offerUndo(message: string): void;
   /** Show a section in the panel, or open Inspect (`../sections.ts`). */
   show(place: Place): void;
   /** The system id of the preview's scope: an element that carries it is drawn in the layer being edited (the rail's samples). */
@@ -71,6 +76,28 @@ export function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Json = {
 }
 
 /**
+ * A Tanrei tooltip over a control of the bar. `named`: it shows the control's own name — a control that draws a glyph
+ * alone, or whose word a phone hides (`barWord`) — and adds nothing for a screen reader, which reads the name already;
+ * otherwise it says what the control does, as its description. (Its `text` is the tooltip's property: `h` would write
+ * it as the element's content.)
+ */
+export const tip = (anchor: HTMLElement, text: string, named = false, attrs: Json = {}) => Object.assign(h('tanrei-tooltip', { 'no-describe': named, ...attrs }, anchor), { text });
+/** A control's word in the bar, beside its glyph: drawn in a wider window than a phone's (`wordBesideGlyph`). */
+export const barWord = (text: string) => h('span', { class: 'ts-bar-word', text });
+/**
+ * On a phone the bar is one line: a control of it that says a word beside its glyph shows its glyph alone there, as
+ * an icon button does — named by its label, which holds the word, and shown its name by its tooltip — and the word
+ * again in a wider window. Returns how to stop following the window.
+ */
+export function wordBesideGlyph(button: HTMLElement, word: HTMLElement) {
+  const phone = window.matchMedia('(max-width: 40rem)');
+  const fit = () => (phone.matches ? word.remove() : word.parentNode !== button && button.append(word));
+  fit();
+  phone.addEventListener('change', fit);
+  return () => phone.removeEventListener('change', fit);
+}
+
+/**
  * A sentence of the dictionary with elements standing in it. The dictionary's sentences are functions of strings, so
  * that each language orders its own words; `say` is given `at`, which takes an element and hands back a mark to
  * pass as that string, and the sentence comes back as the text and the elements in the order the language put them:
@@ -80,7 +107,16 @@ export function rich(say: (at: (node: Node) => string) => string): (Node | strin
   const nodes: Node[] = [];
   // One private-use character for each element: no dictionary holds one, and no value the Studio shows does.
   const text = say((node) => String.fromCharCode(0xe000 + nodes.push(node) - 1));
-  return text.split(/([\uE000-\uF8FF])/).filter(Boolean).map((part) => nodes[part.charCodeAt(0) - 0xe000] ?? part);
+  // A sentence may name one element twice (\u201Cdepends on M3-like \u2026 when M3-like changes\u201D): a node stands in one place, so
+  // each place after the first gets a copy of it.
+  const placed = new Set<Node>();
+  return text.split(/([\uE000-\uF8FF])/).filter(Boolean).map((part) => {
+    const node = nodes[part.charCodeAt(0) - 0xe000];
+    if (!node) return part;
+    if (placed.has(node)) return node.cloneNode(true);
+    placed.add(node);
+    return node;
+  });
 }
 /** A string with one `{place}`, and the element that stands there. */
 export function placed(text: string, place: string, node: Node): (Node | string)[] {
@@ -206,7 +242,7 @@ export const linkButton = (text: string, onclick: () => void, attrs: Json = {}) 
  */
 export const button = (text: string, onclick: (() => void) | null, { primary = false, ...attrs }: Json = {}) => pressable(primary ? 'filled' : 'outlined', text, onclick, attrs);
 /**
- * A short state that is pressed to go where it is told in full (the count of contrast findings, the draft at Source):
+ * A short state that is pressed to go where it is told in full (the count of contrast findings):
  * a small `<tanrei-chip>` with the glyph of its state. Write its `label` to say something else.
  */
 export function stateChip(onclick: () => void, attrs: Json = {}) {

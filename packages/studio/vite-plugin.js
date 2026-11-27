@@ -75,24 +75,34 @@ export function tanreiStudio() {
       const code = (standalone.default ?? standalone)(ajv, ajv.compile(JSON.parse(fs.readFileSync(schemaFile, 'utf8'))));
       // The generated module is ESM except for its runtime helpers, which it `require`s. They are CommonJS, and a
       // dev server serves a file it did not pre-bundle as it is: `import x from '<helper>.js'` then throws at load
-      // ("does not provide an export named 'default'") and the Studio never mounts. A helper that requires nothing
-      // (ucs2length, the only one the layer schema needs) is inlined, wrapped as CommonJS; one that requires
-      // something is imported and left to the host's CommonJS handling (a production build has it).
-      const imports = [];
-      const body = code.replace(/require\("(ajv\/dist\/runtime\/[^"]+)"\)\.default/g, (_, specifier) => {
-        const name = `ajvRuntime${imports.length}`;
-        // Resolved from this package: the host (the docs site) need not depend on ajv itself.
-        const file = require.resolve(specifier);
-        const source = fs.readFileSync(file, 'utf8').replace(/^\/\/# sourceMappingURL=.*$/m, '');
-        imports.push(
-          /\brequire\(/.test(source.replace(/\.code = '.*';$/gm, ''))
-            ? `import ${name}Module from ${JSON.stringify(file)};\nconst ${name} = ${name}Module.default ?? ${name}Module;`
-            : `const ${name} = (() => {\n  const module = { exports: {} };\n  const exports = module.exports;\n${source}\n  return module.exports.default ?? module.exports;\n})();`,
-        );
+      // ("does not provide an export named 'default'", `astro dev`'s Studio page never mounted). So each helper is
+      // inlined, wrapped as CommonJS, and so is whatever it requires in turn (`equal` requires fast-deep-equal),
+      // resolved from the file that requires it: the validator holds every line it runs, in dev and in a build alike,
+      // and the host need neither depend on ajv nor handle CommonJS for it.
+      const modules = new Map();
+      const inline = (file) => {
+        if (modules.has(file)) return modules.get(file).name;
+        const name = `ajvModule${modules.size}`;
+        const entry = { name, code: '' };
+        modules.set(file, entry);
+        const source = fs
+          .readFileSync(file, 'utf8')
+          .replace(/^\/\/# sourceMappingURL=.*$/m, '')
+          // What a helper says of itself for generated code (`equal.code = 'require(...)'`) is a string, not a require.
+          .replace(/require\(("[^"]+"|'[^']+')\)/g, (call, quoted, offset, text) => {
+            const line = text.slice(text.lastIndexOf('\n', offset) + 1, offset);
+            if (/=\s*'[^']*$/.test(line)) return call;
+            return `${inline(require.resolve(quoted.slice(1, -1), { paths: [path.dirname(file)] }))}()`;
+          });
+        entry.code = `const ${name} = (() => {\n  let done;\n  return () => {\n    if (done) return done.exports;\n    const module = (done = { exports: {} });\n    const exports = module.exports;\n${source}\n    return module.exports;\n  };\n})();`;
         return name;
+      };
+      const body = code.replace(/require\("(ajv\/dist\/runtime\/[^"]+)"\)\.default/g, (_, specifier) => {
+        const loaded = inline(require.resolve(specifier));
+        return `(${loaded}().default ?? ${loaded}())`;
       });
       if (/\brequire\(/.test(body)) throw new Error('tanrei-studio: the standalone validator still contains require(); extend the rewrite in vite-plugin.js');
-      return `${imports.join('\n')}\n${body.replace(/^"use strict";/, '')}`;
+      return `${[...modules.values()].map((entry) => entry.code).join('\n')}\n${body.replace(/^"use strict";/, '')}`;
     },
   };
 }

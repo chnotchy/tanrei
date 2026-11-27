@@ -123,8 +123,8 @@
     },
     {
       "id": "PRG-7",
-      "text": "WHERE reduced motion is requested THE progress indicator SHALL show a value change at once, and WHILE indeterminate SHALL NOT move: it SHALL draw the indicator over the whole track (the whole circle of a ring) and ease its opacity from 1 to 0 and back to 1 once per comp.progress-indicator.motion.cycle-duration with comp.progress-indicator.motion.cycle-easing, over a track that stays still.",
-      "verify": "Indeterminate fixtures are recorded with reduced motion requested, at the start of a cycle (opacity 1), so their baselines are deterministic on every platform; the moving form is tested by unit tests that read the segment's or the arc's position at fixed times."
+      "text": "WHERE reduced motion is requested THE progress indicator SHALL show a value change at once, and WHILE indeterminate SHALL NOT move: it SHALL draw the indicator over the whole track (the whole circle of a ring) and ease its opacity from 1 down to comp.progress-indicator.motion.pulse-floor-opacity and back to 1 once per comp.progress-indicator.motion.cycle-duration with comp.progress-indicator.motion.cycle-easing, each half on that curve, so that it is never drawn below that floor, over a track that stays still.",
+      "verify": "Indeterminate fixtures are recorded with reduced motion requested, at the start of a cycle (opacity 1), so their baselines are deterministic on every platform; the moving form is tested by unit tests that read the segment's or the arc's position at fixed times, and the pulse by unit tests that sample its opacity over a whole cycle, as painted where the platform can read pixels, and find it never below the floor."
     },
     {
       "id": "PRG-8",
@@ -203,7 +203,7 @@
       "Not interactive: the indicator takes no input and is never focusable (PRG-10), so the minimum target holds without extending anything.",
       "The value is read from the boundary between indicator and track: comp.progress-indicator.indicator.color must stay at least 3:1 against comp.progress-indicator.track.color and against the surface behind it, under divider and under gap alike. A faint track may leave the track's end hard to see; the stop indicator, in a system that gives it a size, marks it.",
       "Indeterminate is announced as busy with no value: on the web a progressbar without aria-valuenow (and aria-busy), on Apple platforms a progress element with no value, on Android the indeterminate range info, in Flutter a progress indicator with a null value.",
-      "Reduced motion replaces movement with an opacity pulse of at most one per second (PRG-7), below the three-per-second flash threshold.",
+      "Reduced motion replaces movement with an opacity pulse of at most one per second (PRG-7), below the three-per-second flash threshold, that never fades below comp.progress-indicator.motion.pulse-floor-opacity, so the indicator is never drawn as a bare track.",
       "A task shorter than the show delay shows and exposes nothing (PRG-19): no bar that flashes for a sighted person, and no progressbar that appears and vanishes for a screen-reader user. The product's own busy marking of the region does not wait for the delay.",
       "The show delay is kept where motion is reduced: it is a wait, not motion (PRG-22)."
     ]

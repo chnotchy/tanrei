@@ -259,15 +259,21 @@ studioTest('Emphasized: the typography sample draws each role at its weight plus
   const label = lightPane.locator('[data-sample="label"]');
   const body = lightPane.locator('[data-sample="body"]');
   assert.deepEqual(await Promise.all([heading, body, label].map((el) => css(el, 'font-weight'))), ['500', '400', '500']);
+  // An item of the menu at the end of the preview's bar, switched on and off.
   const toggle = page.locator('[data-emphasized-toggle]');
-  await toggle.click();
-  assert.equal(await toggle.locator('input').isChecked(), true);
+  const press = async () => {
+    if (!(await page.locator('[data-view-menu]').evaluate((menu) => menu.open))) await page.locator('[data-view-more]').click();
+    await page.waitForFunction(() => document.querySelector('[data-view-menu]')?.open === true);
+    await toggle.click();
+  };
+  await press();
+  assert.equal(await toggle.evaluate((el) => el.checked), true);
   assert.deepEqual(await Promise.all([heading, body, label].map((el) => css(el, 'font-weight'))), ['600', '500', '600'], 'the default system adds 100 to every family');
   // The step is a token: edited anywhere, the emphasized sample follows without a redraw.
   assert.equal(await page.evaluate(() => window.tanreiStudio.applyOperation('tanrei.sys.typescale.emphasis.heading', { $value: 300, reason: 'Our headings jump a whole class when stressed.' })), null);
   await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-scope] [data-sample="heading-1"]')).fontWeight === '800');
   assert.equal(await css(label, 'font-weight'), '600', 'the label family keeps its own step');
-  await toggle.click();
-  assert.equal(await toggle.locator('input').isChecked(), false);
+  await press();
+  assert.equal(await toggle.evaluate((el) => el.checked), false);
   assert.deepEqual(await Promise.all([heading, body, label].map((el) => css(el, 'font-weight'))), ['500', '400', '500']);
 });

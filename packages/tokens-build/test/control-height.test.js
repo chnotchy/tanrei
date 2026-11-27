@@ -1,19 +1,18 @@
 // One control height. A developer sets `dial.control.height` once, and every control and row of its default size is
 // drawn at that height: a Button, a field, a menu row, a tab, a navigation item, a tree row, a list row. The heights
 // that read it are marked `"dev.tanrei.aligned": "control"` in the core vocabulary; the ladder `sys.control.height.*`
-// is whole size units from it, so at its default of 40 every value is what it was.
+// is whole size units from it.
 //
-// The aligned set is the one below, ALIGNED_ON_THE_LADDER and ALIGNED_NOT_YET together. The first is marked and read
-// here at every height a product may set; the second is the heights still derived from the size unit by a coefficient
-// of their own, which the change of their family rewires to the medium step and moves to the first list. Empty, the
-// second list says every control and row of the set is drawn at the control height.
+// ALIGNED_ON_THE_LADDER below is the set marked and read here at every height a product may set. OWN is the pressable
+// heights marked `"dev.tanrei.aligned": "own"`, which keep a size of their own at every control height: each is read
+// here at every height too, and stays as it was.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
 import { layerChain, listSystems } from '../src/bundle.js';
-import { HEIGHTS_NOT_YET_ON_THE_LADDER, auditInvariants, isRefusedEverywhere } from '../src/invariants.js';
-import { REPO_ROOT, coreAlignedTokens, coreLadderReaders, coreTargetFloors } from '../src/model.js';
+import { auditInvariants, isRefusedEverywhere } from '../src/invariants.js';
+import { REPO_ROOT, coreAlignedTokens, coreLadderReaders, coreOwnHeights, coreTargetFloors } from '../src/model.js';
 import { buildProductSystem } from '../src/product.js';
 import { resolveChain } from '../src/resolve.js';
 import { loadSystem } from '../src/scheme.js';
@@ -31,6 +30,7 @@ const ALIGNED_ON_THE_LADDER = comp([
   'calendar.day.container.size',
   'calendar.view-toggle.container.height',
   'calendar.year.container.height',
+  'carousel.controls.button-size',
   'checkbox.container.size',
   'combobox.option.height.medium',
   'date-time-picker.range-field.container.height',
@@ -61,11 +61,15 @@ const ALIGNED_ON_THE_LADDER = comp([
 ]);
 
 /**
- * Not yet: each family's change rewires its heights to the medium step, marks them and moves them up. Empty: every
- * control and row of the set is drawn at the control height. A rating's containers are not in the set: they are the
- * pitch of a row of glyphs, which follows the mark's size, and its targets reach the minimum beyond them (RAT-20).
+ * Pressable heights that keep a size of their own at every control height, marked `"dev.tanrei.aligned": "own"`: no
+ * control on a row, and their specs say why (CAL-37, DTM-53, TAB-63). A rating's containers are in neither list: they are the pitch of a
+ * row of glyphs, which follows the mark's size, and its targets reach the minimum beyond them (RAT-20).
  */
-const ALIGNED_NOT_YET = comp([]);
+const OWN = comp([
+  'calendar.cell.size',
+  'date-time-picker.wheel.row.height',
+  'tabs.container.height-with-icon',
+]);
 
 const vocabulary = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tokens/vocabulary.lock.json'), 'utf8')).tokens;
 const systems = listSystems(REPO_ROOT);
@@ -73,15 +77,12 @@ const chainOf = (id, tokens) => [...layerChain(id, (x) => loadSystem(REPO_ROOT, 
 /** What a system's own layers pin, past the core and the default system: a preset keeps its original's heights. */
 const pinnedBy = (id) => new Set(layerChain(id, (x) => loadSystem(REPO_ROOT, x)).filter((layer) => layer.id !== 'core' && layer.id !== NS).flatMap((layer) => Object.keys(layer.tokens ?? {})));
 
-test('the aligned set: the marked heights are the ones on the ladder, and the rest are listed, each once', () => {
+test('the aligned set: the marked heights are the ones on the ladder, and every other pressable height is marked as its own', () => {
   assert.deepEqual(coreAlignedTokens(), [...ALIGNED_ON_THE_LADDER].sort(), 'the marks in tokens/comp/ are the heights on the ladder');
-  const all = [...ALIGNED_ON_THE_LADDER, ...ALIGNED_NOT_YET];
-  assert.equal(new Set(all).size, all.length, 'no height is in both lists');
-  assert.deepEqual(ALIGNED_NOT_YET.filter((id) => !vocabulary[id]), [], 'every height not yet on the ladder exists');
+  assert.deepEqual(coreOwnHeights(), [...OWN].sort(), 'the heights marked as their own');
   for (const id of ALIGNED_ON_THE_LADDER) assert.equal(coreLadderReaders()[id], 'medium', `${id} reads the medium step`);
-  for (const id of ALIGNED_NOT_YET.filter((id) => vocabulary[id])) assert.notEqual(coreLadderReaders()[id], 'medium', `${id} reads the medium step now: mark it and move it to ALIGNED_ON_THE_LADDER`);
-  // The pressable heights that read no step yet are those the invariant lists, and none of them is marked.
-  assert.deepEqual(coreTargetFloors().filter((id) => !(id in coreLadderReaders())), [...HEIGHTS_NOT_YET_ON_THE_LADDER].sort());
+  // The pressable heights that read no step are those marked as their own.
+  assert.deepEqual(coreTargetFloors().filter((id) => !(id in coreLadderReaders())), [...OWN].sort());
 });
 
 test('the ladder is whole size units from the control height: 24, 32, 40, 56, 72 at 40', async () => {
@@ -115,6 +116,20 @@ for (const id of systems) {
   });
 }
 
+for (const id of systems) {
+  test(`${id}: at every control height from 24 to 56, every height of its own keeps its size`, async () => {
+    const base = (await resolveChain(layerChain(id, (x) => loadSystem(REPO_ROOT, x)), { model: false })).tokens('light');
+    const minimum = base[`${NS}.sys.target.minimum`].$value.value;
+    for (let height = 24; height <= 56; height += 4) {
+      const tokens = (await resolveChain(chainOf(id, {
+        [`${NS}.dial.control.height`]: { $value: px(height), reason: REASON },
+        [`${NS}.sys.target.minimum`]: { $value: px(Math.min(minimum, height)), reason: REASON },
+      }), { model: false })).tokens('light');
+      for (const token of OWN) assert.deepEqual(tokens[token].$value, base[token].$value, `${id} at ${height}: ${token}`);
+    }
+  });
+}
+
 test('the minimum target is never above the control height: refused in every system, a product layer’s too', async () => {
   const layer = { [`${NS}.dial.control.height`]: { $value: px(32), reason: REASON } };
   const { failures } = await (await resolveChain(chainOf(NS, layer))).audit();
@@ -131,8 +146,12 @@ test('the invariants hold the marks and the ladder: an aligned height off the me
   const fails = (changed) => auditInvariants({ ...model, ...changed }).failures.filter((f) => !auditInvariants(model).failures.includes(f));
   assert.deepEqual(fails({ aligned: [...model.aligned, `${NS}.comp.button.container.height.small`] }), [`comp.button.container.height.small: marked dev.tanrei.aligned, but it does not read sys.control.height.medium — derive it with { "fn": "mul", "of": "{${NS}.sys.control.height.medium}", "by": 1, "min": "{${NS}.sys.target.minimum}" }, or alias a token that does`]);
   const ladder = { ...model.ladder };
-  delete ladder[`${NS}.comp.button.container.height.small`];
-  assert.deepEqual(fails({ ladder }), [`comp.button.container.height.small: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${NS}.sys.control.height.<step>}", "by": 1, "min": "{${NS}.sys.target.minimum}" }`]);
-  // (Read as a step, a tab's 64 with its icon is also told it is not the step's 40.)
-  assert.ok(fails({ ladder: { ...model.ladder, [`${NS}.comp.tabs.container.height-with-icon`]: 'medium' } }).includes('comp.tabs.container.height-with-icon: listed in HEIGHTS_NOT_YET_ON_THE_LADDER, but it reads a step of the ladder now — take it off the list'));
+  delete ladder[`${NS}.comp.tree-view.container.height.small`];
+  const offTheLadder = (id) => `${id}: a pressable height that reads no step of the control height ladder — read the step of its size, { "fn": "mul", "of": "{${NS}.sys.control.height.<step>}", "by": 1, "min": "{${NS}.sys.target.minimum}" }, or, where its spec says it keeps a size of its own at every control height, mark it "dev.tanrei.aligned": "own"`;
+  assert.deepEqual(fails({ ladder }), [offTheLadder('comp.tree-view.container.height.small')]);
+  // A height of its own that reads a step, or is not marked, is told. (Read as a step, a tab's 64 with its icon is also
+  // told it is not the step's 40.)
+  const withIcon = `${NS}.comp.tabs.container.height-with-icon`;
+  assert.ok(fails({ ladder: { ...model.ladder, [withIcon]: 'medium' } }).includes('comp.tabs.container.height-with-icon: marked dev.tanrei.aligned "own", but it reads a step of the ladder — take the mark off'));
+  assert.deepEqual(fails({ own: model.own.filter((id) => id !== withIcon) }), [offTheLadder('comp.tabs.container.height-with-icon')]);
 });

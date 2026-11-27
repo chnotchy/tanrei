@@ -44,7 +44,7 @@ import io.github.chnotchy.tanrei.tokens.TanreiLoadingIndicatorTokens
  *
  * A quarter arc with round caps, no track, turning clockwise once per `motion.cycle-duration` at constant speed, in
  * `indicator.color`, inside a square of the size's `indicator.size` that is the whole component (LDG-1, LDG-2). Where
- * motion is reduced it does not turn: the whole circle pulses its opacity once per cycle (LDG-4). It stops while it is
+ * motion is reduced it does not turn: the whole circle pulses its opacity down to a floor and back once per cycle (LDG-4). It stops while it is
  * not on screen (LDG-7) and is never mirrored (LDG-8).
  *
  * @param contentDescription the spec's `label`: what is loading ("Loading messages"). Required: a moving mark alone is
@@ -110,7 +110,7 @@ private fun TanreiLoadingIndicatorImpl(contentDescription: String, modifier: Mod
     // every layout direction.
     val indicator = Modifier.size(metrics.indicatorSize).drawBehind {
         if (reduced) {
-            drawLoadingPulse(color, tanreiPulseAlpha(cycle.floatValue, pulseEasing), metrics.indicatorThickness)
+            drawLoadingPulse(color, tanreiPulseAlpha(cycle.floatValue, pulseEasing, tokens.motionPulseFloorOpacity), metrics.indicatorThickness)
         } else {
             drawLoadingArc(color, LinearEasing.transform(cycle.floatValue), metrics.indicatorThickness)
         }

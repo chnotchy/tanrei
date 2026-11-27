@@ -27,7 +27,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { forwards } from '../../../tools/src/from.js';
-import { type Fixture, type MadeFileRow, type Spec, avatarPicture, fileUploadTwin, loadSpec, mountFixtures, tab, twinOf } from '../../test/harness.js';
+import { type Fixture, type MadeFileRow, type Spec, avatarPicture, fileUploadTwin, loadSpec, mountFixtures, tab, twinOf, isRobotoMonoGlyphWarning } from '../../test/harness.js';
 import { axTree, insideHost } from '../../test/ax-tree.js';
 import { decodePng } from '../../test/png.js';
 import { exported } from './composed.js';
@@ -691,7 +691,7 @@ const reports = (seen: string[]) => seen.filter((text) => text.includes('[tanrei
 function warnings(page: Page) {
   const seen: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push(message.text());
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push(message.text());
   });
   return seen;
 }
@@ -987,9 +987,17 @@ for (const written of COMPOSED) {
           };
           for (const el of elements) walk(el.shadowRoot!, el.shadowRoot!, (name) => [name]);
           const parts: Record<string, { hits: { depth: number; tag: string; member: string }[]; named: number; same: boolean }> = {};
+          // The probe is a scroll margin, which draws nothing and which no part holds against a rule from outside. Not the
+          // outline: a host that draws its own focus ring holds it as `none !important` (src/primitives/focus-ring.ts),
+          // and an important rule of a shadow root outweighs every rule outside it, a `::part()` rule included. An element
+          // whose own margin is already the probe's is not counted as reached.
+          const nodes = elements.flatMap((host) => all(host.shadowRoot!, 1));
+          const PROBE = '13.5px';
+          const margin = (el: Element) => getComputedStyle(el).scrollMarginTop;
+          const before = new Map(nodes.map(({ el }) => [el, margin(el)]));
           for (const name of partNames as string[]) {
-            sheet.textContent = `${elementTag as string}::part(${name}) { outline: 1px dashed rgb(1, 2, 3); }`;
-            const styled = elements.flatMap((host) => all(host.shadowRoot!, 1)).filter(({ el }) => getComputedStyle(el).outlineColor === 'rgb(1, 2, 3)' && getComputedStyle(el).outlineStyle === 'dashed');
+            sheet.textContent = `${elementTag as string}::part(${name}) { scroll-margin-top: ${PROBE}; }`;
+            const styled = nodes.filter(({ el }) => margin(el) === PROBE && before.get(el) !== PROBE);
             const known = named[name] ?? [];
             parts[name] = {
               hits: styled.map(({ el, depth }) => ({ depth, tag: el.localName, member: ((el.getRootNode() as ShadowRoot).host as Element).localName })),

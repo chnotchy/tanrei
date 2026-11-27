@@ -1,6 +1,8 @@
 import { LitElement, type PropertyDeclarations, type PropertyValues, html, nothing } from 'lit';
 import {
   AvailabilityController,
+  DIRECTION_PROBE,
+  DirectionController,
   GROUP_AVAILABILITY,
   GROUP_ITEM,
   GROUP_PLACE,
@@ -227,6 +229,13 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
   private readonly axes = new OpenAxesController(this, { component: 'toolbar', behavior: 'TBR-13', axes: AXES });
   /** TBR-18: the product's words, read where the instance gives no overflow label. */
   private readonly words = new WordsController(this);
+  /**
+   * TBR-30: a change of the layout direction while the items scroll. The fade's ends are logical, but how far the items
+   * lie beyond each end is measured: the change moves the scroll position back to the start, and Firefox fires no scroll
+   * event for that, so the fade stayed at the end the items had lain beyond and a cut piece of an item stood against the
+   * kept run. Measured again once the change is laid out, before it is painted.
+   */
+  private readonly direction = new DirectionController(this, () => this.edgeTrack());
 
   /** TBR-10: the next and previous enabled stop, wrapping, and the first and last (no typeahead is passed to it). */
   private readonly keys = new RovingKeys({ wrap: true });
@@ -1169,7 +1178,7 @@ export class TanreiToolbar extends TanreiElement implements PlacingGroup {
     const tail = this.tail ? parts.pop() : nothing;
     // TBR-30: while the items scroll, the run kept at the end stands after the box that scrolls the items before it.
     const from = this.pinnedFrom();
-    const line$ = from === null ? parts : html`<div class="track" @wheel=${containedWheel} @scroll=${this.edgeTrack}>${parts.slice(0, from)}</div>${parts.slice(from)}`;
+    const line$ = from === null ? parts : html`<div class="track" @wheel=${containedWheel} @scroll=${this.edgeTrack}>${DIRECTION_PROBE}${parts.slice(0, from)}</div>${parts.slice(from)}`;
     const name = this.words.get('toolbarOverflowLabel', this.overflowLabel);
     // TBR-18: the overflow button, and the menu it opens (TBR-20), from the first time an item had to be hidden.
     const overflow = this.overflowWanted

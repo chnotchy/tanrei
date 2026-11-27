@@ -215,6 +215,13 @@ export function specProblems(file, written, { validate = compileSpecSchema(), vo
   // A component that lives in a layer reads the core's tokens and its own, which that layer holds.
   const own = tokenFile.startsWith('tokens/systems/') && exists(tokenFile) ? tokenIds(JSON.parse(read(tokenFile)), new Set(vocabulary)) : vocabulary;
   for (const { id, name } of unknownTokenIdsInProse(spec, own)) problems.push(`${file}: ${id} names "${name}", which is not a token of the vocabulary (tokens/)`);
+  // A part drawn with tokens whose path names another part says which (`drawnWith`): each the end of one of its tokens.
+  const group = `.${spec.tokens}.`;
+  for (const part of spec.anatomy) {
+    for (const end of part.drawnWith ?? []) {
+      if (![...own].some((token) => token.includes(group) && token.endsWith(`.${end}`))) problems.push(`${file}: anatomy "${part.id}" is drawnWith "${end}", which ends no token of ${spec.tokens}`);
+    }
+  }
 
   const propNames = spec.props.map((p) => p.name);
   problems.push(...enumDefaultProblems(file, spec.props, 'prop'));

@@ -4,6 +4,8 @@
 // it, and the document keeps the page's policy. Inside every window the fixture is drawn, its elements defined by the
 // one module the window runs; the browser refuses nothing, the page throws nothing, and every window is let go of
 // `inert` once it has drawn. A window far from the view is emptied, and drawn again when the reader comes back to it.
+// A window draws its fixture in the direction the fixture names, and the frame of one that names a direction offers
+// no other.
 //
 // It was written first after every window of the site stood empty for days while the tests were green: the host sent
 // `X-Frame-Options: DENY` with every document, which refuses a frame of the same site too, and the tests served `dist/`
@@ -59,7 +61,25 @@ async function drawnIn(frame) {
   const view = doc.defaultView;
   const tags = new Set([...stage.querySelectorAll('*')].map((e) => e.localName).filter((n) => n.includes('-')));
   await Promise.race([Promise.all([...tags].map((n) => view.customElements.whenDefined(n))), new Promise((r) => setTimeout(r, 10_000))]);
-  return { stage: true, address: doc.URL, fixture: stage.dataset.fixture, tags: tags.size, undefined: [...tags].filter((n) => !view.customElements.get(n)), theme: doc.documentElement.dataset.tanreiTheme ?? null };
+  return { stage: true, address: doc.URL, fixture: stage.dataset.fixture, tags: tags.size, undefined: [...tags].filter((n) => !view.customElements.get(n)), theme: doc.documentElement.dataset.tanreiTheme ?? null, direction: view.getComputedStyle(stage).direction };
+}
+
+/** The fixtures of the spec of the component a page shows, by id. */
+const fixturesOf = (pathname) => {
+  const name = pathname.split('/').filter(Boolean).at(-1);
+  const spec = JSON.parse(fs.readFileSync(path.join(docs, '../../specs', `${name}.spec.json`), 'utf8'));
+  return new Map(spec.fixtures.map((fixture) => [fixture.id, fixture]));
+};
+
+/** The actions the frame of a fixture's stage draws once it is near the view: whether the direction is one, how many, and the room they held. */
+async function offered(page, id) {
+  const selector = `[data-example][data-fixture-id="${id}"] [data-example-actions]`;
+  await page.waitForFunction((selector) => !document.querySelector(selector)?.querySelector(':scope > template'), selector, { timeout: 10_000 }).catch(() => {});
+  return page.locator(selector).evaluate((holder) => ({
+    direction: Boolean(holder.querySelector('[data-example-direction]')),
+    drawn: holder.querySelector(':scope > template') ? -1 : holder.querySelectorAll(':scope > :is(tanrei-button, tanrei-copy-button)').length,
+    held: Number(holder.dataset.exampleActions),
+  }));
 }
 
 for (const engine of engines('chromium,firefox,webkit')) {
@@ -83,6 +103,7 @@ for (const engine of engines('chromium,firefox,webkit')) {
             document.addEventListener('securitypolicyviolation', (event) => window.__refused(`${event.effectiveDirective}: ${event.blockedURI || 'inline'}`), true);
           });
           await page.goto(`${origin}${pathname}`, { waitUntil: 'load' });
+          const fixtures = fixturesOf(pathname);
 
           const frames = page.locator('iframe.docs-window-frame');
           const count = await frames.count();
@@ -102,6 +123,17 @@ for (const engine of engines('chromium,firefox,webkit')) {
             else if (drawn.address !== 'about:srcdoc') problems.push(`${title}: the window's document is ${drawn.address}, not the page's own`);
             else if (drawn.tags === 0) problems.push(`${title}: the window draws no element`);
             else if (drawn.undefined.length) problems.push(`${title}: ${drawn.undefined.join(', ')} not defined in the window`);
+            else {
+              // The window draws its fixture in the direction the fixture names (its document's stage carries it, over
+              // the frame's), and a frame whose fixture names one offers no other: turning it would turn nothing.
+              const fixture = fixtures.get(drawn.fixture);
+              const named = fixture?.direction;
+              if (!fixture) problems.push(`${title}: the window draws ${drawn.fixture}, no fixture of the spec`);
+              else if (named && drawn.direction !== named) problems.push(`${drawn.fixture}: its fixture names ${named}, and its window draws it ${drawn.direction}`);
+              const actions = await offered(page, drawn.fixture);
+              if (actions.direction === Boolean(named)) problems.push(`${drawn.fixture}: its fixture names ${named ?? 'no direction'}, and its frame ${actions.direction ? 'offers' : 'does not offer'} the other`);
+              if (actions.drawn !== actions.held) problems.push(`${drawn.fixture}: its actions held the room of ${actions.held} and draw ${actions.drawn}`);
+            }
           }
           // Each window near the view is let go once what it draws has opened (lib/fixture-stages.ts).
           await frames.last().scrollIntoViewIfNeeded();
@@ -186,5 +218,61 @@ for (const engine of engines('chromium,firefox,webkit')) {
         await context.close();
       }
     });
+
+    // A window is a document of its own, which inherits nothing from the page: a fixture that names no direction is
+    // drawn in the page's, as a stage in the page is, and one that names a direction keeps it. Every window of an
+    // Arabic page was drawn left to right while the page's own stages were drawn right to left.
+    for (const pathname of ['/components/app-shell/', '/ar/components/app-shell/', '/ar/components/navigation-drawer/']) {
+      test(`each window of ${pathname} is drawn in its fixture’s direction, else the page’s, and turns with the frame’s action`, LIMIT, async () => {
+        const context = await browsers.get(engine).newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
+        try {
+          const page = await context.newPage();
+          await page.goto(`${origin}${pathname}`, { waitUntil: 'load' });
+          const pageDirection = await page.evaluate(() => getComputedStyle(document.body).direction);
+          assert.equal(pageDirection, pathname.startsWith('/ar/') ? 'rtl' : 'ltr', 'the page is drawn in its language’s direction');
+          const frames = page.locator('iframe.docs-window-frame');
+          const count = await frames.count();
+          assert.ok(count > 0, `${pathname} has no window`);
+          const drawnIn = (element) => {
+            const stage = element.contentDocument?.querySelector('body > .stages > .stage');
+            return stage && element.contentDocument.readyState === 'complete' ? { id: stage.dataset.fixture, named: stage.getAttribute('dir'), direction: getComputedStyle(stage).direction } : null;
+          };
+          const wrong = [];
+          let undirected;
+          let directed = 0;
+          for (let i = 0; i < count; i++) {
+            const frame = frames.nth(i);
+            await frame.scrollIntoViewIfNeeded();
+            const drawn = await page.waitForFunction(drawnIn, await frame.elementHandle(), { timeout: 15_000 }).then((handle) => handle.jsonValue());
+            const wanted = drawn.named ?? pageDirection;
+            if (drawn.direction !== wanted) wrong.push(`${drawn.id}: drawn ${drawn.direction}, not ${wanted} (${drawn.named ? 'its fixture’s' : 'the page’s'})`);
+            if (drawn.named) directed++;
+            else undirected ??= drawn.id;
+          }
+          assert.deepEqual(wrong, []);
+          assert.ok(undirected, `${pathname} has no window of a fixture that names no direction`);
+          if (pathname === '/ar/components/app-shell/') assert.ok(directed > 0, `${pathname} has no window of a fixture that names a direction`);
+
+          // The frame's action turns the window of a fixture that names no direction, and turns it back.
+          const stage = page.locator(`.docs-stage[data-fixture-id="${undirected}"]`);
+          const frame = stage.locator('iframe.docs-window-frame');
+          const button = stage.locator('[data-example-direction]');
+          await frame.scrollIntoViewIfNeeded();
+          await page.waitForFunction(drawnIn, await frame.elementHandle(), { timeout: 15_000 });
+          await button.waitFor({ timeout: 10_000 });
+          const other = pageDirection === 'rtl' ? 'ltr' : 'rtl';
+          for (const turned of [other, pageDirection]) {
+            await button.click();
+            await page
+              .waitForFunction(({ element, turned }) => element.contentDocument?.querySelector('body > .stages > .stage') && getComputedStyle(element.contentDocument.querySelector('body > .stages > .stage')).direction === turned, { element: await frame.elementHandle(), turned }, { timeout: 5_000 })
+              .catch(() => {});
+            const now = await frame.evaluate((element) => getComputedStyle(element.contentDocument.querySelector('body > .stages > .stage')).direction);
+            assert.equal(now, turned, `${undirected}: the frame’s action turns its window to ${turned}`);
+          }
+        } finally {
+          await context.close();
+        }
+      });
+    }
   });
 }

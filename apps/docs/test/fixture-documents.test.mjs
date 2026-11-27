@@ -37,7 +37,7 @@ describe('the fixture documents', () => {
     assert.deepEqual(fixtureDocument('dialog').sizes.basic, { width: 640, height: 640 });
   });
 
-  test('the staging alone is the document’s rules less the package’s stylesheets, each of which every page of the site loads after Starlight’s layers', () => {
+  test('the staging alone is the document’s rules less the package’s stylesheets, each of which every page of the site loads (the base before Starlight’s layers, the rest after them)', () => {
     const docs = fileURLToPath(new URL('../', import.meta.url));
     const imported = (text) => [...text.matchAll(/@import '@tanrei\/web\/([a-z-]+\.css)'/g)].map((m) => m[1]);
     // Every page loads Starlight's `customCss`, and the site's own sheets import the package's into the docs' layers.
@@ -53,7 +53,7 @@ describe('the fixture documents', () => {
         assert.ok(everywhere.has(sheet), `${name}: every page of the site loads ${sheet}`);
       }
     }
-    assert.deepEqual(fixtureDocument('steps').sheets.sort(), ['icons.css', 'prose.css', 'steps.css']);
+    assert.deepEqual(fixtureDocument('steps').sheets.sort(), ['base.css', 'icons.css', 'prose.css', 'steps.css']);
     assert.ok(fixtureDocument('button').staging.length < 1000, 'a button’s staging is a few rules');
   });
 

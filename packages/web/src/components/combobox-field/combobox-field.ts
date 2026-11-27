@@ -111,7 +111,7 @@ const COMBOBOX_PARTS = exported(TanreiCombobox, { label: { as: 'combobox-label',
  * itself.
  *
  * Form-associated: it submits the committed value under `name` — never the text of an edit, and nothing while
- * disabled —, resets to its `value` attribute, is restored on navigation, follows a disabled `<fieldset>`, and reports
+ * disabled —, resets to the value it was first given, is restored on navigation, follows a disabled `<fieldset>`, and reports
  * a missing value while `required` is set and the value is empty. Enter with no option active presses the
  * default button of this element's form.
  *

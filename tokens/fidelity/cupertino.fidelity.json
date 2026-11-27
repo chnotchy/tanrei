@@ -148,6 +148,18 @@
     {
       "tanrei": "tanrei.sys.target.spacing",
       "note": "Accessibility asks for \"about 12 points of padding around elements that include a bezel\" and about 24 without: an approximate padding around one element, not a spacing between targets. cupertino does not set it."
+    },
+    {
+      "tanrei": "tanrei.comp.side-sheet.content.padding-block-start, tanrei.comp.bottom-sheet.content.padding-block-start",
+      "note": "Sheets publishes no distance between a sheet's title and its content: an iOS sheet is titled by a navigation bar, and its content scrolls under it. cupertino does not set it, and draws the default 8."
+    },
+    {
+      "tanrei": "tanrei.comp.navigation-bar.item.label.typescale, tanrei.comp.navigation-bar.item.icon-indicator.height, tanrei.comp.navigation-bar.item.gap",
+      "note": "Tab bars publishes no height for the bar, no box for its glyphs and no text style for its titles. cupertino's are its own, chosen so that the bar holds them at its 49: a 32 glyph box, the title 2 below it, in Caption 2 (Caption 1's line is one point too tall)."
+    },
+    {
+      "tanrei": "tanrei.comp.segmented-button.container.padding-block.*, tanrei.comp.segmented-button.set.padding",
+      "note": "Segmented controls publishes no inset of the selection in its track and no padding around a title. cupertino's are its own, chosen so that a set stays at its height with one title line in each segment."
     }
   ]
 }

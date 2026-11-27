@@ -5,14 +5,18 @@
 // The copy is Tanrei's page header at its large size — the eyebrow, the page's own `h1`, the tagline as the
 // description, the actions below the text — and the specimen is Tanrei's Figure: its title names the element and the
 // token namespace shown, its stage holds the Buttons, and the strip of color roles is the block joined under the stage.
-// Both are drawn by their stylesheets before their elements are defined.
+// Both are drawn by their stylesheets before their elements are defined, and the specimen's stage holds the room its
+// Buttons are drawn in (below).
 import { config, platforms, statusComponents, specs } from '../lib/repo';
 import { contextIds } from '../lib/tokens';
 import { contentLang, strings } from '../lib/i18n';
 import { heroEyebrow } from '../lib/release-notice';
 import { destination, linkAttribute } from '../lib/link';
 import { figureId } from '../lib/figure-id';
-import { specimenFixtures } from '../lib/fixtures';
+import { specimenFixtures, specimenMarkup } from '../lib/fixtures';
+// What the stage holds takes the height it is drawn at before its elements are defined, as on every figure's stage
+// (lib/stage-cloak.mjs).
+import 'virtual:tanrei-docs/stage-cloak.css';
 
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline = undefined, actions = [] } = data.hero ?? {};
@@ -26,8 +30,8 @@ const figures = [
   { value: contextIds.length, label: t.heroContexts },
 ];
 // The specimen's Buttons, as the web package's document draws a fixture (lib/fixtures.ts): the element's own attributes and its
-// slots, so an icon button has its icon; no link, no toggle state, one width.
-const demoFixtures = specs.button ? specimenFixtures(specs.button) : [];
+// slots, so an icon button has its icon; no link, no toggle state, one width. Each is given the width it takes (below).
+const demoFixtures = specs.button ? specimenFixtures(specs.button).map(specimenMarkup) : [];
 const tag = specs.button?.platforms.web?.name;
 
 // The actions are Tanrei Buttons with a destination — links, not buttons — in the hierarchy the page's
@@ -68,7 +72,7 @@ const specimenTitle = `${figureId(Astro)}-title`;
             <span>{config.namespace}.comp.button</span>
           </p>
         </header>
-        <div data-part="stage" class="specimen-stage" data-pagefind-ignore>
+        <div data-part="stage" class="specimen-stage" data-example-stage data-pagefind-ignore>
           {tag && <Fragment set:html={demoFixtures.join('')} />}
         </div>
         <div data-part="attachment" class="swatches">
@@ -114,7 +118,7 @@ const specimenTitle = `${figureId(Astro)}-title`;
       /* The copy's share leaves the three actions one line: a text Button keeps the padding of its size. */
       grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
       /* The copy stands at the top of its row, not at the middle of the specimen beside it: its place does not hang on
-         the specimen's height, which changes when its Buttons are defined. */
+         the specimen's height, which a reader's look can change (the room the stage holds is the default system's). */
       align-items: start;
       column-gap: 4rem;
     }
@@ -159,31 +163,22 @@ const specimenTitle = `${figureId(Astro)}-title`;
     gap: 0 var(--tanrei-comp-figure-header-gap);
   }
   .specimen-stage {
-    --_specimen-gap: 0.75rem;
-    /* Until its Buttons are defined the stage holds them hidden, as text, in fewer rows than they take once drawn. It is
-       given the rows they will take, so that nothing beside or under it moves when they are drawn. Measured with every
-       element defined, the same in all six languages (the specimen's labels are not translated): 15 rows in the second
-       column, at every width that column has (from 60rem up its width no longer changes); 8 to 17 rows in one column,
-       more as it narrows — there it is given the fewest, which leaves no room empty at any width. The rows follow the
-       Button's fixtures the specimen draws (lib/fixtures.ts), so a fixture added to the Button's spec can add one: the
-       hero's browser test (test/browser/hero.test.mjs) then fails at 1440 until the second column's count is measured
-       again, and the one column's fewest is measured again with it. */
-    --_specimen-rows: 8;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: var(--_specimen-gap);
-    min-block-size: calc(
-      var(--_specimen-rows) * var(--tanrei-comp-button-container-height-medium) + (var(--_specimen-rows) - 1) * var(--_specimen-gap) +
-        2 * var(--tanrei-comp-figure-stage-padding-block) + var(--tanrei-comp-figure-divider-thickness)
-    );
+    gap: 0.75rem;
   }
-  @media (min-width: 60rem) {
-    .specimen-stage {
-      --_specimen-rows: 15;
-    }
+  /* Until its Buttons are defined the stage holds each one hidden in the box it is drawn in, so that it wraps them into
+     the rows they take once drawn, at any width, and nothing beside or under it moves when they are. The height is the
+     web package's cloak's (lib/stage-cloak.mjs: the stage is marked as a figure's is), from the Button's own tokens.
+     The width, which the cloak does not hold, is the one the Button's baseline gives, a pixel over (lib/fixtures.ts):
+     the Button keeps it as its least width once defined, and draws itself at its own width at the start of it, so the
+     box is the same length before and after. The labels are not translated: it is the same box in every language and
+     direction. */
+  .specimen-stage > :global(*) {
+    min-inline-size: var(--docs-specimen-inline-size, auto);
   }
-  .specimen-stage :global(:not(:defined)) {
-    visibility: hidden;
+  .specimen-stage > :global(:not(:defined)) {
+    inline-size: var(--docs-specimen-inline-size, auto);
   }
   .swatches {
     display: grid;

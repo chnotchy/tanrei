@@ -97,15 +97,19 @@ test('the cloak is exported on its own, hides every element the package defines,
   };
   for (const [, list, body] of rules) {
     for (const selector of selectors(list)) {
-      assert.match(outside(selector), /^(?::where)+$/, selector);
+      // Or the element's own `::before`: a box it generates, not a child or a sibling (the empty line that sets the
+      // baseline a tag or a keycap is held on).
+      assert.match(outside(selector), /^(?::where)+(?:::before)?$/, selector);
       assert.match(selector, /:not\(:defined\)/, selector);
       // A rule that gives an element a box leaves one that is `hidden` to the browser's `display: none`.
       if (/(?:^|;)\s*display:\s*(?!\s|none\b)/.test(body)) assert.match(selector, /:not\([^)]*\[hidden\]/, selector);
     }
     // A value is a token's (or a private name's that holds one), a keyword, or arithmetic on them: no length, color or
-    // time of its own.
+    // time of its own. The tokens are a component's, and the targets: the pointer's, which a column of tabs that touch
+    // is held at (TAB-51), and the touch target, which joined items are at least as long as under a coarse pointer
+    // (BGR-3, SEG-6).
     for (const [, property, value] of body.matchAll(/([a-z-]+):\s*([^;]+);/g)) {
-      assert.ok(![...value.matchAll(/var\((--[a-z0-9_-]+)\)/g)].some(([, name]) => !/^--tanrei-comp-|^--_cloak-/.test(name)), `${property}: ${value}`);
+      assert.ok(![...value.matchAll(/var\((--[a-z0-9_-]+)\)/g)].some(([, name]) => !/^--tanrei-comp-|^--tanrei-sys-target-(?:pointer|touch)$|^--_cloak-/.test(name)), `${property}: ${value}`);
       assert.ok(!/\d(?:px|rem|em|%|ms|s|vh|vw)\b|#[0-9a-f]{3}|rgb|hsl|oklch/i.test(value), `${property}: ${value}`);
     }
   }

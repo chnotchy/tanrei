@@ -29,6 +29,9 @@
 //                 draws as generated content, which no mark can be written on, handed to its host (TRV-38), and
 //                 generatedGlyphMirrors() that answer once (the previous and next links' arrows, PNL-21);
 //                 watchIconSet(): told when the design system is switched on the document's root
+//   host-roots  — hostRoot(): an element of the package (TanreiElement, TanreiLightElement) tells when it is connected in
+//                 a shadow root and disconnected; `@tanrei/web/icons` (observeIconsWhereUsed()) and
+//                 `@tanrei/web/link` hear it and observe the shadow root it is used in
 //   axes        — OpenAxesController: sizes and variants a design system adds, and a value it does not have
 //   size-cascade — SizeProviderController and SizeConsumerController: a size set on a container is the size of what it
 //                 holds that sets none (BGR-26, BTN-48); nearestSize(): a size a component lacks, taken as its nearest;
@@ -195,6 +198,8 @@
 //                 an element's first frames, MOT-3), holdStillPointer() (no hover transition in what a surface holds
 //                 until the person acts after it opened: a pointer at rest is over it from the first frame; the rule is
 //                 stillPointerStyles, which an element that draws nothing under a pointer leaves out)
+//   first-paint — documentPainted() and afterFirstPaint() (MOT-4), apart from motion so that what waits for the first
+//                 paint to read the layout does not bring the motions; motion re-exports them
 //   element     — TanreiElement and TanreiLightElement (element.ts): the base every element extends, which settles it
 //                 (MOT-3) — settleStyles composed last in a shadow root; the build writes settleRule() into a light-DOM sheet;
 //                 TanreiElement keeps a focus() that lands nowhere while it, or what holds it, has an update to draw, until
@@ -521,6 +526,7 @@ export {
   unwatchConvention,
   watchConvention,
 } from './keyboard-convention.js';
+export { type DrawnChord, type DrawnKey, drawnChords, writeChord, writeChords } from './keyboard-writing.js';
 export { FILTER_SETTLE_MS, completionOf, containsText, filterWords, holdsWords, labelBegins, letters, matchRun, sameText } from './filter.js';
 export { type IndicatorDragOptions, IndicatorDragController, type IndicatorPlace, type IndicatorStop, indicatorChoice, indicatorPlace } from './indicator-drag.js';
 export { type SharedChoice, keepInPlace, remember, remembered, sharedChoice } from './shared-choice.js';

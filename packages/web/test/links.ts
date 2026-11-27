@@ -5,15 +5,7 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 import { missingWords, resolveToken, setWords } from './harness.js';
 import { middlePressAimed } from './middle-press.js';
-
-/** The warnings a page's debug build reports, collected from now on. */
-export function warnings(page: Page): string[] {
-  const seen: string[] = [];
-  page.on('console', (message) => {
-    if (message.type() === 'warning') seen.push(message.text());
-  });
-  return seen;
-}
+import { askForFrame } from './frame-asked.js';
 
 /** The styled part of a component — the native element, or the anchor of its link form: `[part="container"]`. */
 export const container = (host: Locator) => host.locator('[part="container"]');
@@ -141,6 +133,7 @@ export async function expectLinkActivation(page: Page, host: Locator, { focus }:
     document.body.style.minBlockSize = '400vh';
     history.replaceState(null, '', '#');
   });
+  await askForFrame(page);
 
   // A pointer: one click, then the address.
   await setHref('#by-pointer');

@@ -104,7 +104,9 @@ body {
    Starlight's and before every component's stylesheet. It is the ring of whatever draws none itself. Unlayered it
    also won over the components that do — a sortable header of the Table, a row of the Tree view, each of which says
    `outline: none` and draws its indicator on another box — and they were drawn with two rings; and the main region,
-   which takes focus from the skip link and is no control, was drawn with one. */
+   which takes focus from the skip link and is no control, was drawn with one. A component whose host takes focus
+   itself (a tab, a tab panel, a list item) and draws its ring inside refuses this one with `outline: none !important`
+   on its host, which no rule of a page outweighs; an element not yet defined (the search's stand-in) takes it. */
 @layer docs.focus {
   :focus-visible {
     outline: var(--tanrei-sys-focus-outer-width) solid var(--tanrei-sys-color-focus-ring);

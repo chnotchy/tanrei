@@ -23,6 +23,7 @@ import { type CSSResultGroup, type PropertyDeclarations, type PropertyValues, ty
 import { type DelegatedName, delegatesAria, ownedNames } from './delegated-aria.js';
 import { FIELD_CONTROL } from './field.js';
 import { FormDisabledController } from './form-disabled.js';
+import { FormDefault } from './form-default.js';
 import { type FormEntry, type FormWord, formSaysOf } from './form-says.js';
 import { hiddenHost } from './hidden.js';
 import { disabledWaitsWhileFocused } from './disabled-while-focused.js';
@@ -245,7 +246,7 @@ export interface ValueMember<V> extends HTMLElement {
  * **The element is the form's control** — the member stands in a shadow root, outside every form: its class says
  * `static formAssociated = true`; it takes `name` and `form`, and repeats on its own internals what its value member
  * tells its own through `FormSays` (src/primitives/form-says.ts) — the value and the state as they are, the validity
- * flags, the message and the member's own anchor. It resets to its `value` attribute (`firstValue()`), passes a restore
+ * flags, the message and the member's own anchor. It resets to the value it was first given (`firstValue()`), passes a restore
  * on to the member, and joins a disabled `<fieldset>` (`formDisabled`, src/primitives/form-disabled.ts) with its own
  * `disabled` for its frame. Enter is the member's: it asks for the element's form (`formOf`).
  */
@@ -299,9 +300,17 @@ export abstract class ComposedControl<V = string> extends ComposedElement {
     this.pending = true;
   }
 
-  /** The value a form's reset returns to — the `value` attribute, where the first value is written. An element whose first value is elsewhere overrides it. */
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue` (src/primitives/form-default.ts). */
+  private readonly valueDefault = new FormDefault<V>(this, () => this.value, 'value', (text) => this.valueFromAttribute(text));
+
+  /** The value the `value` attribute gives, read as the element reads it. An element whose value is not a text overrides it. */
+  protected valueFromAttribute(text: string | null): V {
+    return (text ?? '') as V;
+  }
+
+  /** The value a form's reset returns to: the value it was first given, or the `value` attribute the product wrote since. */
   protected firstValue(): V {
-    return (this.getAttribute('value') ?? '') as V;
+    return this.valueDefault.value;
   }
 
   /** The form it belongs to, if any. */

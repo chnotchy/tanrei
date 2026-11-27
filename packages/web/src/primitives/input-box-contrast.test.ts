@@ -90,6 +90,100 @@ async function contrast(page: Page, include: string) {
   return { incomplete: unchecked, violations: await at(results.violations), passes: await at(results.passes) };
 }
 
+/** The subjects that draw a prefix and a suffix, and the sentences that draw and disable them. */
+const AFFIXED: { name: string; sentences: string; model: string }[] = [
+  { name: 'text-input', sentences: 'TXI-15, TXI-5', model: 'outlined-filled' },
+  { name: 'text-field', sentences: 'TXI-15, TXI-5 of its text input', model: 'outlined-filled' },
+  { name: 'number-input', sentences: 'NMI-28, NMI-32', model: 'stacked-value' },
+  { name: 'number-field', sentences: 'NMI-28, NMI-32 of its number input', model: 'stacked-value' },
+];
+
+/** What axe reported or passed, node by node: the stage it is in and the part it is (`prefix`, `suffix`, or none). */
+async function nodesOf(page: Page, targets: unknown[]): Promise<{ stage: string; part: string }[]> {
+  return page.evaluate((list) => {
+    return list.map((target) => {
+      // A node in a shadow root is a path of selectors, one per root, the first in the document.
+      const path = (Array.isArray(target[0]) ? target[0] : [target[0]]) as string[];
+      let el: Element | null = document.querySelector(path[0]);
+      for (const selector of path.slice(1)) el = el?.shadowRoot?.querySelector(selector) ?? null;
+      const part = el?.getAttribute('part') ?? '';
+      // The stage is in the document, round the outermost host.
+      while (el && el.getRootNode() instanceof ShadowRoot) el = (el.getRootNode() as ShadowRoot).host;
+      return { stage: el?.closest('[data-fixture]')?.getAttribute('data-fixture') ?? '', part };
+    });
+  }, targets as (string | string[])[][]);
+}
+
+for (const subject of AFFIXED) {
+  test(`${subject.sentences}: ${subject.name} — its prefix and its suffix are held to contrast while it is enabled, and are part of the inactive control while it is disabled, in every variant`, async ({ page }) => {
+    const spec = loadSpec(subject.name);
+    const { twin: _twin, ...base } = spec.fixtures.find((f) => f.id === subject.model)!;
+    const fixtures: Fixture[] = VARIANTS.flatMap((variant) =>
+      ['enabled', 'disabled'].flatMap((form) =>
+        ['normal', 'faint'].map((tone) => ({
+          ...base,
+          id: `${variant}-${form}-${tone}`,
+          props: { ...base.props, variant, prefixText: 'US$', suffixText: 'per kg', ...(form === 'disabled' ? { disabled: true } : {}) },
+        })),
+      ),
+    );
+    await mountFixtures(page, spec, { fixtures, reducedMotion: true });
+    await page.evaluate(
+      ([names, faint]) => {
+        for (const stage of document.querySelectorAll<HTMLElement>('[data-fixture$="-faint"]')) for (const name of names as string[]) stage.style.setProperty(name, faint as string);
+      },
+      [TEXT_COLORS, FAINT] as const,
+    );
+    // Each affix as drawn, and whether axe-core takes it for part of a disabled control: `disabled` on a fieldset, a
+    // button, a select, an input or a textarea, or `aria-disabled` on it or an ancestor of the flat tree.
+    const affixes = await page.evaluate(() => {
+      const found: { stage: string; part: string; text: string; disabled: boolean }[] = [];
+      const disabledFor = (el: Element) => {
+        for (let at: Element | null = el; at; at = at.assignedSlot ?? at.parentElement ?? ((at.parentNode as ShadowRoot | null)?.host ?? null)) {
+          if (['FIELDSET', 'BUTTON', 'SELECT', 'INPUT', 'TEXTAREA'].includes(at.tagName) && at.hasAttribute('disabled')) return true;
+          const aria = at.getAttribute('aria-disabled');
+          if (aria) return aria === 'true';
+        }
+        return false;
+      };
+      const walk = (root: ParentNode, stage: string) => {
+        for (const el of root.querySelectorAll('*')) {
+          const part = el.getAttribute('part') ?? '';
+          if (['prefix', 'suffix'].includes(part)) found.push({ stage, part, text: el.textContent?.trim() ?? '', disabled: disabledFor(el) });
+          if (el.shadowRoot) walk(el.shadowRoot, stage);
+        }
+      };
+      for (const stage of document.querySelectorAll('[data-fixture]')) walk(stage, stage.getAttribute('data-fixture')!);
+      return found;
+    });
+    const results = await new AxeBuilder({ page }).include('.stage').withRules(['color-contrast']).analyze();
+    const nodes = async (list: typeof results.violations) => nodesOf(page, list.flatMap((rule) => rule.nodes.map((node) => node.target as unknown)));
+    const violations = await nodes(results.violations);
+    const passes = await nodes(results.passes);
+    expect((await nodes(results.incomplete)).map((n) => `${n.stage} ${n.part}`), 'nothing is left unchecked').toEqual([]);
+    for (const f of fixtures) {
+      for (const part of ['prefix', 'suffix']) {
+        const drawn = affixes.filter((a) => a.stage === f.id && a.part === part);
+        expect(drawn.map((a) => a.text), `${f.id}: the ${part} is drawn once, with its text`).toEqual([part === 'prefix' ? 'US$' : 'per kg']);
+        const said = `${f.id}'s ${part}`;
+        if (f.id.includes('-disabled-')) {
+          expect(drawn[0].disabled, `${said} is part of the disabled control`).toBe(true);
+          expect(violations.filter((n) => n.stage === f.id && n.part === part), `${said} is not held to contrast (WCAG 1.4.3: an inactive control's text)`).toEqual([]);
+        } else {
+          expect(drawn[0].disabled, `${said} is not exposed as disabled`).toBe(false);
+          if (f.id.endsWith('-faint')) expect(violations, `${said}: its faint text is reported`).toContainEqual({ stage: f.id, part });
+          else {
+            expect(passes, `${said} is checked`).toContainEqual({ stage: f.id, part });
+            expect(violations.filter((n) => n.stage === f.id), `${f.id} draws its text in its own colors`).toEqual([]);
+          }
+        }
+      }
+    }
+    // A disabled box is left alone whole: its value is the disabled native element's, its affixes are the control's.
+    expect(violations.filter((n) => n.stage.includes('-disabled-')), 'a disabled box is held to no contrast').toEqual([]);
+  });
+}
+
 for (const subject of SUBJECTS) {
   test(`${subject.sentences}: ${subject.name} — its edges hide no text from a contrast check: faint text is a violation and the box's own colors pass, in every variant, resting, with a value, a placeholder, in error, disabled, hovered and focused`, async ({ page }) => {
     const fixtures = fixturesOf(subject);

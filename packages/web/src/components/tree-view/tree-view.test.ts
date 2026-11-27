@@ -16,6 +16,8 @@ import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../..
 import { expectBaseline } from '../../../test/baseline.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
+import { askForFrame } from '../../../test/frame-asked.js';
+import { SHADOW_HOSTS, attachShadowRoot, declaredShadowRoot, glyphsIn } from '../../../test/shadow-mirror.js';
 
 const spec = loadSpec('tree-view');
 type P = Page;
@@ -713,7 +715,7 @@ test.describe('open and closed', () => {
     await page.addStyleTag({ content: `[data-fixture="small"] { block-size: 150px; overflow: auto; padding: 0 !important; }` });
     const box = stage(page, 'small');
     // Its row stays; what follows moves.
-    await box.evaluate((el) => (el.scrollTop = 200));
+    await box.evaluate((el) => (el.scrollTop = 170));
     const scrolled = await edges(row(page, 'small', 'Beta'));
     const next = (await edges(row(page, 'small', 'Gamma'))).top;
     const view = await edges(box);
@@ -721,7 +723,7 @@ test.describe('open and closed', () => {
     expect(scrolled.bottom).toBeLessThanOrEqual(view.bottom);
     await page.mouse.click(scrolled.right - 30, scrolled.top + 10);
     expect((await edges(row(page, 'small', 'Beta'))).top).toBe(scrolled.top);
-    expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
+    expect(await box.evaluate((el) => el.scrollTop)).toBe(170);
     near((await edges(row(page, 'small', 'Gamma'))).top, next + scrolled.height);
     await page.mouse.click(scrolled.right - 30, scrolled.top + 10);
     expect((await edges(row(page, 'small', 'Beta'))).top).toBe(scrolled.top);
@@ -1956,6 +1958,22 @@ test.describe('right to left', () => {
     expect((await drawn(row(page, 'icons-rtl', 'عام'))).chevron).toMatchObject({ scale: '-1 1', rotate: '-90deg' });
   });
 
+  test('TRV-38: inside a product’s shadow root — declared in the page’s markup with the stylesheet in it, or attached by script without it — an icon the set marks is drawn mirrored in right-to-left exactly as in the document', async ({ page }) => {
+    const markup =
+      '<div dir="rtl"><tanrei-tree-view label="الإعدادات"><ul><li><span><span class="tanrei-icon">arrow_forward</span>اللغة</span></li><li><span><span class="tanrei-icon">settings</span>عام</span></li></ul></tanrei-tree-view></div>';
+    await mount(page, { fixtures: some('icons-rtl'), lead: declaredShadowRoot(markup, 'tree-view.css') });
+    await attachShadowRoot(page, markup);
+    const drawn = [
+      { name: 'arrow_forward', marked: true, transform: 'matrix(-1, 0, 0, 1, 0, 0)' },
+      { name: 'settings', marked: false, transform: 'none' },
+    ];
+    for (const id of SHADOW_HOSTS) await expect.poll(() => glyphsIn(page, id), id).toEqual(drawn);
+    // An item added later is decided there too, as in the document.
+    await page.evaluate(() => document.getElementById('scripted')!.shadowRoot!.querySelector('ul')!.insertAdjacentHTML('beforeend', '<li><span><span class="tanrei-icon">arrow_back</span>رجوع</span></li>'));
+    await askForFrame(page);
+    await expect.poll(async () => (await glyphsIn(page, 'scripted'))[2]).toEqual({ name: 'arrow_back', marked: true, transform: 'matrix(-1, 0, 0, 1, 0, 0)' });
+  });
+
   test('TRV-38, TRV-36, TRV-4: a start chevron is drawn mirrored in right-to-left exactly when the icon set marks chevron_right — a closed one points left under the default set, and right, as in left-to-right, under a product layer’s set that marks nothing (acme), the tree mirroring no glyph itself — and an open one points down in both directions under both; under that set a change of direction turns nothing, and a switch of the design system that changes the answer is drawn at once', async ({ page }) => {
     const { direction: _rtl, ...ltr } = fixture('rtl');
     const fixtures: Fixture[] = [fixture('rtl'), { ...ltr, id: 'ltr' }];
@@ -2843,7 +2861,7 @@ test.describe('before the element is defined, without script, in a shadow root',
         }),
       );
     // The look, with no script at all.
-    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(40);
+    expect((await edges(row(page, 'all-parts', 'package.json'))).height).toBe(36);
     const src = await drawn(row(page, 'all-parts', 'src'));
     expect(src.chevron.content).toContain('chevron_right');
     expect(src.chevron.rotate).toBe('90deg');
@@ -2906,10 +2924,11 @@ test.describe('before the element is defined, without script, in a shadow root',
       outer.attachShadow({ mode: 'open' }).innerHTML = `<tanrei-tree-view label="In a shadow root" selection="single" value="a1">${lists}</tanrei-tree-view>`;
       document.querySelector('main')!.append(outer);
     }, SMALL);
+    await askForFrame(page);
     const inner = page.locator('#shadowed tanrei-tree-view');
     await expect.poll(() => css(inner.locator('li').first().locator('> span'), 'display')).toBe('grid');
     const first = inner.locator('li').first().locator('> span');
-    expect((await edges(first)).height).toBe(40);
+    expect((await edges(first)).height).toBe(36);
     await expect.poll(() => css(inner.locator('li[data-value="a1"] > span'), 'background-color', '::after')).toBe(await resolveColor(page, T('selected-container-color')));
     near(Number.parseFloat(await css(inner.locator('li[data-value="a1"] > span'), 'left', '::after')), (await resolveToken(page, T('chevron-size-medium'))) + (await resolveToken(page, T('container-gap-medium'))));
     // Read in the task of the click, after the element has answered it (as TRV-11's turn is): asked for afterwards, the

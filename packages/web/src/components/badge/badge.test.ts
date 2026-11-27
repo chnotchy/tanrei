@@ -2,7 +2,7 @@
 // has a baseline, and every length and color is read back from the tokens — never from a number written here.
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, rootTokens, typeRole } from '../../../test/harness.js';
+import { type Fixture, loadSpec, mountFixtures, resolveColor, resolveToken, tabTo, rootTokens, typeRole, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount } from '../../../test/motions.js';
 
@@ -18,11 +18,6 @@ const T = (name: string) => `--tanrei-comp-badge-${name}`;
 const box = async (locator: Locator) => (await locator.boundingBox())!;
 const css = (locator: Locator, property: string) => locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
 const override = (page: P, vars: Record<string, string>) => rootTokens(page, vars);
-function warnings(page: P) {
-  const seen: string[] = [];
-  page.on('console', (message) => { if (message.type() === 'warning') seen.push(message.text()); });
-  return seen;
-}
 const fixture = (id: string, props: Fixture['props'], content = 'notifications'): Fixture => ({ id, props, content });
 const COUNTS = ['count-single', 'count-double', 'count-overflow', 'count-custom-max'];
 

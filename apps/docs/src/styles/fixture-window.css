@@ -1,7 +1,9 @@
 /*
  * The document of a window of the fixtures' gallery (lib/fixture-stages.ts writes it into the window), which stands
  * outside Starlight's frame. It loads, in this one stylesheet, what every page of the site has from Starlight's
- * `customCss`: prose's sheet (which names the docs' layers and loads every stylesheet of `@tanrei/web` into them), the
+ * `customCss`: prose's sheet (which names the docs' layers, loads every stylesheet of `@tanrei/web` into them and the
+ * page's base before them — so the window's body has no margin of the browser's and is set in the body face, on the
+ * surface, as the web package's document of the fixture is), the
  * tokens and the icon faces, each in a layer of the docs' own, and the faces — so that a fixture in a window is drawn
  * with the stylesheets a fixture drawn in the page is.
  *

@@ -25,8 +25,9 @@ import '../theme/theme_data.dart';
 ///   `contained.container.color` and raised by `contained.container.elevation`, with the arc
 ///   centered on it in `contained.indicator.color` (LDG-3).
 /// * Where `MediaQuery.disableAnimationsOf` asks for reduced motion it does not turn: the whole
-///   circle is drawn and its opacity eases from 1 to 0 and back once per cycle with
-///   `sys.motion.easing.standard`; the container stays still and opaque (LDG-4).
+///   circle is drawn and its opacity eases from 1 down to `motion.pulse-floor-opacity` and back
+///   once per cycle with `sys.motion.easing.standard`, never below that floor; the container stays
+///   still and opaque (LDG-4).
 /// * Semantics: [semanticsLabel] is the name, with no value — Flutter's own indeterminate
 ///   indicator. Flutter 3.32 cannot say "progressbar" or "busy" (LDG-5). Never focusable, never a live region, and it announces nothing
 ///   when it appears or disappears (LDG-6).
@@ -140,6 +141,7 @@ class _TanreiLoadingIndicatorState extends State<TanreiLoadingIndicator>
           reducedMotion: MediaQuery.disableAnimationsOf(context),
           turnCurve: system.motion.easing.linear.toCurve(),
           pulseCurve: system.motion.easing.standard.toCurve(),
+          pulseFloor: tokens.motionPulseFloorOpacity,
         ),
       ),
     );
@@ -189,6 +191,7 @@ class _ArcPainter extends CustomPainter {
     required this.reducedMotion,
     required this.turnCurve,
     required this.pulseCurve,
+    required this.pulseFloor,
   }) : super(repaint: cycle);
 
   final Animation<double> cycle;
@@ -197,18 +200,19 @@ class _ArcPainter extends CustomPainter {
   final bool reducedMotion;
   final Curve turnCurve;
   final Curve pulseCurve;
+  final double pulseFloor;
 
   @override
   void paint(Canvas canvas, Size size) {
     final TanreiRing ring = TanreiRing(size, thickness);
     final double t = cycle.value;
     if (reducedMotion) {
-      // LDG-4: the whole circle, still, pulsing.
+      // LDG-4: the whole circle, still, pulsing down to its floor and back.
       ring.arc(
         canvas,
         TanreiRing.top,
         TanreiRing.turn,
-        tanreiFade(color, tanreiPulseOpacity(pulseCurve, t)),
+        tanreiFade(color, tanreiPulseOpacity(pulseCurve, t, pulseFloor)),
         cap: StrokeCap.round,
       );
     } else {
@@ -229,5 +233,6 @@ class _ArcPainter extends CustomPainter {
       oldDelegate.thickness != thickness ||
       oldDelegate.reducedMotion != reducedMotion ||
       oldDelegate.turnCurve != turnCurve ||
-      oldDelegate.pulseCurve != pulseCurve;
+      oldDelegate.pulseCurve != pulseCurve ||
+      oldDelegate.pulseFloor != pulseFloor;
 }

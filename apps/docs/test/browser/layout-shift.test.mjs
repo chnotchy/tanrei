@@ -188,6 +188,54 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
   }
 });
 
+// ── The home page in every language ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The home page of each language — the root one and each language's directory (a folder of the content with its own
+ * `components`) — at a laptop's width, where the hero's copy and its specimen stand side by side and the platforms and
+ * the figures are drawn under the taller of the two. Each language draws the copy in its own words and faces, so each
+ * wraps it on its own lines: none may move the page by more than the budget, loaded as a slow line delivers it (every
+ * script held until the page has been drawn, as above) or as the files come (nothing held).
+ */
+const content = path.join(docs, 'src/content/docs');
+const HOMES = ['/', ...fs.readdirSync(content).filter((name) => fs.existsSync(path.join(content, name, 'components'))).map((lang) => `/${lang}/`)];
+const LAPTOP = { width: 1280, height: 900 };
+
+/** The shifts of one load of `url` in `context`, nothing held: the files as they come. */
+async function deliveredShifts(context, url) {
+  const page = await context.newPage();
+  await page.addInitScript(observeShifts);
+  const network = await watchNetwork(page);
+  await page.goto(origin + url, { waitUntil: 'load' });
+  await network.quiet({ worker: /\/sheet-worker-[^/]*\.js$/ });
+  const shifts = await shiftsAtRest(page);
+  await page.close();
+  return shifts;
+}
+
+describe(`the home page moves by no more than ${BUDGET} while it loads, in every language, at ${LAPTOP.width}`, { concurrency: 2 }, () => {
+  test('there is a home page in every language', () => assert.ok(HOMES.length >= 6, HOMES.join(', ')));
+  for (const url of HOMES) {
+    for (const [load, shiftsOf] of [
+      ['its scripts held until it is drawn', loadShifts],
+      ['nothing held', deliveredShifts],
+    ]) {
+      test(`${url}, ${load}`, LIMIT, async (t) => {
+        const context = await browser.newContext({ viewport: LAPTOP });
+        try {
+          const shifts = await shiftsOf(context, url);
+          const total = shifts.reduce((sum, { value }) => sum + value, 0);
+          t.diagnostic(`layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}`);
+          const moved = shifts.filter(({ value }) => value > 0).map(({ value, sources }) => `${value.toFixed(4)}:\n      ${sources.join('\n      ') || '(no source named)'}`);
+          assert.ok(total <= BUDGET, `${url} at ${LAPTOP.width} × ${LAPTOP.height}, ${load}, shifts by ${total.toFixed(4)} as it loads (at most ${BUDGET}):\n  ${moved.join('\n  ')}`);
+        } finally {
+          await context.close();
+        }
+      });
+    }
+  }
+});
+
 // ── Read through ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -195,8 +243,10 @@ describe(`the layout shifts by no more than ${BUDGET} while a page loads`, { con
  * the 0.1 that Core Web Vitals calls good. It is a sum over the whole read, every entry of it, where the page's CLS is
  * only its largest burst (a window of five seconds at most), so the sum is the stricter of the two. It is not the tenth
  * the load is held to: a long page holds tables that are not laid out until they come near the view, each holding the
- * room of rows one line tall (ComponentSpecs.astro, the tokens' table), which wrap at this width — the Japanese Select's
- * page moved by 0.013 so as it was read through. Before a figure took its drawn room while it was still below the view
+ * room of rows one line tall (ComponentSpecs.astro, the tokens' table), which wrap at this width. (The Japanese Select's
+ * page moved by 0.013 so as it was read through until its measure figure's table said from the first frame which
+ * length the component does not draw (lib/visuals/measure.ts, `lengthsNotDrawnOf`): a note written in once the figure
+ * was drawn pushed that table's first column wide.) Before a figure took its drawn room while it was still below the view
  * (lib/example.ts, `releaseSoon`), each of these pages moved by more than twice this: the Date and time picker's by 0.074, the
  * Text field's by 0.075 (0.236 in Arabic) and the Japanese Select's by 0.078.
  */
@@ -256,12 +306,12 @@ describe(`the layout shifts by no more than ${SCROLL_BUDGET} while a reader page
 // ── Read through before the figures' elements arrive ─────────────────────────────────────────────────────────────
 
 /**
- * Runs in the page before any of its scripts: keeps each change of a figure's stage's height, with what it was and
- * what it became. A page's own figure is kept where it changed while it was in the view: one that grows or shrinks in
- * the view moves what is below it under the reader's eyes, wherever its elements' modules come from and whenever they
- * arrive, and one below the view takes its drawn room there by design. A stage of the gallery is kept wherever it
- * changed, by half a pixel or more from the height it had as the page was parsed: it holds its baseline's room from
- * then on, before its fixture is drawn and after, and is never meant to change.
+ * Runs in the page before any of its scripts: keeps each change of a figure's stage's height, or of a table's, with
+ * what it was and what it became. A page's own figure, and a table, is kept where it changed while it was in the view:
+ * one that grows or shrinks in the view moves what is below it under the reader's eyes, wherever its elements' modules
+ * come from and whenever they arrive, and a figure below the view takes its drawn room there by design. A stage of the
+ * gallery is kept wherever it changed, by half a pixel or more from the height it had as the page was parsed: it holds
+ * its baseline's room from then on, before its fixture is drawn and after, and is never meant to change.
  */
 function watchStages() {
   const changed = [];
@@ -271,7 +321,8 @@ function watchStages() {
   const watcher = new ResizeObserver((entries) => {
     for (const { target } of entries) {
       const box = target.getBoundingClientRect();
-      const gallery = Boolean(target.closest('[data-fixture-gallery]'));
+      const table = target.localName === 'tanrei-table';
+      const gallery = !table && Boolean(target.closest('[data-fixture-gallery]'));
       const before = heights.get(target);
       // A gallery's stage is measured against the height it last kept, so that changes of less than half a pixel
       // that add up to more are kept too.
@@ -283,11 +334,11 @@ function watchStages() {
       const was = { top: box.top, bottom: box.top + before.height, height: before.height };
       const seen = inView(was) || inView(box);
       if (!seen && !gallery) continue;
-      changed.push({ id: target.id, gallery, seen, from: before.height, to: box.height, top: box.top, scrolled: scrollY });
+      changed.push({ id: target.id, name: table ? `table "${target.getAttribute('label')}"` : `#${target.id}`, table, gallery, seen, from: before.height, to: box.height, top: box.top, scrolled: scrollY });
     }
   });
   document.addEventListener('DOMContentLoaded', () => {
-    for (const stage of document.querySelectorAll('[data-example-stage]')) watcher.observe(stage);
+    for (const watched of document.querySelectorAll('[data-example-stage], tanrei-table')) watcher.observe(watched);
   });
 }
 
@@ -303,11 +354,17 @@ const elementChunks = new Set(
  * Pages read through while every element's module arrives late — `late` ms after it is asked for, as on a slow line or
  * a busy machine — so that the reader reaches figures before their elements are defined: the Text field's, whose first
  * example is a column of fields 236 px tall drawn (80 px before they are defined, without the cloak), in English and in
- * Arabic (right to left), at a phone's width and a desktop's.
+ * Arabic (right to left); the Select's, in English and in Japanese (its own faces), whose measure figure's table names a
+ * length the component does not draw; and the Button's, whose tokens' table is the longest of the site; each at a
+ * phone's width and a desktop's.
  *
  * - A page's own figure does not change its height while it is in the view: what its stage holds takes its drawn room
  *   before any script runs (lib/stage-cloak.mjs), and a stage below the view takes it before the reader reaches it
  *   (lib/example.ts).
+ * - No table changes its height while it is in the view: a table is drawn before its element is defined
+ *   (components/Table.astro), and what a figure finds once it is drawn is in its table from the first frame (the measure
+ *   figure's lengths not drawn, lib/visuals/measure.ts). With the note written in only once the figure was drawn, the
+ *   Japanese Select's measure table grew from 260 px to 1020 px in the view at 390, and that page moved by 0.67.
  * - A stage of the Specs tab's gallery does not change its height at all, in the view or out of it, before its fixture
  *   is drawn or after: its canvas is the box of its fixture's baseline from the first paint on, and the fixture it
  *   draws fills it (components/fixtures/FixtureGallery.astro). The baseline is the web package's picture of the
@@ -319,6 +376,12 @@ const LATE_READS = [
   { url: '/components/text-field/', viewport: PHONE, late: 3_000 },
   { url: '/ar/components/text-field/', viewport: { width: 1440, height: 900 }, late: 3_000 },
   { url: '/components/text-field/', viewport: { width: 1440, height: 900 }, late: 1_000 },
+  { url: '/ja/components/select/', viewport: PHONE, late: 1_000 },
+  { url: '/components/select/', viewport: PHONE, late: 3_000 },
+  { url: '/ja/components/select/', viewport: { width: 1440, height: 900 }, late: 3_000 },
+  { url: '/components/select/', viewport: { width: 1440, height: 900 }, late: 1_000 },
+  { url: '/components/button/', viewport: PHONE, late: 2_000 },
+  { url: '/components/button/', viewport: { width: 1440, height: 900 }, late: 2_000 },
 ];
 
 /**
@@ -370,15 +433,17 @@ describe('no figure changes its height in the view, and no stage of the gallery 
         const changed = await page.evaluate(() => window.__docsStagesChanged);
         const shifts = await page.evaluate(() => window.__docsLayoutShifts);
         const total = shifts.reduce((sum, { value }) => sum + value, 0);
-        const said = ({ id, from, to, top, scrolled, seen }) => `#${id} ${from.toFixed(2)} → ${to.toFixed(2)} px, its top ${Math.round(top)} px down the view${seen ? '' : ' (out of the view)'}, scrolled ${Math.round(scrolled)} px`;
-        const own = changed.filter((change) => !change.gallery);
+        const said = ({ name, from, to, top, scrolled, seen }) => `${name} ${from.toFixed(2)} → ${to.toFixed(2)} px, its top ${Math.round(top)} px down the view${seen ? '' : ' (out of the view)'}, scrolled ${Math.round(scrolled)} px`;
+        const own = changed.filter((change) => !change.gallery && !change.table);
         const gallery = changed.filter((change) => change.gallery);
+        const tables = changed.filter((change) => change.table);
         const known = gallery.filter(({ id }) => KNOWN_STAGES[id]);
         const stages = await page.evaluate(() => document.querySelectorAll('[data-fixture-gallery] [data-example-stage]').length);
         const largest = Math.max(0, ...gallery.map(({ from, to }) => Math.abs(to - from)));
-        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures changed in the view; of the gallery's ${stages} stages, ${new Set(gallery.map(({ id }) => id)).size} changed (${known.length} changes known; the largest by ${largest.toFixed(1)} px)`);
+        t.diagnostic(`${held} module requests held ${late} ms; layout shift ${total.toFixed(4)} in ${shifts.length} entr${shifts.length === 1 ? 'y' : 'ies'}; ${own.length} of the page's own figures and ${tables.length} tables changed in the view; of the gallery's ${stages} stages, ${new Set(gallery.map(({ id }) => id)).size} changed (${known.length} changes known; the largest by ${largest.toFixed(1)} px)`);
         assert.ok(stages > 0, `${name} has no gallery of fixtures to watch`);
         assert.deepEqual(own.map(said), [], `figures of ${name} changed their height in the view as it was paged through`);
+        assert.deepEqual(tables.map(said), [], `tables of ${name} changed their height in the view as it was paged through`);
         assert.deepEqual(gallery.filter(({ id }) => !KNOWN_STAGES[id]).map(said), [], `stages of ${name}'s gallery changed their height: each holds its baseline's room from the first paint, and its fixture is drawn in that room`);
         const moved = shifts.filter(({ value }) => value > 0).map(({ value, scrolled, sources }) => `${value.toFixed(4)}, scrolled ${Math.round(scrolled)} px:\n      ${sources.join('\n      ') || '(no source named)'}`);
         assert.ok(total <= SCROLL_BUDGET, `${name} × ${viewport.height} shifts by ${total.toFixed(4)} as it is paged through, its modules ${late} ms late (at most ${SCROLL_BUDGET}):\n  ${moved.join('\n  ')}`);
@@ -423,7 +488,6 @@ describe(`with the sidebar as the reader left it, the layout shifts by no more t
 // unit Theme Studio offers (its size row, packages/studio/src/core.js), so that its sheet changes sizes as well as colors.
 const NS = JSON.parse(fs.readFileSync(path.join(docs, '../../tanrei.config.json'), 'utf8')).namespace;
 const dial = (value) => ({ $value: { value, unit: 'px' }, reason: 'Chosen in Theme Studio.' });
-const tone = (light, dark) => ({ derive: { fn: 'tone', palette: 'primary', tone: { light, dark } } });
 const THEME = {
   key: CUSTOM_KEY,
   appearance: APPEARANCE_KEY,
@@ -432,11 +496,6 @@ const THEME = {
     extends: NS,
     palettes: { primary: { source: { seed: '#0b6e4f' } } },
     tokens: {
-      [`${NS}.sys.color.primary`]: tone([45, 38, 30], [72, 80, 87]),
-      [`${NS}.sys.color.on-primary`]: tone([100], [10]),
-      [`${NS}.sys.color.primary-container`]: tone([93, 91, 89], [22]),
-      [`${NS}.sys.color.on-primary-container`]: tone([20, 15, 10], [88, 92, 96]),
-      [`${NS}.sys.color.inverse-primary`]: tone([80], [40]),
       [`${NS}.dial.space.unit`]: dial(6),
       [`${NS}.dial.size.unit`]: dial(3),
     },

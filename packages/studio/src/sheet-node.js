@@ -98,14 +98,19 @@ export function scopedSheet(id) {
   const shipped = shippedLayers();
   const ids = Object.keys(shipped);
   const read = (each) => shipped[each];
+  const modelOf = (chain) =>
+    systemOf(chain, {
+      namespace: config.namespace,
+      sources: sheetSources(resolver),
+      vocabulary: json('tokens/sys/color.vocabulary.json'),
+      resolver,
+      engine: createPaletteEngine({ Hct, TonalPalette }),
+      lend: (each) => (Object.hasOwn(shipped, each) ? shipped[each] : undefined),
+    }).model;
   const chain = layerChain(id, read);
-  const { model } = systemOf(chain, {
-    namespace: config.namespace,
-    sources: sheetSources(resolver),
-    vocabulary: json('tokens/sys/color.vocabulary.json'),
-    resolver,
-    engine: createPaletteEngine({ Hct, TonalPalette }),
-    lend: (each) => (Object.hasOwn(shipped, each) ? shipped[each] : undefined),
-  });
-  return emitCss(model, { scope: id, ...sheetAvailability(chain, heldComponents(ids, read), outsideStandIns(ids, read)) });
+  const model = modelOf(chain);
+  // Drawn under the default system's sheet, as the build writes it: its contrast rules restate the default system's.
+  const defaultId = Object.hasOwn(shipped, config.namespace) ? config.namespace : ROOT_SYSTEM;
+  const defaultModel = id === defaultId ? model : modelOf(layerChain(defaultId, read));
+  return emitCss(model, { scope: id, defaultModel, ...sheetAvailability(chain, heldComponents(ids, read), outsideStandIns(ids, read)) });
 }

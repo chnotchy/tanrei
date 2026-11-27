@@ -4,6 +4,7 @@ import { NativeTextController, delegatedAria, delegatesAria, readTogether, repor
 import { AutoHeight } from '../../primitives/auto-height.js';
 import { pressDefaultButton } from '../../primitives/default-button.js';
 import { FormDisabledController } from '../../primitives/form-disabled.js';
+import { FormDefault } from '../../primitives/form-default.js';
 import { FormSays } from '../../primitives/form-says.js';
 import { hiddenHost } from '../../primitives/hidden.js';
 import { missingValueMessage } from '../../primitives/missing-value.js';
@@ -151,7 +152,7 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   /** What the value is: chooses the keyboard, autocorrection and autocapitalization, and nothing else. It never validates and never obscures. `search` makes the action key of an on-screen keyboard read as search. A value it does not know behaves as `text`. */
   type: 'text' | 'search' | 'email' | 'url' | 'tel' = 'text';
 
-  /** The text. Setting it shows it and fires nothing. The `value` attribute is what a form reset returns to. */
+  /** The text. Setting it shows it and fires nothing. The value it is first given — by the `value` attribute or as the property — is what a form reset returns to. */
   // An accessor, not a field: the value is the person's at every moment. The native `input` event
   // is composed, and a capturing listener on an ancestor hears it before the element's own listener has run — so what
   // the person has just done to the native element is read from that element.
@@ -211,6 +212,8 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   name = '';
 
   private readonly fieldset = new FormDisabledController(this);
+  /** What a form's reset returns `value` to: what it was first given, as a native control's `defaultValue`. */
+  private readonly valueDefault = new FormDefault(this, () => this.value, 'value', (text) => text ?? '');
   /** A disabled `<fieldset>` around the element, as the platform says it (src/primitives/form-disabled.ts). */
   protected get formDisabled(): boolean {
     return this.fieldset.byFieldset;
@@ -418,7 +421,7 @@ export class TanreiEmbeddedTextInput extends TanreiElement {
   }
 
   formResetCallback() {
-    this.value = this.getAttribute('value') ?? '';
+    this.value = this.valueDefault.value;
     this.committed = this.held;
   }
 

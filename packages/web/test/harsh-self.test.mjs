@@ -18,13 +18,22 @@
 // (test/harsh/self/press-hold.self.ts). The races that read
 // late are listed in the run's diagnostics, and so is the error of every test that ended other than the table says.
 //
+// Each run writes its JSON report to a file of its own, and only that file is read. Playwright's stdout is not the
+// report's alone: its plugins print there before it (on a pull_request run in GitHub Actions, the commit info plugin's
+// "GitCommitInfo: timeout of 3000ms exceeded" when fetching the base commit takes longer), and a report parsed from
+// stdout breaks on any such line.
+//
 //   node --test test/harsh-self.test.mjs        (part of `test:node`; the browsers Playwright installed are needed)
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
-import test from 'node:test';
+import test, { after } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { stripVTControlCharacters } from 'node:util';
+import { leavesNothingBehind, tempDir } from '../../tools/src/test-tmp.js';
+
+leavesNothingBehind(after);
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ENGINES = ['chromium', 'firefox', 'webkit'];
@@ -99,17 +108,18 @@ const EXPECTED = {
  * @returns {{ ended: Record<string, string>, lateness: Record<string, string>, errors: Record<string, string> }}
  */
 function run(env) {
+  const reportFile = path.join(tempDir('harsh-self'), 'report.json');
   const result = spawnSync(process.execPath, [path.join(pkg, 'node_modules/@playwright/test/cli.js'), 'test', '-c', 'test/harsh/self/playwright.config.ts', '--reporter=json', '--workers=3'], {
     cwd: pkg,
-    env: { ...process.env, CI: '', TANREI_HARSH: '', ...env },
+    env: { ...process.env, CI: '', TANREI_HARSH: '', ...env, PLAYWRIGHT_JSON_OUTPUT_FILE: reportFile },
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
   });
   let report;
   try {
-    report = JSON.parse(result.stdout);
-  } catch {
-    assert.fail(`Playwright gave no JSON report (exit ${result.status}):\n${result.stderr}\n${result.stdout.slice(0, 4000)}`);
+    report = JSON.parse(fs.readFileSync(reportFile, 'utf8'));
+  } catch (error) {
+    assert.fail(`Playwright wrote no JSON report to ${reportFile} (exit ${result.status}): ${error.message}\n${result.stderr}\n${result.stdout.slice(0, 4000)}`);
   }
   assert.deepEqual(report.errors ?? [], [], 'the run itself failed');
   /** @type {Record<string, string>} */

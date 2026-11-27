@@ -5,8 +5,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { atRest } from '../../../test/at-rest.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { bounds, css, override, warnings } from '../../../test/destinations.js';
-import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, roleFont, setWords, tab, tabTo } from '../../../test/harness.js';
+import { bounds, css, override } from '../../../test/destinations.js';
+import { type Fixture, type FixtureItem, innerStrokeAtEdges, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, roleFont, setWords, tab, tabTo, warnings, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { EVERY_ANIMATION, expectFromNextFrame, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
@@ -57,7 +57,7 @@ const paint = (locator: Locator) => locator.locator('button').evaluate((el) => g
 function reports(page: P) {
   const seen: { type: string; text: string }[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'warning' || message.type() === 'error') seen.push({ type: message.type(), text: message.text() });
+    if ((message.type() === 'warning' || message.type() === 'error') && !isRobotoMonoGlyphWarning(message)) seen.push({ type: message.type(), text: message.text() });
   });
   return seen;
 }
@@ -376,7 +376,7 @@ test.describe('drawing', () => {
     expect((await drawn('wrapped')).lines.length, 'the long headline wraps').toBeGreaterThan(1);
   });
 
-  test('SSH-8: the header — at least header.height, the headline from padding-inline, the close button header.padding-inline-end from the end and header.gap after the headline, both centred — then the content inset by padding-inline, then padding-block (or the actions); the color reaches under the insets', async ({ page }) => {
+  test('SSH-8: the header — at least header.height, the headline from padding-inline, the close button header.padding-inline-end from the end and header.gap after the headline, both centred — then the content inset by padding-inline, its first line content.padding-block-start below the header, then padding-block (or the actions); the color reaches under the insets', async ({ page }) => {
     await mount(page, [fx('s'), fx('bare', { headline: '', closable: false }), fx('titled', { closable: false })]);
     const [pad, block, height, gap, end] = [await px(page, T('container-padding-inline')), await px(page, T('container-padding-block')), await px(page, T('header-height')), await px(page, T('header-gap')), await px(page, T('header-padding-inline-end'))];
     const s = await bounds(sheet(page));
@@ -389,10 +389,17 @@ test.describe('drawing', () => {
     expect(button.x - (title.x + title.width)).toBeCloseTo(gap, 1);
     expect(title.y + title.height / 2).toBeCloseTo(h.y + h.height / 2, 0);
     expect(button.y + button.height / 2).toBeCloseTo(h.y + h.height / 2, 0);
-    // The content: directly below the header, padding-inline from both edges, padding-block above the bottom.
+    // The content: its box directly below the header, its first line content.padding-block-start lower (8 in the default
+    // system, clear of the header and its divider), padding-inline from both edges, padding-block above the bottom.
     const c = await bounds(content(page));
     const inner = await bounds(host(page).locator('.inner'));
+    const below = await px(page, T('content-padding-block-start'));
+    expect(below).toBe(8);
     expect(c.y).toBeCloseTo(h.y + h.height, 1);
+    expect(inner.y).toBeCloseTo(h.y + h.height + below, 1);
+    // The first line clears the divider below the header by the whole gap.
+    const rule = await bounds(headerDivider(page));
+    expect(inner.y - (rule.y + rule.height)).toBeGreaterThanOrEqual(below - (await px(page, T('divider-width'))) - 0.5);
     expect(inner.x).toBeCloseTo(s.x + pad, 1);
     expect(inner.width).toBeCloseTo(s.width - 2 * pad, 1);
     expect(Number.parseFloat(await css(content(page), 'padding-bottom'))).toBeCloseTo(block, 1);
@@ -666,7 +673,7 @@ test.describe('drawing', () => {
 });
 
 test.describe('the close button', () => {
-  test('SSH-5: while closable, an icon-only small Button (36 × 36 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
+  test('SSH-5: while closable, an icon-only small Button (28 × 28 in the default system) with the close glyph named by close-label, in close-button.variant (tonal) given through the Button’s channel; a click, Enter or Space asks to close once with the reason close, in either variant; an empty close-label still draws it and is reported', async ({ page }) => {
     const seen = warnings(page);
     for (const variant of ['standard', 'modal']) {
       await mount(page, [fx('s', { variant }, TEXT, ACTIONS)]);
@@ -680,7 +687,7 @@ test.describe('the close button', () => {
       await expect(close(page)).toHaveAttribute('size', 'small');
       expect(await close(page).evaluate((el) => el.textContent?.trim())).toBe('close');
       const size = await px(page, '--tanrei-comp-button-container-height-small');
-      expect(size).toBe(36); // the small Button, held at the minimum target
+      expect(size).toBe(28); // the small Button, at its step
       const box = await bounds(close(page).locator('button'));
       expect([box.width, box.height]).toEqual([size, size]);
       await expect(host(page).getByRole('button', { name: 'Close filters' })).toHaveCount(1);

@@ -7,6 +7,13 @@ export const TABS_KEY_PREFIX = 'tanrei-docs-tabs-';
 export const tabsKey = (syncKey) => `${TABS_KEY_PREFIX}${syncKey}`;
 
 /**
+ * The shared choice of an example's code, HTML or React: the row of tabs of every frame's code panel
+ * (components/visuals/Example.astro) names it as its `group` and is remembered under its key; lib/example.ts reads
+ * the same key for the code a frame copies before any panel is open.
+ */
+export const EXAMPLE_CODE_SYNC = 'example-code';
+
+/**
  * The script of the page's head: before `tanrei-tab-view` is defined a set shows its first panel (Tabs.astro's
  * stylesheet); a reader who chose another one before is shown that one from the first paint instead, wherever a set
  * has an enabled panel of it — the rule the element itself follows once it is defined (TAB-36, TAB-39). A stored value

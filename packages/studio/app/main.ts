@@ -39,42 +39,50 @@ const lang = studioLanguage(prefs.lang ?? navigator.language);
 const t = studioStrings(lang);
 document.documentElement.lang = lang;
 document.documentElement.dir = studioDirection(lang);
-// The switch is a select of the translated languages, each named in its own language (and marked as that language
-// for whoever reads it): a person goes straight to the one they read. Choosing reloads the page in it.
-const langSelect = document.querySelector<HTMLElement & { value: string }>('#lang')!;
-langSelect.setAttribute('label', t.app.language);
-langSelect.replaceChildren(
-  ...studioLanguages().map(({ tag, name }) => {
-    const option = document.createElement('tanrei-option');
-    option.setAttribute('value', tag);
-    option.setAttribute('label', name);
-    option.lang = tag;
-    return option;
-  }),
-);
-langSelect.value = lang;
-langSelect.addEventListener('change', () => {
-  if (langSelect.value === lang || !studioLanguages().some(({ tag }) => tag === langSelect.value)) return;
-  prefs.lang = langSelect.value as StudioLanguage;
+// The language and the theme are chosen in one menu at the end of the bar, a glyph that says its name in a tooltip: the
+// bar is one line, on a phone too, as the approved design draws it.
+type Group = HTMLElement & { value: string | null };
+const menuButton = document.querySelector<HTMLElement & { label: string }>('#app-menu-open')!;
+const menu = document.querySelector<HTMLElement & { open: boolean }>('#app-menu')!;
+menuButton.label = t.app.menu;
+Object.assign(document.querySelector('#app-menu-tip')!, { text: t.app.menu });
+menu.setAttribute('aria-label', t.app.menu);
+menuButton.addEventListener('click', () => (menu.open = !menu.open));
+menu.addEventListener('close', (event) => event.target === menu && (menu.open = false));
+const radio = (value: string, label: string) => {
+  const item = document.createElement('tanrei-menu-radio-item');
+  item.setAttribute('value', value);
+  item.setAttribute('label', label);
+  return item;
+};
+// The translated languages, each named in its own language (and marked as that language for whoever reads it): a
+// person goes straight to the one they read. Choosing one reloads the page in it.
+const langGroup = document.querySelector<Group>('#lang')!;
+langGroup.setAttribute('label', t.app.language);
+langGroup.replaceChildren(...studioLanguages().map(({ tag, name }) => Object.assign(radio(tag, name), { lang: tag })));
+langGroup.value = lang;
+langGroup.addEventListener('change', (event) => {
+  if (event.target !== langGroup || langGroup.value === lang || !studioLanguages().some(({ tag }) => tag === langGroup.value)) return;
+  prefs.lang = langGroup.value as StudioLanguage;
   remember();
   location.reload();
 });
 
-const themeButton = document.querySelector<HTMLElement>('#theme')!;
+// The theme: the device's until one is chosen here, and then that one.
+const themeGroup = document.querySelector<Group>('#theme')!;
+themeGroup.setAttribute('label', t.app.theme);
+themeGroup.replaceChildren(radio('light', t.light), radio('dark', t.dark));
 const applyTheme = () => {
   const dark = prefs.theme ? prefs.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
   document.documentElement.setAttribute(`data-${NS}-theme`, dark ? 'dark' : 'light');
-  // The word that is drawn is the theme the press gives; the whole name says what the word is about («Theme: Dark»),
-  // read and not drawn, the drawn word kept from assistive technology so that it is not said twice.
-  const word = Object.assign(document.createElement('span'), { textContent: dark ? t.light : t.dark });
-  word.setAttribute('aria-hidden', 'true');
-  themeButton.replaceChildren(word, Object.assign(document.createElement('span'), { className: 'app-unseen', textContent: t.labelled(t.app.theme, word.textContent) }));
-  themeButton.onclick = () => {
-    prefs.theme = dark ? 'light' : 'dark';
-    remember();
-    applyTheme();
-  };
+  themeGroup.value = dark ? 'dark' : 'light';
 };
+themeGroup.addEventListener('change', (event) => {
+  if (event.target !== themeGroup || (themeGroup.value !== 'light' && themeGroup.value !== 'dark')) return;
+  prefs.theme = themeGroup.value;
+  remember();
+  applyTheme();
+});
 applyTheme();
 
 // The per-run token arrives in the URL fragment, which the browser never sends anywhere. It is read once and taken
@@ -90,9 +98,12 @@ const mount = (options: Parameters<typeof mountStudio>[1]) => {
   holder.remove();
 };
 
+// The session line is read, and drawn only when it says what the bar does not (app.css): no file behind the Studio, or
+// why the session could not be read. The file itself is the name Inspect bears.
 if (!token) {
   // Opened without a server behind it (a static preview of the build): the Studio still works, in the browser.
   session.textContent = t.app.noFile;
+  session.dataset.shown = '';
   mount({ lang });
 } else {
   const adapter = createHttpAdapter({ token });
@@ -102,6 +113,6 @@ if (!token) {
       session.replaceChildren(Object.assign(document.createElement('code'), { textContent: info.file }), ` · extends ${info.extends ?? '—'}${info.targets?.length ? ` · ${info.targets.join(', ')}` : ''}`);
       document.title = `${info.id} — Tanrei Theme Studio`;
     })
-    .catch((error: Error) => (session.textContent = error.message))
+    .catch((error: Error) => ((session.textContent = error.message), (session.dataset.shown = '')))
     .finally(() => mount({ lang, adapter }));
 }
