@@ -887,6 +887,10 @@ export class TanreiNumberInput extends TanreiElement {
     const body = this.renderRoot.querySelector<HTMLElement>('.body');
     const steppers = this.renderRoot.querySelector<HTMLElement>('.steppers');
     if (!field || !body) return undefined;
+    // A field that is not rendered (itself or an ancestor `display: none`) lays nothing out: every box reads 0, which
+    // would say the steppers stand below the line. It keeps what it had, and is read again when it is shown — a frame
+    // late, in the next read phase: written now, the frame it is shown in drew the steppers on a row of their own.
+    if (!body.getClientRects().length) return undefined;
     const wrapped = !!steppers && steppers.getBoundingClientRect().top >= body.getBoundingClientRect().bottom - 0.5;
     if (field.hasAttribute('data-wrapped') === wrapped) return undefined;
     return () => field.toggleAttribute('data-wrapped', wrapped);
