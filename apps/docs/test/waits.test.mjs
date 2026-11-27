@@ -2,10 +2,10 @@
 // `settleDocument` run against stand-ins of the page's globals, and each wait that runs out says what it was waiting
 // for; the outstanding requests are written as a timed-out test and a lost `goto` print them.
 //
-// Each races each wait against a timer and reads `Date.now()`, so it runs on a fake clock (`setTimeout` and
-// `Date`) that only moves when `onClock` moves it. On the real clock a loaded machine that took the thread for longer
-// than a bound let the bound's timer come due together with a frame's, and the bound won: two frames 1 ms apart were
-// reported as not drawn in 60 ms.
+// Each races each wait against the beats of a timer and reads `Date.now()`, so it runs on a fake clock (`setTimeout`
+// and `Date`) that only moves when `onClock` moves it. On the real clock a loaded machine that took the thread for
+// longer than a bound let the bound's timer come due together with a frame's, and the bound won: two frames 1 ms apart
+// were reported as not drawn in 60 ms. A bound counts only the time the thread was free.
 //
 //   node --test test/waits.test.mjs
 import assert from 'node:assert/strict';
@@ -99,8 +99,8 @@ describe('settleFrame', () => {
     assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), 'two frames not drawn in 0.06 s (the document visible)');
   });
 
-  test('gives a wait its bound once more when its timer fired late, after the thread was held', async () => {
-    // The thread is held from 20 ms to 220 ms; the second frame is drawn 16 ms after it, behind the bound's late timer.
+  test('does not count the time the thread was held, however long the hold', async () => {
+    // The thread is held from 20 ms to 220 ms; the second frame is drawn 16 ms after it, behind the bound's late beat.
     page();
     let heldUntil = 0;
     globalThis.requestAnimationFrame = (callback) => {
@@ -112,6 +112,28 @@ describe('settleFrame', () => {
       mock.timers.setTime(heldUntil);
     }, 20);
     assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), null);
+  });
+
+  test('does not count a hold that ends just past the bound, before the frame it delayed', async () => {
+    // The thread is held from 5 ms to 70 ms, ending a sixth of the bound past it: the frames come 16 ms after the hold.
+    // Counted on the wall clock, the bound's timer, due at 60 ms and run at 70, came first, and the wait ran out.
+    page();
+    let heldUntil = 0;
+    globalThis.requestAnimationFrame = (callback) => {
+      const draw = () => (Date.now() < heldUntil + 16 ? setTimeout(draw, heldUntil + 16 - Date.now()) : callback());
+      return setTimeout(draw, 16);
+    };
+    setTimeout(() => {
+      heldUntil = Date.now() + 65;
+      mock.timers.setTime(heldUntil);
+    }, 5);
+    assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), null);
+  });
+
+  test('says how long the thread was held when a wait runs out', async () => {
+    page({ frames: false });
+    setTimeout(() => mock.timers.setTime(Date.now() + 300), 10);
+    assert.equal(await onClock(settleFrame({ selector: '#frame', bounds: SHORT })), "two frames not drawn in 0.06 s (the document visible); the page's thread was held for 0.3 s besides");
   });
 
   test('says when there is no such element', async () => {
@@ -196,9 +218,9 @@ describe('settleDocument', () => {
     assert.equal(await onClock(settleDocument({ update: 'body *', fonts: false, frames: 0, bounds: SHORT })), null);
   });
 
-  test('gives a wait its bound once more when its timer fired late, after the thread was held, and only once', async () => {
+  test('does not count the time the thread was held, and runs out once the thread has been free for the bound', async () => {
     // The page's thread is held from 20 ms to 220 ms: the frame due at 32 ms is drawn 16 ms after the hold, and the
-    // bound's timer, due at 60 ms, fires at 221 ms, late by far more than a quarter of the bound.
+    // beat due at 21 ms runs at 220 ms; the 200 ms between are not the wait's.
     wholePage({ frames: false });
     let heldUntil = 0;
     globalThis.requestAnimationFrame = (callback) => {
@@ -210,16 +232,18 @@ describe('settleDocument', () => {
       mock.timers.setTime(heldUntil);
     }, 20);
     assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), null);
-    // A second hold, past the bound given once more: the wait runs out.
+    // Two holds and no frame: the wait runs out once the thread has been free for the bound, and says how long it was held.
     wholePage({ frames: false });
     globalThis.requestAnimationFrame = () => 0;
     const hold = () => mock.timers.setTime(Date.now() + 200);
     setTimeout(hold, 20);
     setTimeout(hold, 250);
-    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
+    const started = Date.now();
+    assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), "2 frames not drawn in 0.06 s (the document visible); the page's thread was held for 0.4 s besides");
+    assert.ok(Date.now() - started <= 400 + 61, `ran out after ${Date.now() - started} ms: the holds' 400 and the bound's 60`);
   });
 
-  test('a timer that fires on time is not given its bound again', async () => {
+  test('a wait whose thread is never held runs out at its bound', async () => {
     wholePage({ frames: false });
     const started = Date.now();
     assert.equal(await onClock(settleDocument({ fonts: false, bounds: SHORT })), '2 frames not drawn in 0.06 s (the document visible)');
