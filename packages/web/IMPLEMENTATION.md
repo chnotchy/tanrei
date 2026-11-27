@@ -10539,7 +10539,7 @@ at the element's name or at the class. The element carries the same text and add
 | `decorative` | the `decorative` attribute. |
 | `showDelay` | the `show-delay` attribute, in milliseconds. `show-delay="0"` is read by the stylesheet; any other number is the element's (before it is defined the token's delay runs, and what is left of the number is counted on from there). |
 | a placeholder's `shape` | `data-shape="text"` (the default, and what a missing or unknown value draws), `block` or `circle`. |
-| `lines` | `data-lines`. The stylesheet reads 1 to 24; the element writes the rule of any other value (more lines, or a value that is not a whole number of at least 1). |
+| `lines` | `data-lines`. The stylesheet reads 1 to 24; for any other value (more lines, or a value that is not a whole number of at least 1) the element writes the lines in the placeholder's own style (`--_skl-lines`, and past 24 the list of shadows, `--_skl-shadows`) — never a rule added to the page, which would have the browser build every rule of the page again. |
 | `inlineSize`, `blockSize` | the CSS properties `inline-size` and `block-size`, in the element's `style` or by a rule of yours: a number of the spec is that many CSS pixels; any other length, a percentage, a share of a row or an `aspect-ratio` is a size your layout gives. |
 
 **The box (SKL-1, SKL-6).** The skeleton is a plain block with no padding, edge or fill: what stands in it is laid out
