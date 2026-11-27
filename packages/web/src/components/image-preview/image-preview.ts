@@ -28,6 +28,7 @@ import {
   modalLayer,
   modalSheetKeys,
   motionReduced,
+  openInOrder,
   openModal,
   readTogether,
   report,
@@ -1339,7 +1340,7 @@ export class TanreiImagePreview extends TanreiElement {
   /**
    * IMP-1, IMP-2: in the top layer over the whole window, the page held, focus on the stage.
    *
-   * IMP-6: it opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface
+   * IMP-6: it opens in the write that follows the turn's reads (src/primitives/modal-order.ts), as every modal surface
    * does (a dialog, a modal layer, a sheet, a picker, a modal drawer): surfaces whose `open` is set in one task open in
    * the order of their updates, the later on top. Opened in its own update, it went under a dialog set open before it,
    * which opens in that write.
@@ -1347,7 +1348,7 @@ export class TanreiImagePreview extends TanreiElement {
   private present() {
     if (!this.dialog || this.presented || this.presenting || !this.isConnected) return;
     this.presenting = true;
-    readTogether(() => {
+    openInOrder(this, () => {
       this.presenting = false;
       return () => {
         if (!this.open || this.presented || !this.isConnected) return;

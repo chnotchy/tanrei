@@ -22,6 +22,7 @@ import {
   isDisabledControl,
   isDividerVisibility,
   keyboardCover,
+  openInOrder,
   openModal,
   readTogether,
   report,
@@ -454,13 +455,14 @@ export class TanreiDialog extends TanreiElement {
    * dialog. What it reads to open — its choices, the window, the keyboard — is read with every other host's reads of the
    * turn (src/primitives/read-phase.ts), and it opens in the write that follows: still in the task, before a script that
    * waits for the update (`updateComplete`) goes on. Read in each dialog's own update, after the one before had opened,
-   * it had the browser style and lay out the page several times per dialog.
+   * it had the browser style and lay out the page several times per dialog. Before the document's first paint, it opens
+   * with every modal surface asked to open by then, in the document's order (src/primitives/modal-order.ts, MDL-8).
    */
   private present() {
     const dialog = this.dialog;
     if (!dialog || this.shown || this.presenting || !this.isConnected) return;
     this.presenting = true;
-    readTogether(() => {
+    openInOrder(this, () => {
       this.presenting = false;
       if (!this.open || this.shown || !this.isConnected || this.dialog !== dialog) return;
       const choices = this.readChoices();

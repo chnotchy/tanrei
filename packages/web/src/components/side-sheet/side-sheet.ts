@@ -28,6 +28,7 @@ import {
   modalLayer,
   modalSheetKeys,
   onBackdrop,
+  openInOrder,
   openModal,
   openerFor,
   readTogether,
@@ -627,7 +628,7 @@ export class TanreiSideSheet extends TanreiElement {
    * document, or turned modal while open). Mounted open, it slides in as it opens, unless the document has not been
    * painted yet — `openModal()` and the appearance then draw it open at once (MOT-4).
    *
-   * SSH-15: it opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface
+   * SSH-15: it opens in the write that follows the turn's reads (src/primitives/modal-order.ts), as every modal surface
    * does (a dialog, a modal layer, a picker, an image preview, a modal drawer): surfaces whose `open` is set in one task
    * open in the order of their updates, the later on top. Opened in its own update, it went under a dialog set open
    * before it, which opens in that write. What it reads to open — the keyboard's cover — is read with those reads.
@@ -635,7 +636,7 @@ export class TanreiSideSheet extends TanreiElement {
   private present(instant: boolean) {
     if (!this.dialog || this.shown || this.presenting || !this.isConnected) return;
     this.presenting = true;
-    readTogether(() => {
+    openInOrder(this, () => {
       this.presenting = false;
       if (!this.open || !this.modal || this.shown || !this.isConnected) return;
       const cover = this.readCover();

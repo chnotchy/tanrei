@@ -52,6 +52,7 @@ import {
   motionReduced,
   naturalHeight,
   numberText,
+  openInOrder,
   openModal,
   parseClockTime,
   parseIsoDate,
@@ -2415,14 +2416,14 @@ export class TanreiDateTimePicker extends TanreiElement {
       this.show(surface, null);
       return;
     }
-    // DTM-35: a modal picker opens in the write that follows the turn's reads (src/primitives/read-together.ts), as
+    // DTM-35: a modal picker opens in the write that follows the turn's reads (src/primitives/modal-order.ts), as
     // every modal surface does (a dialog, a modal layer, a sheet, an image preview, a modal drawer): surfaces whose
     // `open` is set in one task open in the order of their updates, the later on top. Opened in its own update, it went
     // under a dialog set open before it, which opens in that write. What it reads to open — the keyboard's cover — is
     // read with those reads.
     if (this.opening) return;
     this.opening = true;
-    readTogether(() => {
+    openInOrder(this, () => {
       this.opening = false;
       if (!this.open || this.shown || !this.isConnected || this.surface !== surface) return;
       const cover = keyboardCover();

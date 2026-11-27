@@ -79,6 +79,7 @@ import { AXES, cellStyles, drawerStyles, groupStyles, sectionStyles } from './na
 import { TanreiElement } from '../../primitives/element.js';
 import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
 import { cancelPhaseRead, readInPhase, readTogether } from '../../primitives/read-phase.js';
+import { openInOrder } from '../../primitives/modal-order.js';
 import { DEBUG } from '../../primitives/debug.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
@@ -2214,8 +2215,6 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private readonly sizesRead = {};
   /** NVD-39: what asks for the main action's debug report in the read phase, before the document has been painted. */
   private readonly mainActionRead = {};
-  /** NVD-19: what asks for a modal drawer to be shown in the read phase's writes, before the document has been painted. */
-  private readonly presentRead = {};
   /** NVD-62: the first frame's order is owed: the cells are drawn, and the items wait for the phase to be placed. */
   private firstLook = false;
 
@@ -4110,7 +4109,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
   /**
    * NVD-19: the modal drawer in the top layer; the page held; focus inside.
    *
-   * It opens in the write that follows the turn's reads (src/primitives/read-together.ts), as every modal surface does
+   * It opens in the write that follows the turn's reads (src/primitives/modal-order.ts), as every modal surface does
    * (a dialog, a modal layer, a sheet, a picker, an image preview): surfaces whose `open` is set in one task open in the
    * order of their updates, the later on top (MDL-8). Opened in its own update, it went under a dialog set open before
    * it, which opens in that write. A held drawer is drawn in the frame, not in the top layer: it opens in its update. So
@@ -4130,19 +4129,22 @@ export class TanreiNavigationDrawer extends TanreiElement {
     }
     if (this.shown || this.opening || !this.isConnected) return;
     this.opening = true;
-    const read = () => {
-      this.opening = false;
-      return () => {
-        if (this.open && this.modal && !this.held && !this.shown && this.isConnected) this.show();
-      };
-    };
-    // MOT-4, NVD-19: until the document has been painted (a drawer written open in the page's markup), it is shown in the
-    // writes of the first frame's read phase (src/primitives/read-phase.ts), after that frame's layout and before its
-    // paint: drawn open at once there, and focus moved in, in the first frame painted. Shown in the write of its upgrade's
-    // turn, its showing — the dialog drawn at once with no transition, the room the page's scroll bar takes, the focus
-    // given — had the browser style and lay out the whole page several times while the page still loaded.
-    if (documentPainted()) readTogether(read);
-    else readInPhase(this.presentRead, read);
+    // MOT-4, NVD-19, MDL-8: until the document has been painted (a drawer written open in the page's markup), it is shown
+    // with every other modal surface asked to open before that paint, in the writes of the first frame's read phase, in
+    // the document's order (src/primitives/modal-order.ts): drawn open at once there, and focus moved in, in the first
+    // frame painted. Shown in the write of its upgrade's turn, its showing — the dialog drawn at once with no transition,
+    // the room the page's scroll bar takes, the focus given — had the browser style and lay out the whole page several
+    // times while the page still loaded.
+    openInOrder(
+      this,
+      () => {
+        this.opening = false;
+        return () => {
+          if (this.open && this.modal && !this.held && !this.shown && this.isConnected) this.show();
+        };
+      },
+      readInPhase,
+    );
   }
 
   /**
