@@ -162,7 +162,7 @@ async function define<T>(page: Page, scripts: string[], read: () => Promise<T>):
 }
 
 /**
- * Runs in the page: each fixture's element (by the spec's tag) — its height, its visibility, whether a rule holds its
+ * Runs in the page: each fixture's element (by the spec's tag) — its height and width, its visibility, whether a rule holds its
  * height (a `min-block-size`, or a padding, that is not `0px`), whether a text it draws wraps — and its stage's height.
  */
 function stages({ tag, sized }: { tag: string; sized: boolean }) {
@@ -182,6 +182,7 @@ function stages({ tag, sized }: { tag: string; sized: boolean }) {
       id: stage.getAttribute('data-fixture')!,
       stage: stage.getBoundingClientRect().height,
       height: element?.getBoundingClientRect().height ?? 0,
+      width: element?.getBoundingClientRect().width ?? 0,
       visibility: style?.visibility ?? '',
       // A rule holds its height: a minimum, or a row it keeps the room of (a field's label and supporting rows) — or, for
       // an element the page sizes, the box the size applies to.
@@ -336,6 +337,27 @@ test.describe('the cloak holds a slider as thick as it will be drawn, in every s
           const { sum, moved } = await shifts(page);
           expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
         }
+        await page.close();
+      });
+    }
+  }
+});
+
+test.describe('the cloak holds the width of an element that draws its words from an attribute, in every system', () => {
+  // TAG-1: a tag is its label between its paddings, with its glyph or its dot; CHK-15, RAD-17, SWT-15: a selection
+  // control is its control, the label's gap and the label it draws. The words are attributes, which the cloak writes in
+  // their text style: held at the width the element is drawn at, a row of them wraps where it will once they are
+  // defined (a docs page's row of tags, 88 px high before, was 128 px drawn when they were held at no width).
+  for (const tag of ['tanrei-tag', 'tanrei-checkbox', 'tanrei-radio-button', 'tanrei-switch']) {
+    for (const system of [undefined, ...PRESETS]) {
+      test(`${system ?? 'the default system'}, ${tag.replace(/^tanrei-/, '')}: with the cloak and no script, each fixture is as wide and as high as once it is defined`, async ({ page: first, browserName }) => {
+        const { page, before, after } = await mountedLate(first, tag, browserName, system ? { system } : {});
+        const wrong = before.flatMap((stage, i) => {
+          const drawn = after[i]!;
+          if (Math.abs(stage.width - drawn.width) <= 0.5 && Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+          return [`${stage.id}: held ${stage.width}×${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.width}×${drawn.height}px in ${drawn.stage}px`];
+        });
+        expect(wrong).toEqual([]);
         await page.close();
       });
     }
