@@ -80,7 +80,7 @@ export const DRAWN_MARKS: Readonly<Record<string, `--${string}`>> = {
   'tanrei-link-card': '--_lc-container',
   'tanrei-page-header': '--_pgh-title-font-size',
   'tanrei-skeleton': '--_skl-gap',
-  'tanrei-table': '--_table-pad-block',
+  'tanrei-table': '--_table-start',
   'tanrei-table-of-contents': '--_toc-row-height',
   'tanrei-tree-view': '--_trv-gap',
 };

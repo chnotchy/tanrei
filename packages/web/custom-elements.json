@@ -47549,6 +47549,101 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/table/table.positions.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "SHIPPED_POSITIONS",
+          "type": {
+            "text": "number"
+          },
+          "default": "16",
+          "description": "How many column positions — and column counts, for the surplus cells — table.css has rules for."
+        },
+        {
+          "kind": "function",
+          "name": "columnRules",
+          "return": {
+            "type": {
+              "text": "string[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "position",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "The rules of one column position (TBL-3, TBL-7): its cells take the alignment and the wrapping the column's header\ncell names — which the element writes on the wrapper as lists of positions — unless a cell names its own."
+        },
+        {
+          "kind": "function",
+          "name": "surplusRule",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "columns",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "TBL-14: a row draws only as many cells as the table has columns."
+        },
+        {
+          "kind": "function",
+          "name": "shippedPositionRules",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "description": "The rules table.css holds: every position and every column count up to SHIPPED_POSITIONS (scripts/build.js)."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SHIPPED_POSITIONS",
+          "declaration": {
+            "name": "SHIPPED_POSITIONS",
+            "module": "src/components/table/table.positions.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "columnRules",
+          "declaration": {
+            "name": "columnRules",
+            "module": "src/components/table/table.positions.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "surplusRule",
+          "declaration": {
+            "name": "surplusRule",
+            "module": "src/components/table/table.positions.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "shippedPositionRules",
+          "declaration": {
+            "name": "shippedPositionRules",
+            "module": "src/components/table/table.positions.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/table/table.ts",
       "declarations": [
         {

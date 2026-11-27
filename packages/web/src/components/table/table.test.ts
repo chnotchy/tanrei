@@ -1603,7 +1603,7 @@ test.describe('the element and its stylesheet', () => {
     expect(await inner.evaluate((el) => (el.getRootNode() as ShadowRoot).adoptedStyleSheets.length)).toBeGreaterThan(0);
   });
 
-  test('the rules the element writes are in no cascade layer: on a page that loads table.css into a later layer of its own, a column aligned and kept on one line by its header alone is so in every cell, surplus cells are not drawn, and a size a system added is drawn (TBL-3, TBL-7, TBL-14, TBL-31)', async ({ page }) => {
+  test('on a page that loads table.css into a later layer of its own, a column aligned and kept on one line by its header alone is so in every cell, surplus cells are not drawn, and a size a system added is drawn (TBL-3, TBL-7, TBL-14, TBL-31)', async ({ page }) => {
     // A column's alignment and wrapping named on its header cell alone, as the spec's columns are; a row with a cell too many.
     const markup =
       '<table><caption>Visits</caption><thead><tr><th scope="col">Region</th><th scope="col" data-align="end" data-wrap="false">Visits in January</th><th scope="col" data-align="center">State</th></tr></thead>' +
@@ -1644,6 +1644,97 @@ test.describe('the element and its stylesheet', () => {
     await page.addStyleTag({ content: '.mine { text-align: left; }' });
     await cell(page, 'layered', 'tbody', 1, 2).evaluate((el) => el.classList.add('mine'));
     expect(await css(cell(page, 'layered', 'tbody', 1, 2), 'text-align')).toBe('left');
+  });
+
+  /** A table of `columns` columns whose last three header cells name end, center and one line; its second row holds a cell too many. */
+  const positioned = (columns: number) => {
+    const header = Array.from({ length: columns }, (_, i) => {
+      const at = i + 1;
+      const named = at === columns ? ' data-align="end" data-wrap="false"' : at === columns - 1 ? ' data-align="center"' : at === columns - 2 ? ' data-wrap="false"' : '';
+      return `<th scope="col"${named}>Column ${at} of the year</th>`;
+    }).join('');
+    const cells = (count: number, surplus = '') => Array.from({ length: count }, (_, i) => `<td${i === columns ? ` id="${surplus}"` : ''}>${i + 1} and some more words</td>`).join('');
+    return `<table><caption>Columns</caption><thead><tr>${header}</tr></thead><tbody><tr>${cells(columns)}</tr><tr>${cells(columns + 1, `surplus-${columns}`)}</tr></tbody></table>`;
+  };
+  /**
+   * What the element asks of the page's rules, counted from before it is defined: a rule inserted into a sheet, and a
+   * sheet of the table's rules added to the document's adopted sheets. Either has the engine build the page's rules
+   * again; a value written on an element does not.
+   */
+  const countRules = () => {
+    const w = window as unknown as { ruleWrites: { inserted: number; adopted: number } };
+    w.ruleWrites = { inserted: 0, adopted: 0 };
+    const insert = CSSStyleSheet.prototype.insertRule;
+    CSSStyleSheet.prototype.insertRule = function (this: CSSStyleSheet, ...args: Parameters<typeof insert>) {
+      w.ruleWrites.inserted++;
+      return insert.apply(this, args);
+    };
+    const property = Object.getOwnPropertyDescriptor(Document.prototype, 'adoptedStyleSheets')!;
+    const tables = (sheet: CSSStyleSheet) => [...sheet.cssRules].some((rule) => rule.cssText.includes('tanrei-table'));
+    Object.defineProperty(Document.prototype, 'adoptedStyleSheets', {
+      ...property,
+      set(this: Document, sheets: CSSStyleSheet[]) {
+        const had = property.get!.call(this) as CSSStyleSheet[];
+        w.ruleWrites.adopted += sheets.filter((sheet) => !had.includes(sheet) && tables(sheet)).length;
+        property.set!.call(this, sheets);
+      },
+    });
+  };
+  const ruleWrites = (page: P) => page.evaluate(() => ({ ...(window as unknown as { ruleWrites: Record<string, number> }).ruleWrites }));
+  const mountCounted = async (page: P, fixtures: Fixture[]) => {
+    const markup = (await fixturesDocument(spec, { fixtures })).replace('<head>', `<head><script>(${countRules.toString()})()</script>`);
+    await page.setContent(markup);
+    await page.waitForFunction(() => !!customElements.get('tanrei-table') && [...document.querySelectorAll('tanrei-table')].every((el) => el.hasAttribute('data-columns')));
+    await page.evaluate(() => document.fonts.ready);
+    await frame(page);
+  };
+  /** TBL-3, TBL-7, TBL-14: the last three columns of `positioned(columns)` are drawn as their header cells name, in every row, and the cell too many is not drawn. */
+  const expectPositioned = async (page: P, id: string, columns: number) => {
+    await size(page, id, { width: 320 });
+    for (const [section, r] of [['thead', 1], ['tbody', 1], ['tbody', 2]] as const) {
+      expect(await css(cell(page, id, section, r, columns), 'text-align'), `${section} ${r}`).toBe('right');
+      expect(await css(cell(page, id, section, r, columns - 1), 'text-align'), `${section} ${r}`).toBe('center');
+      if (columns > 3) expect(await css(cell(page, id, section, r, columns - 3), 'text-align'), `${section} ${r}`).toBe('left');
+      for (const c of [columns, columns - 2]) {
+        expect(await css(cell(page, id, section, r, c), 'white-space'), `${section} ${r} ${c}`).toBe('nowrap');
+        expect(await lines(cell(page, id, section, r, c)), `${section} ${r} ${c}`).toBe(1);
+      }
+      expect(await css(cell(page, id, section, r, columns - 1), 'white-space'), `${section} ${r}`).toBe('normal');
+    }
+    expect(await css(page.locator(`#surplus-${columns}`), 'display')).toBe('none');
+    await expect(host(page, id)).toHaveAttribute('data-columns', String(columns));
+  };
+
+  test('the element adds no rule to the page: a column aligned and kept on one line by its header alone, at every position up to the 16th, surplus cells, and a size a system added are drawn by table.css and the element’s own style (TBL-3, TBL-7, TBL-14, TBL-31)', async ({ page }) => {
+    // Positions 14 to 16 and a table of 16 columns, the most table.css holds rules for; positions 1 to 3 and a table
+    // of 3; a size a design system added, set on a table and taken from a container (TBL-62).
+    await mountCounted(page, [
+      raw('sixteen', { label: 'Sixteen' }, positioned(16)),
+      raw('three', { label: 'Three' }, positioned(3)),
+      raw('airy', { label: 'Airy', size: 'airy' }, positioned(4)),
+    ]);
+    await override(page, { [T('cell-padding-block-airy')]: '20px', [T('cell-padding-inline-airy')]: '28px' });
+    await expectPositioned(page, 'sixteen', 16);
+    await expectPositioned(page, 'three', 3);
+    await expect.poll(() => px(cell(page, 'airy', 'tbody', 1, 1), 'padding-top')).toBe(20);
+    expect(await px(cell(page, 'airy', 'tbody', 1, 1), 'padding-left')).toBe(28);
+    expect(await px(cell(page, 'airy', 'tbody', 1, 1), 'font-size')).toBe(await resolveToken(page, T('cell-text-typescale-medium-font-size')));
+    // Back to a size of the core: what the added size wrote is taken off.
+    await host(page, 'airy').evaluate((el) => ((el as unknown as { size: string }).size = 'small'));
+    await expect.poll(() => px(cell(page, 'airy', 'tbody', 1, 1), 'padding-top')).toBe(await resolveToken(page, T('cell-padding-block-small')));
+    expect(await host(page, 'airy').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    // The page loads table.css: the element added no sheet to the document and inserted no rule anywhere.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+  });
+
+  test('a table wider than table.css has rules for draws its columns all the same: the element adds the rules of the positions beyond, once for the page (TBL-3, TBL-7, TBL-14)', async ({ page }) => {
+    await mountCounted(page, [raw('eighteen', { label: 'Eighteen' }, positioned(18)), raw('nineteen', { label: 'Nineteen' }, positioned(19))]);
+    await expectPositioned(page, 'eighteen', 18);
+    await expectPositioned(page, 'nineteen', 19);
+    // One sheet, added to the document once; its rules are those of positions 17 to 19 and of 18 and 19 columns.
+    const writes = await ruleWrites(page);
+    expect(writes.adopted).toBe(1);
+    expect(writes.inserted).toBe(3 * 3 + 2);
   });
 
   test('a table inside a cell is the product’s: the table draws none of it (TBL-15)', async ({ page }) => {
