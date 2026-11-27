@@ -70,8 +70,9 @@
  *   data-more-above                  rows have scrolled under the header row (TBL-19)
  *   data-first-column-released       the first column is wider than half of the box, so it is not kept (TBL-20)
  *   data-columns-end, -center, -nowrap   the columns whose header cell names an alignment or `data-wrap="false"`, by
- *                                    position ("2 3 4"); one rule per position, in a sheet the element adds, aligns
- *                                    their cells — no cell is written to
+ *                                    position ("2 3 4"); one rule per position, at the end of this stylesheet, aligns
+ *                                    their cells — no cell is written to, and no rule is added to the page
+ *   data-columns                     how many columns the table has: a cell after the last is not drawn (TBL-14)
  *   data-separation (on the table)   the separation the tokens name, where the browser has no style queries (TBL-9)
  *   data-more-below                  rows lie under the status line (TBL-51)
  *   data-selection-kept, and `--_table-selection-size` in the wrapper's style
@@ -1075,4 +1076,9 @@
       background-clip: border-box;
     }
   }
+
+  /* TBL-3, TBL-7, TBL-14: the rules by column position (src/components/table/table.positions.ts), written here by the
+     build. The last rules of the layer: a column's alignment and wrapping win over every other rule of the table that
+     styles a cell, and a cell that names its own wins over its column's. */
+  /* table:positions */
 }

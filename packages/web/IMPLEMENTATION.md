@@ -9242,9 +9242,12 @@ a moment later; load the stylesheet where the table should be drawn in the first
 
 A **column** is a `<th scope="col">` in the one `<thead>` row: `data-align="start | center | end"` and
 `data-wrap="false"` on it are the column's. The element writes the positions of such columns on itself
-(`data-columns-end="2 3"`, `-center`, `-nowrap`) and one rule per position, in a sheet it adds, places their cells —
-**no cell is written to**, so a table of several hundred rows costs what its header row costs. Without script (or to
-have the first frame right), write the same two attributes on each cell; a cell's own attribute always wins. A
+(`data-columns-end="2 3"`, `-center`, `-nowrap`) and one rule per position, which the stylesheet holds for the first
+16 positions, places their cells — **no cell is written to**, so a table of several hundred rows costs what its header
+row costs, and **no rule is added to the page**: a rule added from script has the browser build every rule of the page
+again (in WebKit about a quarter of a second on a long page, for each one). Only a table of more than 16 columns adds,
+once for the page, the rules of the positions beyond. Without script (or to have the first frame right), write the
+same attributes on the element yourself, or the same two on each cell; a cell's own attribute always wins. A
 Markdown renderer's `align="left | center | right"` is read too, left and right as start and end. A **row** is a
 `<tr>`, a footer row a `<tr>` in `<tfoot>`, a **cell** a `<td>` holding text, any element of yours, or nothing. A
 header row whose every cell is empty is not drawn. A row with more cells than the table has columns draws only as many
@@ -9521,12 +9524,14 @@ Good to know:
 - **A size taken from a container** (TBL-62) is drawn once the element is defined: it carries the size it draws as
   the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. Without script a table is
   drawn at the size it sets, or at `medium`. The table passes no size to what its cells hold.
-- **A size a design system adds** gets its rules from the element, falling back to `medium`'s tokens;
-  without script it is drawn as `medium`.
-- **The rules the element writes are in no cascade layer** — a column's alignment and wrapping by position, the cells
-  after the last column, an added size — so that they win over a copy of the stylesheet you load into a layer of
-  your own (a later layer wins whatever the rules are, and the copy says `text-align: start` of every cell). Unlayered
-  CSS of yours still wins by one class.
+- **A size a design system adds** is written by the element in its own style, as the size's private custom
+  properties read from that size's tokens, each falling back to `medium`'s; without script it is drawn as `medium`.
+- **The rules by column position are the stylesheet's own** — a column's alignment and wrapping, the cells after the
+  last column — the last rules of its layer, so they win over every other rule of the table that styles a cell, also
+  in a copy of the stylesheet you load into a layer of your own. The rules of the positions beyond the 16th, which the
+  element adds for a wider table, are in no cascade layer, so that they too win over such a copy (a later layer wins
+  whatever the rules are, and the copy says `text-align: start` of every cell). Unlayered CSS of yours still wins by
+  one class.
 - **What the element writes, it writes once, and every table of a page together.** Its attributes (`data-columns`,
   the positions, the name) are written when it is defined and when its table changes, and the layout is read once for
   all the tables that wrote in that task, then `role`, `tabindex` and the edge lines are written for all of them. A
