@@ -2217,23 +2217,32 @@ export class TanreiDateTimePicker extends TanreiElement {
    * FollowController when something can have moved, frame by frame only while something does.
    */
   private readonly follow = (): boolean => {
-    const box = this.anchorElement?.getBoundingClientRect();
-    const body = this.renderRoot.querySelector<HTMLElement>('.body');
-    // The surface's own size too, as laid out: a part that grows while the body's scroll height stays (a heading, the
-    // text size, less than a pixel) moves a flipped container's top. DTM-41: the layout direction too — the start edges
-    // are aligned (DTM-2), so a change of it places the container again.
-    const size = this.surface && layoutSize(this.surface);
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${body?.scrollHeight},${size?.width},${size?.height},${getComputedStyle(this).direction}`;
+    const layout = this.readLayout();
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();
     return true;
   };
 
+  /**
+   * What the placement was made for, as one comparable string, read and nothing written: FollowController reads it in
+   * the frame's read phase, after the frame's own style and layout (src/primitives/follow.ts says why).
+   */
+  private readLayout(): string {
+    const box = this.anchorElement?.getBoundingClientRect();
+    const body = this.renderRoot.querySelector<HTMLElement>('.body');
+    // The surface's own size too, as laid out: a part that grows while the body's scroll height stays (a heading, the
+    // text size, less than a pixel) moves a flipped container's top. DTM-41: the layout direction too — the start edges
+    // are aligned (DTM-2), so a change of it places the container again.
+    const size = this.surface && layoutSize(this.surface);
+    return `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${body?.scrollHeight},${size?.width},${size?.height},${getComputedStyle(this).direction}`;
+  }
+
   private readonly following = new FollowController(this, {
     followed: () => [this.anchorElement],
     sized: () => [this.surface, this.renderRoot?.querySelector('.body')],
     check: this.follow,
+    changed: () => this.readLayout() !== this.lastLayout,
     // DTM-51: the anchor of a docked picker is no longer drawn.
     anchor: () => this.anchorElement,
     undrawn: () => this.requestClose('anchor-hidden'),

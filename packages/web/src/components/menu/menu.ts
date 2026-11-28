@@ -48,6 +48,7 @@ import {
   report,
   styleQueries,
   surfaceCap,
+  surfaceCapKey,
   swallowRelease,
   syncFocusStyle,
   syncSeparation,
@@ -159,6 +160,10 @@ const DEFAULT_SHORTCUT_VARIANT = 'keycap';
  * part name, never drawn), which the product's `::part(surface)` rules reach and the placement never writes.
  */
 const capOf = (surface: HTMLElement) => surfaceCap((surface.getRootNode() as ShadowRoot).querySelector?.('.cap'));
+/** What `capOf(surface)` is resolved from, read alone (`surfaceCapKey`): what a check of whether the cap changed compares. */
+const capKeyOf = (surface: HTMLElement | null | undefined) => (surface ? surfaceCapKey((surface.getRootNode() as ShadowRoot).querySelector?.('.cap')) : '');
+/** A submenu whose item is scrolled out of the visible part of the surface it is in (MNU-46): it closes. */
+const SCROLLED_OUT = Symbol('scrolled out');
 /**
  * The block-axis scale a surface is drawn at now (MNU-4: closed, or appearing, it is scaled toward its origin). Never 0
  * on that axis: a submenu's surface keeps its height under `unfold`, on either side of its item (`data-side`, which it
@@ -2594,48 +2599,72 @@ export class TanreiMenu extends TanreiElement {
    */
   private readonly follow = (): boolean => {
     let changed = false;
-    const box = this.placedAgainst()?.box;
-    const scroll = this.scrollBox;
-    const direction = getComputedStyle(this).direction;
-    const viewport = viewportKey();
-    // MNU-32: the layout direction is part of where the surface goes — a change of it places the surface again; so is
-    // the product's cap on its height, which no size of the surface reports while the cap the placement wrote holds it.
-    const cap = (surface: HTMLElement | null | undefined) => (surface ? capOf(surface) : '');
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewport},${scroll?.scrollHeight},${scroll?.scrollWidth},${direction},${cap(this.surface)}`;
+    const layout = this.readLayout();
     if (layout !== this.lastLayout) {
       this.lastLayout = layout;
       this.place();
       changed = true;
     }
-    for (const submenu of this.openChain()) {
-      if (submenu.presentation !== 'overlay') continue;
-      const level = this.levelOf(submenu);
-      const row = submenu.rowElement?.getBoundingClientRect();
-      const held = this.scrollOf(level);
-      const parent = this.surfaceOf(level)?.getBoundingClientRect();
-      const own = submenu.scrollElement;
-      if (!row || !held || !parent) continue;
-      const view = held.getBoundingClientRect();
-      // Only where the surface is drawn at its own size: while it grows in, its boxes are still being scaled.
-      if (view.height >= held.clientHeight - 1 && held.scrollHeight > held.clientHeight && (row.bottom <= view.top || row.top >= view.bottom)) {
+    // Read after the surface was placed: an item moves with the surface it is in.
+    for (const submenu of this.overlaid()) {
+      const placed = this.readSubmenuLayout(submenu);
+      if (placed === null || placed === submenu.lastLayout) continue;
+      changed = true;
+      if (placed === SCROLLED_OUT) {
         this.closeSubmenu(submenu, true, 'stay');
-        changed = true;
         break;
       }
-      const placed = `${row.x},${row.y},${row.width},${row.height},${parent.x},${parent.y},${parent.width},${parent.height},${viewport},${own?.scrollHeight},${own?.scrollWidth},${direction},${cap(submenu.surfaceElement)}`;
-      if (placed === submenu.lastLayout) continue;
       submenu.lastLayout = placed;
       this.placeSubmenu(submenu);
-      changed = true;
     }
     return changed;
   };
+
+  /**
+   * Whether `follow` would place or close anything, read and nothing written: FollowController reads it in the frame's
+   * read phase, after the frame's own style and layout (src/primitives/follow.ts says why).
+   */
+  private readonly followChanged = (): boolean =>
+    this.readLayout() !== this.lastLayout ||
+    this.overlaid().some((submenu) => {
+      const placed = this.readSubmenuLayout(submenu);
+      return placed !== null && placed !== submenu.lastLayout;
+    });
+
+  /**
+   * What the surface's placement was made for, as one comparable string, read and nothing written. MNU-32: the layout
+   * direction is part of where the surface goes — a change of it places the surface again; so is the product's cap on
+   * its height, which no size of the surface reports while the cap the placement wrote holds it.
+   */
+  private readLayout(): string {
+    const box = this.placedAgainst()?.box;
+    const scroll = this.scrollBox;
+    return `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${scroll?.scrollHeight},${scroll?.scrollWidth},${getComputedStyle(this).direction},${capKeyOf(this.surface)}`;
+  }
+
+  /**
+   * What an open submenu's placement against its item was made for, read and nothing written: SCROLLED_OUT where its
+   * item is scrolled out of the visible part of the surface it is in (it closes), null where it has no boxes to read.
+   */
+  private readSubmenuLayout(submenu: TanreiSubmenu): string | typeof SCROLLED_OUT | null {
+    const level = this.levelOf(submenu);
+    const row = submenu.rowElement?.getBoundingClientRect();
+    const held = this.scrollOf(level);
+    const parent = this.surfaceOf(level)?.getBoundingClientRect();
+    const own = submenu.scrollElement;
+    if (!row || !held || !parent) return null;
+    const view = held.getBoundingClientRect();
+    // Only where the surface is drawn at its own size: while it grows in, its boxes are still being scaled.
+    if (view.height >= held.clientHeight - 1 && held.scrollHeight > held.clientHeight && (row.bottom <= view.top || row.top >= view.bottom)) return SCROLLED_OUT;
+    return `${row.x},${row.y},${row.width},${row.height},${parent.x},${parent.y},${parent.width},${parent.height},${viewportKey()},${own?.scrollHeight},${own?.scrollWidth},${getComputedStyle(this).direction},${capKeyOf(submenu.surfaceElement)}`;
+  }
 
   /** What is followed: the anchor, and the item of each submenu open as an overlay; sized: every surface and what scrolls in it. */
   private readonly following = new FollowController(this, {
     followed: () => [this.followedElement, ...this.overlaid().map((submenu) => submenu.rowElement)],
     sized: () => [this.surface, this.scrollBox, ...this.overlaid().flatMap((submenu) => [submenu.surfaceElement, submenu.scrollElement])],
     check: this.follow,
+    changed: this.followChanged,
     // MNU-65: what it is placed against is no longer drawn.
     anchor: () => this.followedElement,
     undrawn: () => this.requestClose('anchor-hidden'),
