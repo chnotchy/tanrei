@@ -17,6 +17,7 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../../..');
@@ -1600,6 +1601,27 @@ test.describe('refusals and unknown values', () => {
     await expect.poll(() => drawn(part(page, 't', 'title'), 'color')).toEqual([200, 201, 202, 255]);
     // What it lacks falls back to the default's.
     expect(await drawn(part(page, 't', 'site'), 'color')).toEqual(await token(page, 'outlined-site-color'));
+  });
+
+  test('LKC-27 the element adds no rule to the page: a look a design system added is drawn from values in the card’s own style, taken off again for a look of the core', async ({ page }) => {
+    await fresh(page);
+    const fixtures = [{ id: 't', props: {}, content: `<tanrei-link-card href="${HREF}" headline="T" variant="tinted" external="off"></tanrei-link-card>` }];
+    await page.setContent(countingRules(await fixturesDocument(spec, { icons: true, fixtures }), 'tanrei-link-card'));
+    await page.waitForFunction(() => !!customElements.get('tanrei-link-card') && [...document.querySelectorAll('tanrei-link-card')].every((el) => el.matches(':defined')));
+    await page.evaluate(() => document.fonts.ready);
+    await frames(page);
+    await setStage(page, 't', `${T('tinted-container-color')}: rgb(1, 2, 3); ${T('tinted-title-color')}: rgb(200, 201, 202);`);
+    await expect.poll(() => drawn(anchor(page, 't'), 'background-color')).toEqual([1, 2, 3, 255]);
+    await expect.poll(() => drawn(part(page, 't', 'title'), 'color')).toEqual([200, 201, 202, 255]);
+    expect(await drawn(part(page, 't', 'site'), 'color')).toEqual(await token(page, 'outlined-site-color'));
+    // Drawn so with no rule inserted anywhere and no sheet added to the document.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // Back to a look of the core: what the added one wrote is taken off, and the card is drawn as that look.
+    await card(page, 't').evaluate((el) => el.setAttribute('variant', 'filled'));
+    await settled(card(page, 't'));
+    expect(await card(page, 't').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    await expect.poll(() => drawn(anchor(page, 't'), 'background-color')).toEqual(await token(page, 'filled-container-color'));
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
   });
 
   test('LKC-28 a change of state animates the colors over motion.state-duration with motion.state-easing, and at once where motion is reduced', async ({ page }) => {

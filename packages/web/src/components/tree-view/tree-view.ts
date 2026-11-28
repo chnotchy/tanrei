@@ -36,7 +36,7 @@ import { TanreiEmbeddedTextInput } from '../embedded-text-input/embedded-text-in
 import '../text-input/text-input.js';
 import '../button/button.js';
 import type { TanreiTextInput } from '../text-input/text-input.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn, writeValues } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { holdsProductName, nameHost, namedByProduct } from '../../primitives/delegated-aria.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
@@ -175,7 +175,6 @@ const PARTS = '.tanrei-icon, [data-supporting-text], [data-trailing], [data-trai
 /** What an item says: a change of any is read again. */
 const ITEM_ATTRIBUTES = ['data-open', 'data-value', 'data-disabled', 'data-loading', 'data-expandable'];
 
-type Root = Document | ShadowRoot;
 type Item = HTMLLIElement;
 /** An open edit field (TRV-46): the `<li>` it stands in, the item it renames (null in a new row), and for a new row what `create` will say (TRV-48). */
 interface Editing {
@@ -218,13 +217,13 @@ function treeLengths(tree: Element): { indent: number; target: number } {
 }
 
 /**
- * TRV-41: a size a design system added — the default's rules, read from that size's tokens — for a tree that sets it
- * and for one that takes it from its container (TRV-73: the custom state that carries the size the tree draws).
+ * TRV-41: what a size a design system added draws — the default's members, read from that size's tokens, each falling
+ * back to the default's — for a tree that sets it and for one that takes it from its container (TRV-73). Written in
+ * the element's own style (`writeValues`), never as a rule added to the page: a rule added to the page has the engine
+ * build every rule of the page again.
  */
-const sizeRules = (size: string) =>
-  `@layer tanrei.components { :where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
-  ).join(' ')} } }`;
+const sizeValues = (size: string): [`--${string}`, string][] =>
+  SIZE_MEMBERS.map(([name, token]) => [name as `--${string}`, `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}))`]);
 
 /** Writes an attribute only when it differs: what is written here may be observed, and must settle. */
 function mark(element: Element, name: string, value: string | null) {
@@ -470,6 +469,8 @@ export class TanreiTreeView extends TanreiLightElement {
 
   /** TRV-41: the size last read for a value the core does not have. */
   private sizeRead = DEFAULT_SIZE;
+  /** TRV-41: the names written in the element's style for a size a design system added (`readSize`). */
+  private sizeWritten: string[] = [];
 
   /** Where a parent's chevron stands: start (before the icon), end (after the trailing content), none (a parent opens by its icon, its open icon showing the state, and by the arrow keys). */
   chevron: TanreiTreeViewChevron = 'start';
@@ -630,7 +631,9 @@ export class TanreiTreeView extends TanreiLightElement {
    * stylesheet sets on it (src/primitives/sheets.ts).
    */
   private adoptSheet() {
-    adoptUnlessDrawn(this, sheet('tree-view', () => TREE_VIEW_CSS), '--_trv-gap');
+    // The mark is a name tree-view.css sets on every tree and the element never writes: a size a design system added
+    // is written in the element's own style (`readSize`), which would answer for a root without the rules.
+    adoptUnlessDrawn(this, sheet('tree-view', () => TREE_VIEW_CSS), '--_trv-target');
   }
 
   protected override willUpdate() {
@@ -1024,11 +1027,16 @@ export class TanreiTreeView extends TanreiLightElement {
     if (DEBUG && count > 1) report(this, 'TRV-15', `${count} items carry the value "${name}"; each is drawn as selected, and a value should be unique within the tree`);
   }
 
-  /** TRV-41: a size the core does not have was added by a design system, or is unknown to the active one. */
+  /**
+   * TRV-41: a size the core does not have was added by a design system — what it draws is written in the element's
+   * style, falling back to the default's tokens, and taken off again for a size of the core — or is unknown to the
+   * active one, which a debug build says.
+   */
   private readSize(value: string) {
-    if (CORE_SIZES.includes(value)) return;
     const known = KEY.test(value);
-    if (known) adopt(this.getRootNode() as Root, sheet(`size:${value}`, () => sizeRules(value)));
+    const added = known && !CORE_SIZES.includes(value);
+    if (added || this.sizeWritten.length) this.sizeWritten = writeValues(this, this.sizeWritten, added ? sizeValues(value) : []);
+    if (CORE_SIZES.includes(value)) return;
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-container-height-${value}`).trim() === '')) {
       report(this, 'TRV-41', `size "${value}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }

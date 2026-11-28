@@ -6,7 +6,7 @@ import { LINK_KEYS } from '../../primitives/link.js';
 import type { TanreiTableOfContentsSizeRegistry } from '../../registry.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { styles } from './table-of-contents.styles.js';
-import { adopt, adoptUnlessDrawn, awaitsSheet } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn, awaitsSheet, writeValues } from '../../primitives/sheets.js';
 import { documentPainted } from '../../primitives/first-paint.js';
 import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
 import { TanreiElement } from '../../primitives/element.js';
@@ -110,13 +110,13 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 }
 
 /**
- * TOC-39: a size a design system added — the default's rules, read from that size's tokens — for a table of contents
- * that sets it and for one that takes it from its container (TOC-42: the custom state that carries the size it draws).
+ * TOC-39: what a size a design system added draws — the default's members, read from that size's tokens, each falling
+ * back to the default's — for a table of contents that sets it and for one that takes it from its container (TOC-42).
+ * Written in the element's own style (`writeValues`), never as a rule added to the page: a rule added to the page has
+ * the engine build every rule of the page again.
  */
-const sizeRules = (size: string) =>
-  `@layer tanrei.components { :where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
-  ).join(' ')} } }`;
+const sizeValues = (size: string): [`--${string}`, string][] =>
+  SIZE_MEMBERS.map(([name, token]) => [name as `--${string}`, `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}))`]);
 
 /** Writes an attribute only when it differs: what is written here may be observed, and must settle. */
 function mark(element: Element, name: string, value: string | null) {
@@ -266,6 +266,8 @@ export class TanreiTableOfContents extends TanreiElement {
 
   /** TOC-39: the size last read for a value the core does not have. */
   private sizeRead = DEFAULT_SIZE;
+  /** TOC-39: the names written in the element's style for a size a design system added (`readSize`). */
+  private sizeWritten: string[] = [];
 
   /** In the compact presentation, whether the list is shown below the row. The element sets it when the user opens, closes or chooses. Ignored in the list presentation. */
   open = false;
@@ -333,7 +335,9 @@ export class TanreiTableOfContents extends TanreiElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('table-of-contents', () => LIST_CSS), '--_toc-row-height');
+    // The mark is a name table-of-contents.css sets on every table of contents and the element never writes: a size a
+    // design system added is written in the element's own style (`readSize`), which would answer for a root without the rules.
+    adoptUnlessDrawn(this, sheet('table-of-contents', () => LIST_CSS), '--_toc-row-floor');
     this.addEventListener('click', this.onClick);
     this.addEventListener('keydown', this.onKeyDown);
     for (const [type, listener] of this.pressListeners) this.addEventListener(type, listener, true);
@@ -1080,11 +1084,16 @@ export class TanreiTableOfContents extends TanreiElement {
     if (now.length !== (list ? 1 : 0) || (list && now[0] !== list)) row.ariaControlsElements = list ? [list] : null;
   }
 
-  /** TOC-39: a size the core does not have was added by a design system — its rules are added to the root — or is unknown to the active one, which a debug build says. */
+  /**
+   * TOC-39: a size the core does not have was added by a design system — what it draws is written in the element's
+   * style, falling back to the default's tokens, and taken off again for a size of the core — or is unknown to the
+   * active one, which a debug build says.
+   */
   private readSize(size: string) {
-    if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
-    if (known) adopt(this.getRootNode() as Root, sheet(`table-of-contents:size:${size}`, () => sizeRules(size)));
+    const added = known && !CORE_SIZES.includes(size);
+    if (added || this.sizeWritten.length) this.sizeWritten = writeValues(this, this.sizeWritten, added ? sizeValues(size) : []);
+    if (CORE_SIZES.includes(size)) return;
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-row-height-${size}`).trim() === '')) {
       report(this, 'TOC-39', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }

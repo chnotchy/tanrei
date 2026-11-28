@@ -50,7 +50,8 @@
  *   the first is its `::before`, the last of two or more its `::after` (shorter: `last-line-inline-size`), and each
  *   bar between them is a shadow of the first, one line box further down — a shadow has the box's size and corners and
  *   is drawn once, so a translucent fill stays even. The stylesheet reads `data-lines` up to 24 and holds 22 shadows;
- *   the element writes the rule of a larger number.
+ *   for any other value the element writes, in the placeholder's own style, `--_skl-lines` and, past 24 lines,
+ *   `--_skl-shadows` (the list of shadows the first bar draws in place of its own) — never a rule added to the page.
  * - A block's and a circle's `::before` is a strut one line box long, never painted: it gives the placeholder the size
  *   of SKL-4 and SKL-5 where neither the product nor its layout gave one, and yields to a size that is given.
  * - The pulse is an animation of each placeholder's own `opacity`, which a browser runs without layout and off the
@@ -124,7 +125,8 @@
   :where(.tanrei-skeleton-placeholder[hidden]) {
     display: none;
   }
-  /* SKL-3, SKL-25: `data-lines`, as far as an attribute can be read here; the element writes the rule of any other. */
+  /* SKL-3, SKL-25: `data-lines`, as far as an attribute can be read here; the element writes the lines of any other
+     in the placeholder's own style. */
   :where(.tanrei-skeleton-placeholder[data-lines='2']) {
     --_skl-lines: 2;
   }
@@ -209,11 +211,13 @@
     background-color: var(--_skl-fill);
   }
   /* The first bar: as tall as the font size, centred in the first line box; and one shadow of it for each line
-     between the first and the last, a line box apart (a shadow that is not needed stands under the bar, undrawn). */
+     between the first and the last, a line box apart (a shadow that is not needed stands under the bar, undrawn).
+     Past 24 lines the element writes the whole list in the placeholder's style, as `--_skl-shadows`. */
   :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::before {
     block-size: 1em;
     margin-block-start: calc((1lh - 1em) / 2);
-    box-shadow:
+    box-shadow: var(
+      --_skl-shadows,
       0 calc(1lh * clamp(0, var(--_skl-lines) - 2, 1)) 0 0 var(--_skl-fill),
       0 calc(2lh * clamp(0, var(--_skl-lines) - 3, 1)) 0 0 var(--_skl-fill),
       0 calc(3lh * clamp(0, var(--_skl-lines) - 4, 1)) 0 0 var(--_skl-fill),
@@ -235,7 +239,8 @@
       0 calc(19lh * clamp(0, var(--_skl-lines) - 20, 1)) 0 0 var(--_skl-fill),
       0 calc(20lh * clamp(0, var(--_skl-lines) - 21, 1)) 0 0 var(--_skl-fill),
       0 calc(21lh * clamp(0, var(--_skl-lines) - 22, 1)) 0 0 var(--_skl-fill),
-      0 calc(22lh * clamp(0, var(--_skl-lines) - 23, 1)) 0 0 var(--_skl-fill);
+      0 calc(22lh * clamp(0, var(--_skl-lines) - 23, 1)) 0 0 var(--_skl-fill)
+    );
   }
   /* The last bar of two or more: last-line-inline-size of the placeholder, from the start edge. */
   :where(.tanrei-skeleton-placeholder:not([data-shape='block'], [data-shape='circle']))::after {
