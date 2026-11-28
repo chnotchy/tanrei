@@ -7,8 +7,9 @@ import { firstLine, furnish } from './code-block.lines.js';
 import { ownDirection } from '../../styles/product-text.js';
 import '../copy-button/copy-button.js';
 import type { TanreiCopyButtonCopiedDetail, TanreiCopyButtonCopyFailedDetail } from '../copy-button/copy-button.js';
-import { CODE_BLOCK_CSS, CODE_BLOCK_DRAWN, SYNTAX_ROLES, roleRule } from './code-block.light.js';
-import { adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { CODE_BLOCK_CSS, CODE_BLOCK_DRAWN, RUN_VALUES, SYNTAX_ROLES, addedRoleValues } from './code-block.light.js';
+import { adoptUnlessDrawn, writeValues } from '../../primitives/sheets.js';
+import { DEBUG } from '../../primitives/debug.js';
 import { AXES, styles } from './code-block.styles.js';
 import { TanreiElement } from '../../primitives/element.js';
 
@@ -51,6 +52,18 @@ const SYNTAXES: readonly string[] = ['plain', ...SYNTAX_ROLES];
 const NO_SYNTAX: readonly string[] = ['', 'text', 'plain', 'plaintext'];
 /** A role a design system may have added: a name a custom property can carry. */
 const ROLE = /^[a-z][a-z0-9-]*$/;
+/** Whether a run of `role` is drawn from the values it carries in its own style: a role the core does not have, that a design system may have added. */
+const addedRole = (role: string) => !SYNTAXES.includes(role) && ROLE.test(role);
+/**
+ * COD-18: a run of a role a design system may have added carries that role's color and weight in its own style, which
+ * the light-DOM rules read (code-block.light.ts) — never a rule added to the page. A run of any other role carries
+ * none (what was written for an added role it named before is taken off). A role that no token carries draws nothing
+ * from them: the run is plain (COD-19).
+ */
+function paintRun(run: HTMLElement, role: string) {
+  const added = addedRole(role);
+  if (added || run.hasAttribute('style')) writeValues(run, RUN_VALUES, added ? addedRoleValues(role) : []);
+}
 /** What marks code highlighted where the page was made (COD-29), on the `<code>`. */
 const GIVEN = 'data-syntax-of';
 
@@ -97,7 +110,7 @@ const loadHighlight = () =>
 
 /** COD-27: an unknown language is reported once for each name. */
 const unknownLanguages = new Set<string>();
-/** The roles a design system added that have their rule in the adopted sheet. */
+/** The roles whose tokens the cascade was seen to have (COD-19): not looked up again. Only what is reported depends on it. */
 const addedRoles = new Set<string>();
 
 /**
@@ -477,20 +490,15 @@ export class TanreiCodeBlock extends TanreiElement {
   }
 
   /**
-   * COD-19: a role the active design system does not have is drawn plain (no rule matches it) and reported. A role a
-   * design system added to the axis has its two tokens in the cascade: it gets its rule, once.
+   * COD-19: a role the active design system does not have is drawn plain (its run's values name no token) and, in a
+   * debug build, reported. A role a design system added to the axis has its two tokens in the cascade.
    */
   private checkRoles(roles: Iterable<string>) {
     let style: CSSStyleDeclaration | undefined;
     for (const role of new Set(roles)) {
       if (SYNTAXES.includes(role) || addedRoles.has(role)) continue;
       if (ROLE.test(role) && (style ??= getComputedStyle(this)).getPropertyValue(`--tanrei-comp-code-block-syntax-color-${role}`).trim() !== '') {
-        try {
-          lightSheet?.insertRule(`@layer tanrei.components { ${roleRule(role)} }`, lightSheet.cssRules.length);
-          addedRoles.add(role);
-        } catch {
-          // Without the sheet the role is drawn by the stylesheet of the system that added it, or plain.
-        }
+        addedRoles.add(role);
         continue;
       }
       report(this, 'COD-19', `the syntax role "${role}" is not one of ${SYNTAXES.join(', ')}, nor one the active design system added; the run is drawn plain`);
@@ -538,6 +546,7 @@ export class TanreiCodeBlock extends TanreiElement {
           if (!piece.syntax || piece.syntax === 'plain') return document.createTextNode(piece.text);
           const span = document.createElement('span');
           span.setAttribute('data-syntax', piece.syntax);
+          if (addedRole(piece.syntax)) writeValues(span, [], addedRoleValues(piece.syntax));
           span.textContent = piece.text;
           this.colored.add(span);
           return span;
@@ -629,7 +638,7 @@ export class TanreiCodeBlock extends TanreiElement {
         if (pieces.length) lines.push({ box: reading.boxes[at++], pieces });
       }
       if (lines.some((line) => line.box === undefined)) return this.failed(boxes, 'the highlighter’s runs do not join to the code');
-      this.checkRoles(roles);
+      if (DEBUG) this.checkRoles(roles);
       // (A line without a box is one another reading colors: COD-33.)
       this.write(lines.filter((line): line is { box: HTMLElement; pieces: Piece[] } => !!line.box));
     };
@@ -816,9 +825,13 @@ export class TanreiCodeBlock extends TanreiElement {
         prompt: this.prompt,
       });
       for (const problem of problems) report(this, 'COD-14', problem);
-      // COD-19: an unknown syntax role is plain (no rule matches it), and reported. (The roles of runs this element
-      // writes are checked as they are written.)
-      if (this.given(code)) this.checkRoles([...code.querySelectorAll('[data-syntax]')].map((run) => run.getAttribute('data-syntax') ?? ''));
+      // COD-18, COD-19: the runs the document gives carry the values of a role a design system added; an unknown role
+      // is plain, and reported. (The runs this element writes are given their values, and checked, as they are written.)
+      if (this.given(code)) {
+        const runs = [...code.querySelectorAll<HTMLElement>('[data-syntax]')].map((run) => [run, run.getAttribute('data-syntax') ?? ''] as const);
+        for (const [run, role] of runs) paintRun(run, role);
+        if (DEBUG) this.checkRoles(runs.map(([, role]) => role));
+      }
       // COD-33: the lines that are not removed are the code after the change — what is copied — and color those lines;
       // the lines that are not added are the code before it, and color the removed ones.
       if (added.size || removed.size) {

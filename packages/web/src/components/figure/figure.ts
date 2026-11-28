@@ -1,7 +1,7 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, compChoice, report, styleQueries } from '../../primitives/index.js';
 import type { TanreiFigureVariantRegistry } from '../../registry.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn, writeValues } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { DEBUG } from '../../primitives/debug.js';
 import { cancelPhaseRead, readInPhase } from '../../primitives/read-phase.js';
@@ -13,8 +13,6 @@ export type TanreiFigureSeparation = SeparationProp;
 /** The ground pattern behind what is shown (FIG-26). */
 export type TanreiFigurePattern = 'none' | 'grid' | 'dots' | 'grid-fade' | 'checkerboard';
 const PATTERNS: readonly string[] = ['none', 'grid', 'dots', 'grid-fade', 'checkerboard'];
-/** The figures that draw a pattern, as figure.css selects them. */
-const PATTERNED = `:is(${PATTERNS.slice(1).map((pattern) => `[pattern='${pattern}']`).join(', ')})`;
 
 // The text of src/styles/figure.css — the stylesheet that draws the figure — written in by the build
 // (scripts/build.js), so the element can add it to whichever root it is connected to. A build that wrote nothing
@@ -28,7 +26,6 @@ const FIGURE_CSS: string = (() => {
   }
 })();
 
-const TAG = 'tanrei-figure';
 const PREFIX = '--tanrei-comp-figure';
 const CORE_VARIANTS: readonly string[] = ['outlined', 'filled', 'plain'];
 const DEFAULT_VARIANT = 'outlined';
@@ -43,8 +40,6 @@ const SLOTS = ['title', 'actions', 'caption', 'attachment'] as const;
 type Slot = (typeof SLOTS)[number];
 /** What is left to scroll below this is none: boxes are laid out on fractions of a pixel. */
 const SLACK = 1;
-
-type Root = Document | ShadowRoot;
 
 const sheets = new Map<string, CSSStyleSheet>();
 /** A stylesheet of the page, made once and shared by every root that needs it. */
@@ -64,17 +59,14 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 }
 
 /**
- * FIG-24: a look a design system added — the default's rules with that look's fill, which is also the ground a
- * pattern is drawn on (FIG-26), read on the stage. In no cascade layer, so that it also wins over a copy of figure.css
- * a page loads into a layer of its own.
+ * FIG-24: what a look a design system added draws — the default's, with that look's fill, which is also the ground a
+ * pattern is drawn on (FIG-26), read on the stage. Written in the element's own style (the fill) and in the stage's
+ * (the ground: read there, so that a stage scoped to another system draws that system's), never as a rule added to the
+ * page: a rule added to the page has the engine build every rule of the page again.
  */
-const variantRules = (variant: string) => {
-  const fill = `var(${PREFIX}-${variant}-container-color, var(${PREFIX}-${DEFAULT_VARIANT}-container-color))`;
-  const stages = `:is([data-part='stage'], img, picture, video, svg, canvas)`;
-  return `:where(${TAG}[variant='${variant}']) { --_figure-fill: ${fill}; }
-:where(${TAG}[variant='${variant}']${PATTERNED}) > :where(figure) > :where([data-part='frame']) > :where(${stages}),
-:where(${TAG}[variant='${variant}']${PATTERNED}) > :where(figure) > :where(${stages}) { --_figure-ground: ${fill}; }`;
-};
+const fillOf = (variant: string) => `var(${PREFIX}-${variant}-container-color, var(${PREFIX}-${DEFAULT_VARIANT}-container-color))`;
+/** The stages a pattern is drawn on (figure.css): the stage element or a lone picture, in the frame or in place of it. */
+const STAGES = `:scope > figure > [data-part='frame'] > :is([data-part='stage'], ${PICTURES}), :scope > figure > :is([data-part='stage'], ${PICTURES})`;
 
 /** Writes an attribute only when it differs: what is written here is observed, and must settle. */
 function mark(element: Element, name: string, value: string | null) {
@@ -206,6 +198,10 @@ export class TanreiFigure extends TanreiLightElement {
   /** What this element wrote on the figure to name it, and on the stage to make it a focus stop: only that is taken off again. */
   private readonly named = new Set<string>();
   private readonly stop = new Set<string>();
+  /** FIG-24: the look a design system added that the figure draws, or null; and what was written for it (`readVariant`, `writeGround`). */
+  private addedVariant: string | null = null;
+  private fillWritten: string[] = [];
+  private readonly grounds = new Map<HTMLElement, string[]>();
 
   /** No shadow root: the figure is the document's. */
   protected override createRenderRoot() {
@@ -214,7 +210,9 @@ export class TanreiFigure extends TanreiLightElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('figure', () => FIGURE_CSS), '--_figure-fill');
+    // The mark is a name figure.css sets on every figure and the element never writes: a look a design system added
+    // writes its fill in the element's own style (`readVariant`), which would answer for a root without the rules.
+    adoptUnlessDrawn(this, sheet('figure', () => FIGURE_CSS), '--_figure-edge-color');
     this.mutations?.observe(this, { childList: true, subtree: true, characterData: true });
     this.addEventListener('keydown', this.keyed);
     if (this.hasUpdated) this.read();
@@ -248,17 +246,33 @@ export class TanreiFigure extends TanreiLightElement {
   }
 
   /**
-   * FIG-24: a look the core does not have was added by a design system — its rule is added to the root, falling back
-   * to the default's tokens — or is unknown to the active one, which a debug build says.
+   * FIG-24: a look the core does not have was added by a design system — its fill is written in the element's style,
+   * falling back to the default's tokens, and taken off again for a look of the core (the ground, on the stage, is
+   * `writeGround`'s, in `read`) — or is unknown to the active one, which a debug build says.
    */
   private readVariant() {
     const variant = String(this.variant ?? '');
-    if (CORE_VARIANTS.includes(variant)) return;
     const known = KEY.test(variant);
-    if (known) adopt(this.getRootNode() as Root, sheet(`variant:${variant}`, () => variantRules(variant)));
+    this.addedVariant = known && !CORE_VARIANTS.includes(variant) ? variant : null;
+    if (this.addedVariant || this.fillWritten.length) this.fillWritten = writeValues(this, this.fillWritten, this.addedVariant ? [['--_figure-fill', fillOf(this.addedVariant)]] : []);
+    if (CORE_VARIANTS.includes(variant)) return;
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-${variant}-container-color`).trim() === '')) {
       report(this, 'FIG-24', `variant "${variant}" is not a value of the active design system; it is drawn as "${DEFAULT_VARIANT}"`);
     }
+  }
+
+  /**
+   * FIG-24, FIG-26: the ground a pattern is drawn on, for a look a design system added — written in each stage's own
+   * style, where figure.css reads it, and taken off a stage that is no longer one, or for a look of the core.
+   */
+  private writeGround() {
+    const stages = this.addedVariant ? [...this.querySelectorAll<HTMLElement>(STAGES)] : [];
+    for (const [stage, written] of this.grounds) {
+      if (stages.includes(stage)) continue;
+      writeValues(stage, written, []);
+      this.grounds.delete(stage);
+    }
+    for (const stage of stages) this.grounds.set(stage, writeValues(stage, this.grounds.get(stage) ?? [], [['--_figure-ground', fillOf(this.addedVariant!)]]));
   }
 
   private within<T extends HTMLElement = HTMLElement>(selector: string): T | null {
@@ -274,6 +288,7 @@ export class TanreiFigure extends TanreiLightElement {
   private read() {
     if (!this.isConnected) return;
     this.build();
+    if (this.addedVariant || this.grounds.size) this.writeGround();
     const figure = this.within('');
     if (figure) {
       this.readText(figure);

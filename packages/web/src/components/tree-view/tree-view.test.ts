@@ -14,9 +14,10 @@ import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
 import { TYPEAHEAD_FOUND, TYPEAHEAD_LABELS, typeaheadAsFiltered } from '../../../test/typeahead.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
-import { askForFrame } from '../../../test/frame-asked.js';
+import { askForFrame, rewrite } from '../../../test/frame-asked.js';
 import { SHADOW_HOSTS, attachShadowRoot, declaredShadowRoot, glyphsIn } from '../../../test/shadow-mirror.js';
 
 const spec = loadSpec('tree-view');
@@ -2184,6 +2185,28 @@ test.describe('missing, unknown, empty, changed', () => {
     await expect(host(page, 'icons')).not.toHaveAttribute('data-glyphs');
     expect(await css(r, 'visibility', '::before')).toBe('visible');
     await expect(host(page, 'icons').locator('[data-tanrei-glyph-probe]')).toHaveCount(0);
+  });
+
+  test('TRV-41: the element adds no rule to the page: a size a design system adds is drawn from values in the tree’s own style, taken off again for a size of the core', async ({ page }) => {
+    const fixtures = [raw('added', { label: 'Added', size: 'roomy' }, SMALL), raw('small', { label: 'Small', size: 'small' }, SMALL)];
+    await page.setContent(countingRules(await fixturesDocument(spec, { icons: true, fixtures }), TAG));
+    await page.waitForFunction((tag) => !!customElements.get(tag) && [...document.querySelectorAll(tag)].every((el) => el.matches(':defined')), TAG);
+    await page.evaluate(() => document.fonts.ready);
+    await nameItems(page);
+    await askForFrame(page);
+    await defined(page);
+    await override(page, { [T('container-height-roomy')]: '72px', [T('container-gap-roomy')]: '20px' });
+    await expect.poll(async () => (await edges(row(page, 'added', 'Alpha'))).height).toBe(72);
+    near((await drawn(row(page, 'added', 'Apple'))).container.left, (await edges(host(page, 'added'))).left + (await resolveToken(page, T('chevron-size-medium'))) + 20);
+    // Drawn so with no rule inserted anywhere and no sheet added to the document.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // Back to a size of the core: what the added one wrote is taken off, and the rows are the small size's.
+    await rewrite(host(page, 'added'), (el) => el.setAttribute('size', 'small'));
+    await frame(page);
+    expect(await host(page, 'added').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    await expect.poll(async () => (await edges(row(page, 'added', 'Alpha'))).height).toBe((await edges(row(page, 'small', 'Alpha'))).height);
+    expect((await drawn(row(page, 'added', 'Apple'))).container.left - (await edges(host(page, 'added'))).left).toBeCloseTo((await drawn(row(page, 'small', 'Apple'))).container.left - (await edges(host(page, 'small'))).left, 1);
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
   });
 
   test('TRV-41: a size the active design system does not have is drawn as the default and a selection the tree does not define as none, each reported; a size a design system adds is drawn from its tokens; a change of selection is drawn at once, keeping every parent’s open and the focus, and emits no change', async ({ page }) => {

@@ -82,15 +82,36 @@ const CODE_TEXT = `
  * The syntax roles a run may name (COD-18), besides `plain`: the values of the token axis `comp.code-block.syntax`,
  * as every design system has them. Data, not selectors: each is drawn by ONE rule from the two tokens that carry its
  * name — `syntax.color.<role>` and `syntax.emphasis.<role>`, a step of weight added to the code's own. The list is
- * held to the generated tokens twice: the build refuses to write `code.css` while it differs from the roles
- * `src/generated/tokens.css` names (scripts/build.js), and a role a layer ADDS to the axis gets the same
- * rule from `roleRule` — in the build of a product's own stylesheet, and in the element when it first meets a run of
- * that role whose tokens the cascade has.
+ * held to the generated tokens: the build refuses to write `code.css` while it differs from the roles
+ * `src/generated/tokens.css` names (scripts/build.js). A role a layer ADDS to the axis has no rule of its own (a rule
+ * added to the page at run time has the engine build every rule of the page again, and one added to the element's own
+ * sheet is never seen on a page that loads `code.css`, where that sheet is not adopted): its run carries the same two
+ * values in its own style (`addedRoleValues`, written by the element), which ONE rule reads (`ADDED_ROLE_RULE`).
  */
 export const SYNTAX_ROLES = ['comment', 'keyword', 'string', 'constant', 'function', 'type', 'tag', 'property', 'punctuation'] as const;
 export const roleRule = (role: string) => `tanrei-code-block [data-syntax='${role}'] {
   color: ${T(`syntax-color-${role}`)};
   font-weight: calc(var(--_code-block-weight) + var(${PREFIX}-syntax-emphasis-${role}, 0));
+}`;
+
+/** What a run of a role a design system added carries in its own style: its color and its weight (COD-18). */
+const RUN_COLOR = '--_code-block-run-color';
+const RUN_WEIGHT = '--_code-block-run-weight';
+export const RUN_VALUES: readonly `--${string}`[] = [RUN_COLOR, RUN_WEIGHT];
+/** The two values of a run of `role`, a role a design system added: what `roleRule` would draw it with, as values. */
+export const addedRoleValues = (role: string): (readonly [`--${string}`, string])[] => [
+  [RUN_COLOR, T(`syntax-color-${role}`)],
+  [RUN_WEIGHT, `calc(var(--_code-block-weight) + var(${PREFIX}-syntax-emphasis-${role}, 0))`],
+];
+/**
+ * The rule of every run, before the core roles' rules (which win over it, at the same specificity, by their order): it
+ * draws the values a run of an added role carries. A run that carries none — `plain`, or a role no design system has —
+ * gets nothing from it: a property whose custom property is not set is the inherited value, the line's, as without
+ * the rule (COD-19).
+ */
+const ADDED_ROLE_RULE = `tanrei-code-block [data-syntax] {
+  color: var(${RUN_COLOR});
+  font-weight: var(${RUN_WEIGHT});
 }`;
 
 const HOST = 'tanrei-code-block';
@@ -137,7 +158,8 @@ export const CODE_BLOCK_DRAWN = '--_code-block-light';
 //   drawn, not text.
 // - the syntax roles' rules (`roleRule()`): Runs (COD-18): a syntax role changes a run's color and its weight, and
 //   nothing else — so highlighted code and the same code drawn plain have the same lines and columns, and colors that
-//   arrive move nothing (COD-28). One rule per value of the syntax axis; an unknown role is plain (COD-19).
+//   arrive move nothing (COD-28). One rule per value of the syntax axis; an unknown role is plain (COD-19). Before them
+//   `ADDED_ROLE_RULE`: a run of a role a design system added carries its role's two values in its own style.
 // - `@media (forced-colors: active)`: Forced colors (COD-23): the code is the platform's text color whatever its role
 //   (the mode's own doing; every run keeps the weight of its role); no band; the bar, the numbers and the signs in the
 //   text color. The gutter's bar is a gradient, which the mode would remove, so the gutter is drawn in system colors by
@@ -272,6 +294,7 @@ ${HOST} [data-line-prompt]::before {
   content: attr(data-prompt) ' ' / '';
 }
 
+${ADDED_ROLE_RULE}
 ${SYNTAX_ROLES.map(roleRule).join('\n')}
 
 @media (forced-colors: active) {

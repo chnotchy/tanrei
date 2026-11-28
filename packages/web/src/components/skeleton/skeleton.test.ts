@@ -10,7 +10,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
-import { type Fixture, loadSpec, missingWords, mountFixtures, resolveColor, resolveToken, setWords, tab, warnings } from '../../../test/harness.js';
+import { type Fixture, fixturesDocument, loadSpec, missingWords, mountFixtures, painted as pagePainted, resolveColor, resolveToken, setWords, tab, warnings } from '../../../test/harness.js';
+import { rewrite } from '../../../test/frame-asked.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 import { decodePng, paintedColor } from '../../../test/png.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -1222,6 +1224,39 @@ test.describe('skeleton', () => {
     await mount(page, of('text'), { reducedMotion: false, system: 'acme-skeleton', systemCss: `[data-tanrei-system='acme-skeleton'] { ${T('motion-animation')}: shimmer; }` });
     expect((await animations(placeholders(page, 'text').first())).map((a) => a.name)).toEqual(['tanrei-skeleton-pulse']);
     expect(seen.filter((text) => text.includes('SKL-25') && text.includes('"shimmer"')).length).toBe(1);
+  });
+
+  test('SKL-3, SKL-25 the element adds no rule to the page: more lines than the stylesheet reads, and a value that is not a whole number, are drawn with values in the placeholder’s own style, taken off again for a value the stylesheet reads', async ({ page }) => {
+    const odd = `${ph('id="thirty" data-lines="30"')}${ph('id="part" data-lines="2.7"')}${ph('id="many" data-lines="many"')}${ph('id="three" data-lines="3"')}`;
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.setContent(countingRules(await fixturesDocument(spec, { fixtures: [fx('odd', { label: 'Loading', showDelay: 0 }, odd)] }), TAG));
+    await page.waitForFunction((tag) => !!customElements.get(tag), TAG);
+    await page.evaluate(() => document.fonts.ready);
+    await pagePainted(page);
+    const target = host(page, 'odd');
+    const fill = await seenFill(page);
+    const line = (await rect(target.locator('#many'))).height;
+    const height = async (id: string) => (await rect(target.locator(id))).height;
+    // Thirty lines: thirty bars, the last short (the shadows past the stylesheet's 22 are the placeholder's own).
+    near(await height('#thirty'), 30 * line, 'thirty lines', 0.2);
+    const thirty = await painted(target.locator('#thirty'), fill);
+    expect([thirty.column(20).length, thirty.column(290).length]).toEqual([30, 29]);
+    near(await height('#part'), 2 * line, '2.7 lines: two', 0.05);
+    near(await height('#three'), 3 * line, 'three lines', 0.05);
+    // Drawn so with no rule inserted anywhere and no sheet added to the document.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // What the stylesheet reads is not written; a placeholder the element wrote on is written on once.
+    expect(await target.locator('#three').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    expect(await target.locator('#part').evaluate((el) => (el as HTMLElement).style.getPropertyValue('--_skl-lines'))).toBe('2');
+    // Changed to a value the stylesheet reads, what the element wrote is taken off; changed to one beyond, it is written.
+    await rewrite(target.locator('#thirty'), (el) => el.setAttribute('data-lines', '4'));
+    await expect.poll(() => height('#thirty')).toBeCloseTo(4 * line, 1);
+    expect(await target.locator('#thirty').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    await rewrite(target.locator('#three'), (el) => el.setAttribute('data-lines', '26'));
+    await expect.poll(() => height('#three')).toBeCloseTo(26 * line, 0);
+    const twentySix = await painted(target.locator('#three'), fill);
+    expect([twentySix.column(20).length, twentySix.column(290).length]).toEqual([26, 25]);
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
   });
 
   test('SKL-26 a skeleton that holds no placeholder draws nothing, takes no space and exposes nothing — before any script too — and a debug build says so; given a placeholder it is a skeleton at once', async ({ page, browserName }) => {
