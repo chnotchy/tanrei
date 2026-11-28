@@ -54,6 +54,12 @@ export interface AutoHeightOptions {
   rows?: (rows: number, scrolling: boolean) => void;
 }
 
+/**
+ * Whether the browser sizes the text area by its text (`field-sizing: content`, which the component's stylesheet gives
+ * it where the browser has it), as the cascade decides it.
+ */
+const sizedByContent = (style: CSSStyleDeclaration) => style.getPropertyValue('field-sizing') === 'content';
+
 /** The lines a measured height is: a whole number, a hair's breadth forgiven (a line of 24.5 px reported as 24). */
 const wholeLines = (lines: number) => Math.max(1, Math.ceil(lines - 0.05));
 
@@ -208,11 +214,16 @@ export class AutoHeight {
       this.unlaid(box, input);
       return;
     }
-    const shown = animate ? box.getBoundingClientRect().height : 0;
+    // The height shown: a running motion's, or the lines last fitted — where the browser sizes the text area by its
+    // text, the box at rest already has the new height, which the value written has given it.
+    const shown = !animate ? 0 : this.rows && !box.hasAttribute('data-resizing') && sizedByContent(getComputedStyle(input)) ? this.rows * line : box.getBoundingClientRect().height;
     const { blockSize } = input.style;
     input.style.blockSize = '0px';
     const needed = this.needed(input, line);
     input.style.blockSize = blockSize;
+    // ETI-10: the number of lines is said while the height is still the one shown — which, where the browser sizes the
+    // text area by its text, the box must hold until it is said.
+    if (animate) box.style.blockSize = `${shown}px`;
     this.write(box, input, needed, { width, line });
     if (!animate || this.options.still?.() || motionReduced()) return;
     const end = box.getBoundingClientRect().height;
@@ -251,13 +262,36 @@ export class AutoHeight {
    * text, another text style — the lines are counted again and the height changes at once (ETI-9). A layout that
    * changed neither (the element's own height, which it wrote itself) is left alone. Call it from a `ResizeObserver`
    * of the native element.
+   *
+   * Where the browser sizes the text area by its text (`field-sizing: content`, which the component's stylesheet gives
+   * it where the browser has it), the browser has already made the height follow, in the layout of the frame of the
+   * change: the lines are only read and said here, and no size is written. A box that changes size in an observer's
+   * report is reported again in that frame only if it lies deeper than every box reported before it, so a height
+   * written here left the text area undelivered whenever nothing above it changed size (a box of fixed size), and the
+   * browser raised "ResizeObserver loop completed with undelivered notifications". Elsewhere the height is still
+   * fitted here, in the frame of the change, as it must be for that frame to show it.
    */
   relaid() {
     const input = this.options.input();
-    if (!input) return;
+    if (!input?.isConnected) return;
+    const style = getComputedStyle(input);
     const width = input.clientWidth;
-    const line = this.lineOf(input);
+    const line = Number.parseFloat(style.lineHeight) || 0;
     if (this.laid && this.laid.width === width && this.laid.line === line) return;
-    this.fit(false);
+    if (!sizedByContent(style)) {
+      this.fit(false);
+      return;
+    }
+    const box = this.options.box();
+    if (!box || !line || !width) return;
+    // ETI-9: a motion under way ends where the lines now are, at once.
+    this.settle(box);
+    const { min, max } = this.bounds();
+    const rows = Math.max(min, Math.min(wholeLines((Number.parseFloat(style.height) || 0) / line), max));
+    const scrolling = input.scrollHeight > input.clientHeight + 1;
+    this.tell(rows, scrolling);
+    this.laid = { width, line };
+    input.style.setProperty('--_rows', String(rows));
+    input.toggleAttribute('data-overflows', scrolling);
   }
 }

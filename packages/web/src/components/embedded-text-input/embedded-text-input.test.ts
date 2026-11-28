@@ -525,6 +525,38 @@ test.describe('behavior', () => {
     near(await heightOf(page, 'multiline-grown'), 2 * one, 'after a shorter value');
   });
 
+  for (const system of ['tanrei', 'm3-like', 'cupertino'] as const) {
+    test(`ETI-7 (${system}): a multi-line input of one, two, three and seven lines, and one held at minRows 2 and at maxRows 3, is to the layout unit as tall as that many lines given as one length — what a holder lays out below it does not move by a fraction of a pixel where the line height is no whole number of units (cupertino's)`, async ({ page }) => {
+      const lines = (n: number) => Array.from({ length: n }, (_, i) => `Line ${i + 1}`).join('\n');
+      const cases = [
+        ['one', 1, {}],
+        ['two', 2, {}],
+        ['three', 3, {}],
+        ['seven', 7, {}],
+        ['least', 2, { minRows: 2, value: 'One' }],
+        ['most', 3, { maxRows: 3, value: lines(6) }],
+      ] as const;
+      await mount(
+        page,
+        cases.map(([id, n, props]) => fx(id, { multiline: true, value: lines(n), ...props })),
+        { reducedMotion: true, ...(system === 'tanrei' ? {} : { system }) },
+      );
+      for (const [id, n] of cases) {
+        // The same number of lines given as one length, in the same element's shadow root, where --_line is the line.
+        const [drawn, given] = await host(page, id).evaluate((el, rows) => {
+          const probe = document.createElement('div');
+          probe.style.cssText = `display: block; block-size: calc(${rows} * var(--_line))`;
+          el.shadowRoot!.append(probe);
+          const sizes = [el.shadowRoot!.querySelector('.input')!.getBoundingClientRect().height, probe.getBoundingClientRect().height];
+          probe.remove();
+          return sizes;
+        }, n);
+        expect(drawn, `${system} ${id}: ${n} lines`).toBe(given);
+        expect((await box(host(page, id))).height, `${system} ${id}: the host`).toBe(given);
+      }
+    });
+  }
+
   test('ETI-8: a typed line break moves the height from two lines to three over motion.resize-duration with motion.resize-easing, through heights in between, with the first line where it was at every sample and no scrollbar; a change that arrives meanwhile goes on from the height then shown and nothing is queued; forty pasted lines at maxRows 6 are one motion from one line to six with one rowschange; and a value emptied at six lines is one motion down to minRows', async ({ page }) => {
     await mount(page, [fx('two', { multiline: true, value: 'a\nb' }), fx('paste', { multiline: true, maxRows: 6, value: 'a' }), fx('empty', { multiline: true, maxRows: 6, value: '1\n2\n3\n4\n5\n6' })], { reducedMotion: false });
     const one = await line(page, 'two');

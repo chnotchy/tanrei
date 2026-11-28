@@ -617,6 +617,11 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     return this.renderRoot?.querySelector<TanreiFilePicker>('tanrei-file-picker') ?? null;
   }
 
+  /** CCM-4: the capsule's width, watched (`sizeWatch`). */
+  private get widthProbe(): HTMLElement | null {
+    return this.renderRoot?.querySelector<HTMLElement>('.capsule > .width') ?? null;
+  }
+
   private get capsule(): HTMLElement | null {
     return this.renderRoot?.querySelector<HTMLElement>('.capsule') ?? null;
   }
@@ -1645,7 +1650,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     if (!capsule || !this.isConnected) return;
     const typed = this.input?.shadowRoot?.querySelector('[part~="input"]');
     const line = typed ? getComputedStyle(typed).lineHeight : '';
-    const width = this.sizes.get(capsule);
+    const probe = this.widthProbe;
+    const width = probe ? this.sizes.get(probe) : undefined;
     const least = this.sizeOf(capsule.querySelector('.probe[data-of="inline"]'));
     const needs = this.inlineNeeds(capsule);
     return () => {
@@ -1691,8 +1697,17 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
   }
 
   /**
-   * CCM-4, CCM-41: one observer watches the capsule, the typing area and the parts beside it of every chat composer, so that a frame reports
+   * CCM-4, CCM-41: one observer watches the capsule's width, the typing area and the parts beside it of every chat composer, so that a frame reports
    * all that were resized in one callback, all of them read before any writes (`measure()`).
+   *
+   * The layout is decided in the report, so that the frame of the change draws it, and what it watches makes that
+   * write one the browser delivers in the same frame. A box that changes size in a report is reported again in that
+   * frame only if it lies deeper than every box reported before it; else the browser raises "ResizeObserver loop
+   * completed with undelivered notifications". So the capsule's width is watched on `.width`, a child of the capsule
+   * that takes no room and is as wide as the capsule and never taller: the layout changes the capsule's height, not its
+   * width, so `.width` keeps its size, and it lies above every other box watched here — the typing area, the parts and
+   * the probes, whose change is delivered again in the same frame. (Watched itself, the capsule was left undelivered
+   * whenever its layout changed in a box that changes the size of nothing above it.)
    */
   private static sizeWatch: ResizeObserver | null = null;
   /** The chat composer each watched element belongs to. */
@@ -1704,9 +1719,8 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
     const parts = [root?.querySelector('tanrei-file-picker'), ...this.slotted('leading'), ...this.slotted('trailing'), root?.querySelector('.measures > .widest'), root?.querySelector('.group.send')];
     // And the probes, whose widths are the tokens' lengths: a system or a scale changed is reported as a resize.
     const probes = [...(this.capsule?.querySelectorAll('.measures > .probe') ?? [])];
-    const next = [this.capsule, this.input, ...parts, ...probes].filter((element): element is HTMLElement => !!element);
+    const next = [this.widthProbe, this.input, ...parts, ...probes].filter((element): element is HTMLElement => !!element);
     if (next.length === this.watched.length && next.every((element, index) => element === this.watched[index])) return;
-    this.unwatch();
     if (typeof ResizeObserver === 'undefined') return;
     const watch = (TanreiChatComposer.sizeWatch ??= new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -1718,7 +1732,18 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
         owner.measure();
       }
     }));
+    // Only what is new is observed, and only what left is let go: an element observed again is reported again, and
+    // the layout's own render (a stacked row draws the attach button anew) runs inside a report, where `.width`
+    // observed again would be left undelivered as any box no deeper than the last one reported.
+    const kept = new Set<Element>(next);
+    for (const element of this.watched) {
+      if (kept.has(element)) continue;
+      watch.unobserve(element);
+      if (TanreiChatComposer.owners.get(element) === this) TanreiChatComposer.owners.delete(element);
+    }
+    const was = new Set<Element>(this.watched);
     for (const element of next) {
+      if (was.has(element) && TanreiChatComposer.owners.get(element) === this) continue;
       TanreiChatComposer.owners.set(element, this);
       watch.observe(element);
     }
@@ -2039,6 +2064,7 @@ export class TanreiChatComposer extends ComposedElement implements PlacingGroup 
           <div class="group send">${this.sendPart(disabled, sendable)}</div>
         </div>
         ${stacked ? html`<div class="row">${start}${end}</div>` : nothing}
+        <span class="width" aria-hidden="true"></span>
         <div class="measures" aria-hidden="true">
           <span class="probe" data-of="inline"></span><span class="probe" data-of="input"></span><span class="probe" data-of="start"></span
           ><span class="probe" data-of="padding"></span><span class="probe" data-of="gap"></span>${this.counts ? html`<span class="widest">${this.widestCount}</span>` : nothing}<span class="timing"></span>
