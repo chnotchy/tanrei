@@ -34,6 +34,10 @@
 //   with `rootTokens()`, words with `setWords()`: both ask for a frame after the write.
 //   Both rules read the whole function a `.evaluate(` runs, and count a function of the file's own that makes such a
 //   write wherever it is called; they cannot see a write that a function of another file makes.
+// - a picture's `complete` (with its `naturalWidth`) polled as the wait for it to have arrived: every engine reports a
+//   picture complete before it dispatches its `load`, and a component draws or fades in its picture in its `load`
+//   listener, so what the test reads next can be from before that, or a frame of the fade it starts. Wait with
+//   `pictureDrawn()` (test/picture-drawn.ts), which waits for the component's own state.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -62,8 +66,8 @@ const SIZE_WRITE = /\.style\.(inlineSize|width|blockSize|height|maxInlineSize|ma
  * taken out, its markup or text replaced.
  */
 const LAYOUT_WRITE = /\.(setAttribute|toggleAttribute|removeAttribute|append|appendChild|prepend|insertAdjacentHTML|insertAdjacentElement|insertBefore|replaceChildren|replaceWith|removeChild)\(|\.remove\(\)|\.(hidden|dir|lang|innerHTML|outerHTML|textContent|innerText)\s*=[^=]/;
-/** An assertion that waits: it retries until what it reads changes. */
-const WAITS = /\bexpect\.poll\(|\.(not\.)?to(HaveAttribute|HaveCount|BeVisible|BeHidden|HaveText|HaveCSS|HaveJSProperty|Pass)\(|\bwaitForFunction\(/;
+/** An assertion that waits: it retries until what it reads changes (`pictureDrawn()` of test/picture-drawn.ts is one). */
+const WAITS = /\bexpect\.poll\(|\.(not\.)?to(HaveAttribute|HaveCount|BeVisible|BeHidden|HaveText|HaveCSS|HaveJSProperty|Pass)\(|\bwaitForFunction\(|\bpictureDrawn\(/;
 /**
  * Something that has the page draw a frame: a frame callback asked for, a helper of the tests' that asks for one
  * (test/frame-asked.ts; `rootTokens()` and `setWords()` of the harness ask for one after their write), or an action of
@@ -478,6 +482,21 @@ export const RULES = {
       'src/styles/timeline.test.ts': 11,
     },
   },
+  "a picture's complete polled as the wait for it": {
+    count: (text, file) =>
+      file === 'test/picture-drawn.ts'
+        ? 0
+        : text
+            .split('\n')
+            .filter((line) => !/^\s*(\*|\/\/|\/\*)/.test(line) && /\b(?:expect\.poll|waitForFunction)\(.*\.complete\s*&&/.test(line)).length,
+    // The site's picture of a Link, the product's own `<img>`: polled for its size, which says that this picture and
+    // no other arrived. The Link's `load` listener only takes back the mark of a failure (LNK-32), and what follows
+    // reads the box the stylesheet gives the picture, which its arrival does not change.
+    allowed: {
+      'src/styles/link.test.ts': 2,
+      'src/styles/prose.test.ts': 1,
+    },
+  },
 };
 
 /** Planted offenders: each rule counts its own once, and its correct twin not at all. */
@@ -540,6 +559,10 @@ const PLANTED = {
       "await host(page, 'a').evaluate((el) => el.setAttribute('open', ''));\nawait expect(menu(page)).toBeVisible();",
       "await host(page, 'a').evaluate((el) => el.setAttribute('open', ''));\nawait item(page, 0).click();\nawait expect(menu(page)).toBeVisible();",
     ],
+  ],
+  "a picture's complete polled as the wait for it": [
+    "await expect.poll(() => media.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);",
+    'await pictureDrawn(card(page, id));',
   ],
   'a colour polled with a plain read, then read exactly at that value with no wait for the motion': [
     "await expect.poll(() => css(c, 'background-color')).toBe(hovered);\nawait page.mouse.down();\nexpect(await css(c, 'background-color')).toBe(hovered);",

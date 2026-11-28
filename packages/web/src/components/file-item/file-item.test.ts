@@ -10,6 +10,7 @@ import { coveredText } from '../../../test/covered-text.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, iconFaceArrives, loadSpec, missingWords, mountFixtures, resolveToken, setWords, tab, tabTo, withoutIconFont, rootTokens, isRobotoMonoGlyphWarning } from '../../../test/harness.js';
 import { EVERY_ANIMATION, motionCount } from '../../../test/motions.js';
+import { pictureDrawn } from '../../../test/picture-drawn.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
@@ -1021,6 +1022,8 @@ test.describe('behavior', () => {
     }
     // The second line is drawn beneath a tile whose name is hidden.
     const failed = 'tile-error-retryable';
+    // Its name is hidden only once its picture is drawn (FIT-6), which its own fixture's picture is, apart from the first's.
+    await pictureDrawn(host(page, failed));
     await expect(own(page, failed, 'supporting')).toBeVisible();
     near((await box(own(page, failed, 'supporting'))).y - ((await box(own(page, failed, 'media'))).y + (await box(own(page, failed, 'media'))).height), await token(page, 'tile-container-gap'), 'tile.container.gap beneath the box, with no room for the name');
     // No picture is drawn: the name is drawn, whatever nameHidden says.

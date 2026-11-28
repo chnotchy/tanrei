@@ -15,6 +15,7 @@ import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, sampleFrames } from '../../../test/frames.js';
 import { fixturePicture } from '../../../test/pictures.js';
 import { expectFromNextFrame, motionEnded } from '../../../test/motions.js';
+import { pictureDrawn } from '../../../test/picture-drawn.js';
 import { allSettled } from '../../../test/settled.js';
 import { type MotionRun, entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
@@ -86,13 +87,16 @@ async function mount(page: P, fixture: Fixture | Fixture[] = fx(), options: Para
   await page.setViewportSize(size);
   await mountFixtures(page, spec, { fixtures: Array.isArray(fixture) ? fixture : [fixture], icons: true, ...rest_ });
   await settled(page);
-  // The image shown has arrived (a picture given as a `data:` address loads in a turn of its own).
+  // The image shown has arrived (a picture given as a `data:` address loads in a turn of its own): loaded or failed, as
+  // the preview counts it — not its placeholder, the thumbnail or the Skeleton it draws until then (IMP-29), which is
+  // there from its first render. A picture that has loaded is drawn and at rest (test/picture-drawn.ts).
   if (loaded) {
     await page.waitForFunction(() => {
       const host = document.querySelector<HTMLElement & { open: boolean }>('tanrei-image-preview');
       const root = host?.shadowRoot;
-      return !host?.open || !root?.querySelector('dialog[open]') || !!root.querySelector('.page[style="--_at: 0"] :is(.image, .error, .waiting, .thumbnail)');
+      return !host?.open || !root?.querySelector('dialog[open]') || !!root.querySelector('.page[style="--_at: 0"] :is(.image, .error)');
     });
+    if (await part(page, '.page[style="--_at: 0"] img[part="image"]').count()) await pictureDrawn(host(page).first());
     await rest(page);
   }
   await record(page);
@@ -2099,7 +2103,8 @@ test.describe('loading and failure', () => {
     await expect(part(page, '.thumbnail')).toHaveCount(1);
     // A picture is not text to select: kept from selection under both names (Safari reads the prefixed one only).
     expect(await part(page, '.thumbnail').evaluate((el) => ((style) => [(style as unknown as { webkitUserSelect?: string }).webkitUserSelect ?? 'none', style.userSelect ?? 'none'])(getComputedStyle(el)))).toEqual(['none', 'none']);
-    await expect.poll(() => part(page, '.thumbnail').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth)).toBe(320);
+    await pictureDrawn(part(page, '.thumbnail'), { atRest: false });
+    expect(await part(page, '.thumbnail').evaluate((el: HTMLImageElement) => el.naturalWidth)).toBe(320);
     await rest(page);
     let seen = await look(page);
     const drawn = (await part(page, '.thumbnail').boundingBox())!;
@@ -2174,7 +2179,9 @@ test.describe('loading and failure', () => {
     const thumbnail = fixturePicture('fixtures/image-preview-landscape-thumbnail.png');
     const { held } = await served(page, [image(HELD('landscape'), 'A bedroom', { thumbnailSrc: thumbnail })]);
     await opened(page);
-    await expect.poll(() => part(page, '.thumbnail').evaluate((el: HTMLImageElement) => el.naturalWidth)).toBe(320);
+    // The thumbnail's size is the image's until the source arrives (the item gives none): learned in its `load`.
+    await pictureDrawn(part(page, '.thumbnail'), { atRest: false });
+    expect(await part(page, '.thumbnail').evaluate((el: HTMLImageElement) => el.naturalWidth)).toBe(320);
     await rest(page);
     const before = (await part(page, '.thumbnail').boundingBox())!;
     await expect.poll(() => held.size).toBe(1);

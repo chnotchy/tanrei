@@ -14,6 +14,7 @@ import { expectKeyPressOutlastsPointer } from '../../../test/key-press-pointer-l
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { type Frame, type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
+import { pictureDrawn } from '../../../test/picture-drawn.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -556,7 +557,7 @@ test.describe('the site line and the host', () => {
     expect(await px(icon, 'border-top-left-radius')).toBeCloseTo(await resolveToken(page, T('site-icon-shape')), 1);
     await expect(icon).toHaveAttribute('alt', '');
     await expect(page.getByRole('img')).toHaveCount(0);
-    await expect.poll(() => icon.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    await pictureDrawn(icon, { atRest: false });
     await expect(part(page, 'title-only', 'site-icon')).toHaveCount(0);
     // Failing: taken away, no box — the host stands where the icon would have.
     await mount(page, `<tanrei-link-card href="${HREF}" headline="T" site-icon="${fixturePicture('fixtures/missing.png')}" external="off"></tanrei-link-card>`);
@@ -580,8 +581,7 @@ test.describe('the picture', () => {
       const media = part(page, id, 'media');
       // The picture as it rests. A picture that loads after the card has settled — a busy machine decodes the fixture's
       // late — fades in (LKC-13), and its opacity read during the fade is a frame of that motion, not its look.
-      await expect.poll(() => media.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
-      await motionEnded(card(page, id));
+      await pictureDrawn(card(page, id));
       expect(await drawn(media, 'background-color'), id).toEqual(await token(page, 'media-container-color'));
       expect(await css(media, 'object-fit')).toBe('cover');
       expect(await css(media, 'object-position')).toBe('50% 50%');
@@ -664,9 +664,8 @@ test.describe('the picture', () => {
     const before = [await box(media), await box(page.locator('#slow')), await box(page.locator('#slow [data-part="title"]'))];
     expect(before[0].width).toBeCloseTo(await resolveToken(page, T('media-width')), 1);
     release();
-    await expect.poll(() => media.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
     // (It fades in, at the place and size it had: the frames are read in the tests of the picture's motion below.)
-    await motionEnded(page.locator('#slow'));
+    await pictureDrawn(page.locator('#slow'));
     expect([await box(media), await box(page.locator('#slow')), await box(page.locator('#slow [data-part="title"]'))]).toEqual(before);
     expect(asked.filter((request) => request.type === 'image')).toHaveLength(1);
     // image-failed is drawn exactly as no-picture with the same text, once at rest (its box may fold away first, where
@@ -821,7 +820,7 @@ test.describe('the picture’s motion', () => {
 
   test('LKC-13 a picture the browser already holds when the card first draws it, or that a settled card is given, is drawn whole at once, with no fade', async ({ page }) => {
     await mountSpec(page, ['full']);
-    await expect.poll(() => part(page, 'full', 'media').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    await pictureDrawn(card(page, 'full'));
     await motionEnded(stage(page, 'full'));
     // A card the page then draws whose picture the browser holds: whole in its first frame, no motion of it.
     const markup = `<tanrei-link-card href="${HREF}" headline="Again" image="${PICTURE}" external="off"></tanrei-link-card>`;
@@ -834,7 +833,8 @@ test.describe('the picture’s motion', () => {
     await expect(later).not.toHaveAttribute('data-tanrei-settling');
     const given = await sampleFrames(stage(page, 'full'), async () => {
       await later.evaluate((el, src) => el.setAttribute('image', src), PICTURE);
-      await expect.poll(() => later.locator('img[data-part="media"]').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+      // Until the card has had the picture's `load` — it would start a fade there — not merely until it is complete.
+      await pictureDrawn(later, { atRest: false });
     });
     expect(scripted(given)).toEqual([]);
     expect(await later.locator('img[data-part="media"]').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
@@ -941,7 +941,7 @@ test.describe('the picture’s motion', () => {
     const arriving = await heldPicture(page, 'card.png');
     const arrived = await sampleFrames(arriving.root, async () => {
       arriving.release();
-      await expect.poll(() => arriving.media.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+      await pictureDrawn(arriving.host, { atRest: false });
     }, { probe: pictureProbe });
     expect(arrived.motions).toEqual([]);
     for (const probe of probes(arrived)) expect(probe.opacity).toBe(1);
@@ -1008,8 +1008,8 @@ test.describe('it loads nothing about the destination', () => {
     await page.setViewportSize({ width: 900, height: 600 });
     const asked = await served(page, `${siteCard('near', 'https://example.com/a', { media: '/pictures/card.png?near', icon: '/pictures/icon.png?near' })}<div style="block-size: 6000px"></div>${siteCard('far', 'https://example.org/b', { media: '/pictures/card.png?far', icon: '/pictures/icon.png?far' })}
       <tanrei-link-card id="made" href="https://example.net/c" headline="Built by script" image="/pictures/card.png?made" site-icon="/pictures/icon.png?made"></tanrei-link-card>`);
-    await expect.poll(() => page.locator('#near img[data-part="media"]').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
-    await expect.poll(() => page.locator('#near img[data-part="site-icon"]').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    await pictureDrawn(page.locator('#near'), { atRest: false });
+    await pictureDrawn(page.locator('#near img[data-part="site-icon"]'), { atRest: false });
     await page.waitForTimeout(300);
     const pictures = asked.filter((request) => request.type === 'image');
     expect(pictures.map((request) => new URL(request.url).pathname + new URL(request.url).search).sort()).toEqual(['/pictures/card.png?near', '/pictures/icon.png?near']);
@@ -1125,6 +1125,9 @@ test.describe('it loads nothing about the destination', () => {
 test.describe('states, focus and press', () => {
   test('LKC-16 hovered, keyboard-focused and pressed each render the container, the outline, the title, the description, the site line and the opacity from that state’s tokens, pressed over focused over hovered; focus by pointer is not the focused state; the answer is behind the text and never over the picture', async ({ page, browserName }) => {
     await mountSpec(page, ['full', 'full-filled'], { systemCss: await acmeSystemCss(), system: 'acme' });
+    // The pictures as they rest, read at the end of each look: one that loaded after the card had settled fades in
+    // (LKC-13), a fade reduced motion, asked for below, does not take back once it has begun.
+    for (const id of ['full', 'full-filled']) await pictureDrawn(card(page, id));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     for (const [id, look] of [['full', 'outlined'], ['full-filled', 'filled']] as const) {
       const link = anchor(page, id);
@@ -1511,7 +1514,7 @@ test.describe('a new context, and another site', () => {
     const full = anchor(page, 'full');
     await expect(full).toHaveAccessibleName('Designing with tokens');
     await expect(full).toHaveAccessibleDescription('How a handful of dials becomes a whole system. Example Journal example.com');
-    await expect.poll(() => part(page, 'image-alt', 'media').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    await pictureDrawn(card(page, 'image-alt'), { atRest: false });
     await expect(anchor(page, 'image-alt')).toHaveAccessibleDescription('How a handful of dials becomes a whole system. A wall of color swatches arranged from light to dark Example Journal example.com');
     await expect(anchor(page, 'new-tab')).toHaveAccessibleDescription('How a handful of dials becomes a whole system. Example Journal example.com opens in a new tab');
     await expect(anchor(page, 'address-only')).toHaveAccessibleName(HREF);
@@ -1847,7 +1850,7 @@ test.describe('changes, and what a card may hold', () => {
     await expect(link).toHaveAttribute('target', '_blank');
     await expect(part(page, 't', 'words')).toHaveText('opens in a new tab');
     await expect(card(page, 't')).toHaveAttribute('variant', 'filled');
-    await expect.poll(() => part(page, 't', 'media').evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+    await pictureDrawn(card(page, 't'), { atRest: false });
     await expect(link).toHaveAccessibleName('Two');
     await expect(link).toHaveAccessibleDescription('Second. A picture Other example.org opens in a new tab');
     // The same anchor, still focused; the order of the parts is the document's.

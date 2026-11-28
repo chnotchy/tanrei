@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { decodePng } from '../../../test/png.js';
+import { pictureDrawn } from '../../../test/picture-drawn.js';
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
@@ -225,7 +226,7 @@ test.describe('the frame and its looks', () => {
     for (const id of ['in-stage', 'small', 'lone', 'bare', 'bare-plain', 'in-picture']) await size(page, id, 400);
     const inline = await resolveToken(page, T('stage-padding-inline'));
     const img = (id: string) => page.locator(`[data-fixture="${id}"] #picture`);
-    await img('in-stage').evaluate((el) => (el as HTMLImageElement).decode());
+    await pictureDrawn(img('in-stage'), { atRest: false });
     // In the stage: the stage's inner width, the proportions kept.
     const scaled = await edges(img('in-stage'));
     near(scaled.width, 400 - 2 * inline, 0.1);

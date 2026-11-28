@@ -12,6 +12,7 @@ import { resolveEasing } from '../../../test/appear.js';
 import { expectAnimated, expectNoFlicker, sampleFrames } from '../../../test/frames.js';
 import { type Fixture, type FixtureItem, avatarPicture, declarations, iconFaceArrives, loadSpec, mountFixtures, resolveToken, setWords, tab, typeRole, withoutIconFont, rootTokens, warnings } from '../../../test/harness.js';
 import { motionEnded } from '../../../test/motions.js';
+import { pictureDrawn } from '../../../test/picture-drawn.js';
 import { decodePng } from '../../../test/png.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { laidOutBox } from '../../../test/laid-out-box.js';
@@ -64,13 +65,7 @@ async function mountHtml(page: P, stages: Record<string, string>, options: Param
   await settled(page);
 }
 /** The picture has been drawn in the fallback's place: loaded, decoded, and its cross-fade over (AVT-4). */
-const pictured = async (host: Locator) => {
-  await expect(host.locator('.image.loaded')).toHaveCount(1);
-  // Loaded is not yet drawn: the picture is decoded off the page's turn (`decoding="async"`, AVT-4), and a picture
-  // taken of the avatar before that shows its ground where the picture comes a frame later.
-  await host.locator('.image.loaded').evaluate((el: HTMLImageElement) => el.decode());
-  await motionEnded(host);
-};
+const pictured = (host: Locator) => pictureDrawn(host);
 /** AVT-4: what the avatar of a root draws in one frame of its picture's arrival — the opacities and its box. */
 const arrival = (root: Element) => {
   const host = root.querySelector('tanrei-avatar')!;
