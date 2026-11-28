@@ -142,7 +142,11 @@ How the web package keeps MOT-3 and MOT-4 (`packages/web/src/primitives/motion.t
 
 - **Settling.** Every element carries `data-tanrei-settling` from each time it is connected until two frames after its
   first update there: the frame its first render is drawn in, and the one after it, where a state it measured in a
-  frame callback or a resize observer is written. Meanwhile nothing in it starts a transition
+  frame callback or a resize observer is written. An element the page does not draw then (`display: none` on it or an
+  ancestor, a subtree `content-visibility: hidden` skips; a host of `display: contents` asks the nearest box up its
+  flat tree) is let go with the others and settles again from the first frame it is drawn in — told by a resize
+  observer of its box, in the round where the component's own observers measure it — until two frames after it, so
+  that it is first shown at rest whenever that is. Meanwhile nothing in it starts a transition
   (`transition-property: none`, never a zero duration, which still runs a transition that has a delay). The element a
   surface's entrance moves (`data-tanrei-appear`) is left alone: its entrance is MOT-4's to play or skip.
 - **Layout is forced before settling ends.** The elements that ask in one frame are let go together, by one pair of
