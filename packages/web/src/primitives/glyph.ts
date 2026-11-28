@@ -130,7 +130,8 @@ const sizes = new WeakMap<Element, number>();
  * microtask of its own, after writing its own shadow tree: a host that read its glyphs there had the page styled and
  * laid out once for itself (fifty layouts).
  * The hosts of one turn are read in ONE microtask after their renders — one layout for them all — and only then are
- * the marks written. The decision is still made in the task of the render, before any frame.
+ * the marks written. The decision is still made in the task of the render, before any frame — but for a glyph whose
+ * name the render kept, whose family is compared in the next read phase (`recheck`).
  *
  * Until the document has been painted once, the observer decides instead, after the layout of the coming frame and
  * before its paint (`reportAgain`): there is no frame yet that a mark decided later could be missing from. While a
@@ -156,13 +157,44 @@ function decideTogether(host: GlyphDrawnController, again = false) {
  * What each ink was last read under: its name and the family it is set in. A render that leaves both as they were has
  * nothing new to read — the ink is as wide as it was, or the observer reports it after the next layout — so the glyph
  * keeps its mark without a layout (a page that toggles a hundred checkboxes reads none of their glyphs). A render that
- * changes either (a checkbox that turns selected under a system whose selected glyphs have a family of their own) is
- * read in the turn of the render, as before. An ink read in no box (its glyph not laid out) is read again on its next
- * render: being laid out is not a change of name or family.
+ * changes the name is read in the turn of the render. A render that keeps the name can have changed only the family (a
+ * toggle that turns selected under a system whose selected glyphs have a family of their own), which only the cascade
+ * says: that is read in the read phase of the next frame (`recheck`), not in the turn of the render. An ink read in no
+ * box (its glyph not laid out) is read again on its next render: being laid out is not a change of name or family.
  */
 const readUnder = new WeakMap<Element, string>();
 /** An ink's name and the family it is set in, as `readUnder` keeps them. */
 const underOf = (ink: HTMLElement) => `${ink.textContent}\n${getComputedStyle(ink).fontFamily}`;
+/** The name `readUnder` kept for an ink, read of nothing but what it kept. */
+const nameUnder = (under: string) => under.slice(0, under.lastIndexOf('\n'));
+
+/**
+ * The glyphs of each host whose render kept their ink's name: whether its family changed too is read in the read phase
+ * of the next frame, after its layout and before its paint, with every other host's, and a mark that changed is written
+ * there — in the frame that first shows the render. Read in the turn of the render, the family had the browser style
+ * the whole page for it there and then, whatever else that task had changed: a product that switches its theme as a
+ * selection changes (a docs page's appearance panel) paid a style of the whole page for it, before the frame styled it
+ * again (9 ms in Chromium, 3 to 4 ms in WebKit, on a docs page). Nothing is lost by waiting: a mark written in the read
+ * phase is styled and laid out again before that frame is painted, a transition started by the frame's style toward the
+ * old mark is turned back in that same frame, where it has not moved yet, and the arrival of a face the family names
+ * is heard by the observer and by `faces` as before.
+ */
+const rechecked = new Map<GlyphDrawnController, Set<HTMLElement>>();
+function recheck(host: GlyphDrawnController, glyph: HTMLElement) {
+  let glyphs = rechecked.get(host);
+  if (!glyphs) rechecked.set(host, (glyphs = new Set()));
+  glyphs.add(glyph);
+  readInPhase(rechecked, recheckFamilies);
+}
+function recheckFamilies() {
+  const due = [...rechecked];
+  rechecked.clear();
+  const decided = due.map(([host, glyphs]) => [host, host.readAgain(glyphs)] as const);
+  return () => {
+    watchAgain(mark(decided.flatMap(([, readings]) => readings)));
+    for (const [host, readings] of decided) if (readings.length) host.marksWritten();
+  };
+}
 
 /** The families an ink was read in: a face of another family that arrives cannot change what a glyph draws. */
 const iconFamilies = new Set<string>();
@@ -515,10 +547,10 @@ export class GlyphDrawnController implements ReactiveController {
   /**
    * Each glyph, and whether its ink is the ligature: a reading of the layout. None for a host that is not connected,
    * nor for a `slotted` one (`decided`). `again`: read every glyph (a face arrived);
-   * otherwise only the glyphs whose name or family changed since they were read (`readUnder`) — the others are left
-   * out, and keep their mark.
+   * otherwise only the glyphs whose name changed since they were read (`readUnder`), or that were never read — the
+   * others are left out, keep their mark, and have their family compared in the next read phase (`recheck`).
    *
-   * The family is read only of an ink that is laid out: one read in a box last time (and compared before any layout),
+   * The family is read only of an ink that is laid out: one read in a box last time (and compared in the read phase),
    * or one whose box was just read and is not empty. An ink in a part that is not drawn (the buttons of a search's
    * closed view) has no style resolved here: Firefox keeps a style resolved for an element outside the layout, and a
    * glyph slotted into a Button's flex box then reads as `inline-block` where it is drawn as a block, a frame after it
@@ -531,15 +563,47 @@ export class GlyphDrawnController implements ReactiveController {
       const ink = glyph.firstElementChild as HTMLElement | null;
       const watched = !!ink && this.observed.has(ink);
       const known = watched ? readUnder.get(ink) : undefined;
-      if (!again && known !== undefined && known === underOf(ink!)) continue;
-      const box = glyph.clientWidth;
-      readings.push([glyph, !!ink && box > 0 && ink.offsetWidth <= box * DRAWN_WIDTH]);
-      if (!watched) continue;
-      if (box > 0) keepUnder(ink!);
-      else readUnder.delete(ink!);
+      // The name kept: only the family can have changed, which the read phase reads (`recheck`).
+      if (!again && known !== undefined && nameUnder(known) === ink!.textContent) {
+        recheck(this, glyph);
+        continue;
+      }
+      readings.push(this.readOne(glyph, ink, watched));
     }
     // After the layout the reads forced: the icon face a glyph first asked for in it is loading now.
     if (readings.length) faces.measured();
     return readings;
+  }
+
+  /**
+   * In the read phase (`recheck`): those of `glyphs` the host still draws whose ink's family changed since it was read
+   * (`readUnder`), each with whether its ink is the ligature — a reading of the layout the frame has just made. The
+   * others are left out, and keep their mark.
+   */
+  readAgain(glyphs: Iterable<HTMLElement>): Reading[] {
+    const readings: Reading[] = [];
+    if (!this.connected || this.options.slotted) return readings;
+    const drawn = new Set(this.glyphs());
+    for (const glyph of glyphs) {
+      if (!drawn.has(glyph)) continue;
+      const ink = glyph.firstElementChild as HTMLElement | null;
+      const watched = !!ink && this.observed.has(ink);
+      const known = watched ? readUnder.get(ink) : undefined;
+      if (known !== undefined && known === underOf(ink!)) continue;
+      readings.push(this.readOne(glyph, ink, watched));
+    }
+    if (readings.length) faces.measured();
+    return readings;
+  }
+
+  /** One glyph, and whether its ink is the ligature, read of the layout; what its ink is read under is kept. */
+  private readOne(glyph: HTMLElement, ink: HTMLElement | null, watched: boolean): Reading {
+    const box = glyph.clientWidth;
+    const reading: Reading = [glyph, !!ink && box > 0 && ink.offsetWidth <= box * DRAWN_WIDTH];
+    if (watched) {
+      if (box > 0) keepUnder(ink!);
+      else readUnder.delete(ink!);
+    }
+    return reading;
   }
 }

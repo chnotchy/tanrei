@@ -1,4 +1,5 @@
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
+import { cancelPhaseRead, readInPhase } from './read-phase.js';
 
 // An overlay in the top layer is placed by script against its anchor (a tooltip, a menu and its submenus, a FAB menu's
 // items, a search view, a docked picker), so it has to be placed again whenever the anchor moves — and nothing tells a
@@ -22,7 +23,12 @@ import type { ReactiveController, ReactiveControllerHost } from 'lit';
 // after the last one. At rest no frame is asked for.
 //
 // The component keeps what it compares and how it places: `check()` reads what the placement depends on, places again
-// if that differs from what it placed for, and says whether it did.
+// if that differs from what it placed for, and says whether it did. A component that can say whether it differs with
+// reads alone (`changed()`) has the frames' checks made in the frame's read phase (src/primitives/read-phase.ts): read
+// after the frame has styled and laid the page out for its paint, which costs nothing, and placed again — before that
+// paint — only where something changed. Read in a frame callback instead, before the frame's own style, the check had the
+// browser style and lay out the whole page for it there and then, whatever the frame was about to style (an anchored
+// surface opened by a click: three styles of the page in the frames after it, 8 ms in Chromium on a docs page).
 //
 // An overlay with nothing drawn beside it no longer says what it belongs to (Floating UI's `hide` middleware,
 // `referenceHidden`; CSS anchor positioning's `position-visibility: anchors-visible`). Given its `anchor`, the
@@ -51,6 +57,11 @@ export interface FollowOptions {
   sized?: () => Iterable<Maybe>;
   /** Places again if what the placement depends on changed; returns whether it did. */
   check: () => boolean;
+  /**
+   * Whether what the placement depends on changed, read without a write: given, a frame's check reads it in the frame's
+   * read phase, and calls `check` there, after every read of the phase, only where it says so.
+   */
+  changed?: () => boolean;
   /** The element the overlay stands beside, whose being drawn `undrawn()` is about (the anchor; a context menu's area). */
   anchor?: () => Element | null | undefined;
   /** The anchor is no longer drawn (`anchorUndrawn()`): called once each time it goes, with no placement for it. */
@@ -85,6 +96,8 @@ const boxOf = (box: DOMRectReadOnly) => `${box.left},${box.top},${box.width},${b
 export class FollowController implements ReactiveController {
   private active = false;
   private frame = 0;
+  /** With `changed`: a frame's check is asked of the read phase, and not made yet. */
+  private phased = false;
   private quiet = 0;
   private reobserve = 0;
   private followed: Element[] = [];
@@ -151,6 +164,8 @@ export class FollowController implements ReactiveController {
     cancelAnimationFrame(this.frame);
     cancelAnimationFrame(this.reobserve);
     this.frame = this.reobserve = 0;
+    cancelPhaseRead(this);
+    this.phased = false;
     window.removeEventListener('scroll', this.request, { capture: true });
     window.removeEventListener('resize', this.request);
     window.visualViewport?.removeEventListener('resize', this.request);
@@ -169,27 +184,68 @@ export class FollowController implements ReactiveController {
   readonly request = () => {
     if (!this.active) return;
     this.quiet = 0;
-    if (!this.frame) this.frame = requestAnimationFrame(this.step);
+    this.next();
   };
+
+  /** Asks for the next frame's check: in a frame callback, or in the frame's read phase where `changed` is given. */
+  private next() {
+    if (!this.options.changed) {
+      if (!this.frame) this.frame = requestAnimationFrame(this.step);
+      return;
+    }
+    if (this.phased) return;
+    this.phased = true;
+    readInPhase(this, this.phaseStep);
+  }
 
   private readonly step = () => {
     this.frame = 0;
     if (!this.active) return;
-    if (this.run()) this.quiet = 0;
-    else this.quiet++;
-    if (this.active && this.quiet < QUIET) this.frame = requestAnimationFrame(this.step);
+    this.counted(this.run());
   };
+
+  /**
+   * A frame's check in its read phase: whether the anchor is drawn and whether the placement's reads changed are read
+   * with every other read of the phase; what follows from them — telling the component, placing again — is written
+   * after them.
+   */
+  private readonly phaseStep = () => {
+    this.phased = false;
+    if (!this.active) return;
+    const gone = this.readGone();
+    const changed = !gone && this.options.changed!();
+    return () => {
+      if (this.active) this.counted(this.run({ gone, changed }));
+    };
+  };
+
+  /** A frame's check was made: the frames go on while it changes something, and for `QUIET` frames after that. */
+  private counted(changed: boolean) {
+    if (changed) this.quiet = 0;
+    else this.quiet++;
+    if (this.active && this.quiet < QUIET) this.next();
+  }
 
   /**
    * Whether the anchor is not drawn: the component is told the first time, and nothing is placed against it while it
    * is not (its box is 0 × 0 at the window's corner, or the last one it had).
    */
   private anchorGone(): boolean {
+    return this.tellGone(this.readGone());
+  }
+
+  /** Whether the anchor is not drawn, read and nothing written. */
+  private readGone(): boolean {
     if (!this.options.undrawn) return false;
     const found = this.options.anchor?.() ?? null;
     if (found) this.lastAnchor = found;
     const anchor = found ?? this.lastAnchor;
-    const gone = !!anchor && anchorUndrawn(anchor);
+    return !!anchor && anchorUndrawn(anchor);
+  }
+
+  /** Tells the component the first time the anchor is found not drawn (`readGone`); returns whether it is gone. */
+  private tellGone(gone: boolean): boolean {
+    if (!this.options.undrawn) return false;
     if (gone && !this.undrawn) {
       this.undrawn = true;
       this.options.undrawn?.();
@@ -197,10 +253,14 @@ export class FollowController implements ReactiveController {
     return gone;
   }
 
-  /** One check; what is watched is read again after it, and each followed element's box is taken as its place. */
-  private run(): boolean {
-    if (this.anchorGone()) return false;
-    const changed = this.options.check();
+  /**
+   * One check; what is watched is read again after it, and each followed element's box is taken as its place. `read`:
+   * what the read phase read of the anchor and of the placement (`phaseStep`) — the check is made only where that
+   * changed.
+   */
+  private run(read?: { gone: boolean; changed: boolean }): boolean {
+    if (read ? this.tellGone(read.gone) : this.anchorGone()) return false;
+    const changed = read ? read.changed && this.options.check() : this.options.check();
     // What the check wrote on what is watched (the surface's place, its cap read and put back) is the component's own,
     // not a move: an attribute record it left would ask for the next frame, and that frame's check for the one after.
     this.attributes?.takeRecords();

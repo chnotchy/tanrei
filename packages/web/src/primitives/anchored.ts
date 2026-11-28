@@ -267,6 +267,7 @@ export class AnchoredSurfaceController implements ReactiveController {
       followed: () => [options.anchor()],
       sized: () => [options.surface()],
       check: this.check,
+      changed: this.changed,
     });
     this.appear = new AppearController(host, { motion: options.motion });
   }
@@ -336,11 +337,16 @@ export class AnchoredSurfaceController implements ReactiveController {
 
   /** Places again if what the placement depends on changed; FollowController asks when something can have moved. */
   private readonly check = (): boolean => {
-    if (!this.shown) return false;
-    if (this.layout() === this.lastLayout) return false;
+    if (!this.changed()) return false;
     this.place();
     return true;
   };
+
+  /**
+   * Whether what the placement depends on changed since it was placed: reads alone, which FollowController makes in the
+   * frame's read phase, after the frame's own style and layout (src/primitives/follow.ts says why).
+   */
+  private readonly changed = (): boolean => this.shown && this.layout() !== this.lastLayout;
 
   /** Something no event tells of changed what the placement depends on (the content, a prop): looked at in the next frame. */
   request() {
