@@ -1,11 +1,12 @@
 // The pages of lists and menus whose figures the web package's cloak and the elements' own stylesheets hold at the box
 // they are drawn in, in each engine, before the modules that define their elements have arrived: lists, laid out by
 // the cloak as they will lay out their items, and menus drawn in place and menu bars (`menu.css`, `menubar.css`).
-// held-room.mjs holds the tests and says how they read the page. The pages of fields, file items, inline values and
-// tabs are in held-room-fields.test.mjs — two files, so that CI's shards, which take whole files, can place them in
-// different jobs; the other pages whose figures the cloak holds are in held-room-figures.test.mjs,
-// held-room-buttons.test.mjs, held-room-actions.test.mjs and held-room-chips.test.mjs, and the pages whose tables,
-// keyboard maps and lists of status tags hold their room in held-room-tables.test.mjs.
+// held-room.mjs holds the tests and says how they read the page. The pages of fields and inline values are in
+// held-room-fields.test.mjs, and those of file items and tabs in held-room-file-items-tabs.test.mjs — three files, so
+// that CI's shards, which take whole files, can place them in different jobs; the other pages whose figures the cloak
+// holds are in held-room-figures.test.mjs, held-room-buttons.test.mjs, held-room-actions.test.mjs and
+// held-room-chips.test.mjs, and the pages whose tables, keyboard maps and lists of status tags hold their room in
+// held-room-tables.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-lists.test.mjs   # in one engine (all three by default)
