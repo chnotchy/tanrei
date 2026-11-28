@@ -1004,18 +1004,23 @@ export class AnimatedSize implements ReactiveController {
 // state may be anywhere in a shadow tree. It is a layout the frame was about to make; letting go then changes only
 // `transition-property`, which lays nothing out.
 //
-// An element that settles is let go only if it is drawn then. One that is not — mounted inside what the page does not
-// draw: `display: none` on it or an ancestor (a tab panel not shown, a hidden container), or a subtree
-// `content-visibility: hidden` skips (a closed `<details>`) — has drawn no frame yet: what it measures on its first
-// frame drawn (a resize observer told its boxes for the first time, a read phase after it) is written then. So it
-// settles on, and its two frames are counted from that first frame drawn, which a resize observer of its box tells.
+// An element that settles and is not drawn then — mounted inside what the page does not draw: `display: none` on it or
+// an ancestor (a tab panel not shown, a hidden container), or a subtree `content-visibility: hidden` skips (a closed
+// `<details>`) — has drawn no frame yet: what it measures on its first frame drawn (a resize observer told its boxes
+// for the first time, a read phase after it) is written then. It is let go with the others all the same — nothing in
+// it moves while it is not drawn, and one that never draws (an option a list holds as data) carries nothing of it — and
+// is held again as it is first drawn, which a resize observer of its box tells: in the round of resize observers where
+// its components' own observers are told the boxes they measure, so that what they write there is styled with the hold.
+// It is let go two frames after that, as at its first update.
 interface Settler {
   done(): void;
-  /** The element that settles, let go only once it is drawn (`waits`); none for what is let go regardless. */
+  /** Holds the element again, as it is first drawn. */
+  hold?(): void;
+  /** The element that settles, watched until it is drawn where it is not when let go (`watchUntilDrawn`). */
   host?: Element;
 }
 let settlingNow: Settler[] | null = null;
-/** The settlers waiting to be drawn, each with the box whose resize observer tells it (`waits`). */
+/** The settlers waiting to be drawn, each with the box whose resize observer tells it (`watchUntilDrawn`). */
 const undrawn = new Map<Settler, Element>();
 let drawnWatch: ResizeObserver | undefined;
 
@@ -1030,7 +1035,8 @@ const settleAfterTwoFrames = (settler: Settler): void => {
         void document.documentElement.offsetWidth;
         // Every element is asked first and let go after, so that letting one go (a style written) does not have the
         // next one's question lay the document out again.
-        for (const settled of batch.filter((each) => !each.host || !waits(each, each.host))) settled.done();
+        for (const each of batch) if (each.host) watchUntilDrawn(each, each.host);
+        for (const each of batch) each.done();
       });
     });
   }
@@ -1045,26 +1051,26 @@ const settleAfterTwoFrames = (settler: Settler): void => {
 export const afterTwoFrames = (done: () => void): void => settleAfterTwoFrames({ done });
 
 /**
- * Whether `host` is not drawn now, and so waits to be: it has no box (`display: none` on it or an ancestor) or is in a
+ * Watches `host` until it is drawn, where it is not now: it has no box (`display: none` on it or an ancestor) or is in a
  * subtree `content-visibility: hidden` skips (`checkVisibility()`; `visibility: hidden` lays it out still, and counts as
  * drawn). A host of `display: contents` has no box of its own and draws its children in its place: the nearest element
- * up its flat tree that has one is asked for it (a slot is of `display: contents` too), and only for a host found not
- * drawn is its display asked. The box is watched by a resize observer, which is told as the box is first laid out —
- * the first frame it is drawn in — and the settlers that wait on it count their two frames from there.
+ * up its flat tree that has one is asked for it (a slot is of `display: contents` too), and only for a host found
+ * without a box is its display asked. The box is watched by a resize observer, which is told as the box is first laid
+ * out — the first frame it is drawn in — and the settlers that wait on it are held then and let go two frames after.
  *
- * Nothing is asked of the style of an element that has no box, and so draws nothing, before it is known to be in the
- * flat tree: one that no slot takes (an option of a list not shown, held by its host's light DOM) has a style of its
- * own nowhere, and asking for it has WebKit answer it from then on as no ancestor's (its `color` the initial black)
- * where it answered it before from the tree it is written in — a change for whatever reads it, which a host it never
- * draws in must not make. A box laid out is asked first, which the layout made before the batch is let go answers.
+ * Nothing is asked of the style of an element that has no box before it is known to be in the flat tree: one that no
+ * slot takes (an option of a list not shown, held in its host's light DOM) has a style of its own nowhere, and asking
+ * for it has WebKit answer it from then on as no ancestor's (its `color` the initial black) where it answered it before
+ * from the tree it is written in — a change for whatever reads it, which settling must not make. A box laid out is asked
+ * first, which the layout made before the batch is let go answers.
  */
-const waits = (settler: Settler, host: Element): boolean => {
+const watchUntilDrawn = (settler: Settler, host: Element): void => {
   let box: Element | null = host;
   if (host.getClientRects().length) {
-    if (host.checkVisibility()) return false;
+    if (host.checkVisibility()) return;
   } else if (!outsideFlatTree(host)) {
     while (box && getComputedStyle(box).display === 'contents') box = flatParent(box);
-    if (!box || (box !== host && box.checkVisibility())) return false;
+    if (!box || (box !== host && box.checkVisibility())) return;
   }
   undrawn.set(settler, box);
   (drawnWatch ??= new ResizeObserver((entries) => {
@@ -1074,11 +1080,11 @@ const waits = (settler: Settler, host: Element): boolean => {
       for (const [each, box] of undrawn) {
         if (box !== target) continue;
         undrawn.delete(each);
-        settleAfterTwoFrames(each);
+        each.hold?.();
+        settleAfterTwoFrames({ done: each.done });
       }
     }
   })).observe(box);
-  return true;
 };
 
 /** Whether `element` is outside the flat tree: it, or an element up its tree, is a child of a shadow host that no slot takes. */
@@ -1098,8 +1104,8 @@ const stopWaiting = (settler: Settler) => {
  * update there — the frame its first render is drawn in, and the one after it, where a state it measured in a frame
  * callback or a resize observer is written — and `settleStyles` (src/styles/motion.ts) starts no transition in it
  * meanwhile. A host the page does not draw then (`display: none` on it or an ancestor, a subtree
- * `content-visibility: hidden` skips) settles on until two frames after the first frame it is drawn in, so that it is
- * first shown at rest whenever that is. It makes a state written late arrive without a motion, not on time: the
+ * `content-visibility: hidden` skips) settles again from the first frame it is drawn in until two frames after it, so
+ * that it is first shown at rest whenever that is. It makes a state written late arrive without a motion, not on time: the
  * component still writes its first state where it renders (`willUpdate`).
  */
 export class Settle implements ReactiveController {
@@ -1123,6 +1129,11 @@ export class Settle implements ReactiveController {
         if (settler !== this.settler) return;
         this.settling = false;
         this.host.removeAttribute(SETTLING);
+      },
+      hold: () => {
+        if (settler !== this.settler) return;
+        this.settling = true;
+        this.host.setAttribute(SETTLING, '');
       },
     });
     void this.host.updateComplete.then(() => {

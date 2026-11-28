@@ -903,7 +903,7 @@ test.describe('Settle', () => {
     await expect(host.locator('.mark')).toHaveCSS('background-color', 'rgb(255, 0, 0)');
   });
 
-  test('MOT-3: a host connected where the page draws nothing — display: none on an ancestor or on itself, a closed details, a host of display: contents in a hidden container — settles until two frames after the first frame it is drawn in, and what it writes in that frame starts no transition', async ({ page }) => {
+  test('MOT-3: a host connected where the page draws nothing — display: none on an ancestor or on itself, a closed details, a host of display: contents in a hidden container — is let go with the others, carrying nothing while it is not drawn, settles again from the first frame it is drawn in until two frames after it, and what it writes in that frame starts no transition', async ({ page }) => {
     await open(page, '<div id="stage"></div>');
     await painted(page);
     const cases = {
@@ -961,7 +961,7 @@ test.describe('Settle', () => {
         },
         { markup, show },
       );
-      expect(seen.whileHidden, `${name}: settling while not drawn`).toBe(true);
+      expect(seen.whileHidden, `${name}: not settling while not drawn`).toBe(false);
       expect(seen.written, `${name}: the state was written as it was first drawn`).toBe(true);
       // The frame it is first drawn in settles, and the next (where what it measured there is written); the third is
       // drawn without it.
@@ -980,7 +980,7 @@ test.describe('Settle', () => {
     await painted(page);
     const host = page.locator('#s');
     await frames(page);
-    await expect(host).toHaveAttribute('data-tanrei-settling');
+    await expect(host).not.toHaveAttribute('data-tanrei-settling');
     expect(await rewrite(host, (el) => {
       document.querySelector('#elsewhere')!.append(el);
       return el.hasAttribute('data-tanrei-settling');

@@ -1,8 +1,8 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 
 // The first frame drawn at rest (MOT-3, docs/architecture/motion.md): while an element settles — from the moment it is
-// connected until two frames after its first update, or after the first frame it is drawn in where it was connected
-// undrawn (`Settle`, src/primitives/motion.ts) — it carries `data-tanrei-settling`, and nothing in it starts a
+// connected until two frames after its first update, and again from the first frame it is drawn in where it was
+// connected undrawn (`Settle`, src/primitives/motion.ts) — it carries `data-tanrei-settling`, and nothing in it starts a
 // transition. A state the element writes after its first render (an attribute it reflects in `updated()`, a size it
 // measured in a frame callback or a resize observer) is then drawn as it is, not faded in from the state it never was
 // in.
