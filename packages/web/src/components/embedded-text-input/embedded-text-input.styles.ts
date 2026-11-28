@@ -141,6 +141,18 @@ export const styles = css`
       max-block-size: calc(var(--_rows-max) * var(--_line));
       contain: inline-size;
     }
+    /* ETI-7: as tall as a whole number of lines given as one length (n × --_line), the height the routine gives it
+       where the browser sizes nothing by its text: the lines its text is, a hair's breadth forgiven as the routine
+       forgives it (wholeLines, src/primitives/auto-height.ts). Chromium rounds each line's height to its layout unit
+       (1/64 px) but cuts a length down to it, so where the line height is no whole number of units (cupertino's
+       17px × 1.2941 is 21.9997px) the lines alone are taller than the same lines given as a length — two were 44px, not
+       43.984px — and everything below the input moved. Firefox and WebKit lay the lines out as tall as the length, and
+       have no calc-size(). */
+    @supports (block-size: calc-size(auto, round(up, size / 1px - 0.05, 1) * 1px)) {
+      textarea.input {
+        block-size: calc-size(auto, round(up, size / var(--_line) - 0.05, 1) * var(--_line));
+      }
+    }
     /* ETI-22: empty, it is as tall as its placeholder's lines, which the routine measures and writes (--_rows), as
        where the browser sizes nothing by its text: WebKit sizes it by its placeholder past maxRows. */
     textarea.input:placeholder-shown {

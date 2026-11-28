@@ -8877,7 +8877,11 @@ already reported, or of one above it, leaves that box undelivered. The browser t
 completed with undelivered notifications" wherever nothing above the element changes size, as in a box of fixed size.
 Prefer a layout the browser keeps by itself: a text area sized by its text (`field-sizing: content`, the text input's
 auto height and `AutoHeight`, whose report then only reads the lines), a row that wraps by itself (`flex-wrap`, the
-number input's steppers). Where script must decide in the report, so that the frame of the change draws it, watch
+number input's steppers). A layout the browser keeps must still give the size the written one gave: Chromium lays a
+line out as tall as its line height rounded to the layout unit (1/64 px) but a length cut down to it, so a text area
+sized by its text alone was 44 px where two lines given as a length are 43.984 (cupertino's line, 17 px × 1.2941, is no
+whole number of units), and what lay below it moved; the text input rounds it back to whole lines of the length
+(`calc-size()`, where the browser has it). Where script must decide in the report, so that the frame of the change draws it, watch
 what the decision reads, never what it changes, and watch it on a box above everything the decision changes: the
 decision's writes are then reported again in the same frame. The chat composer watches its capsule's width on a child
 of the capsule that has no height (`.width`), which its layout cannot change, and not the capsule, whose height the

@@ -8,7 +8,9 @@ first drawn too narrow for its inline layout, and what they draw still follows i
 
 - A multi-line embedded text input is as tall as its lines by the browser's own layout (`field-sizing: content`, in
   every engine the tests run): a changed width or text size changes its height in the frame of the change, between
-  `minRows` and `maxRows`, and as tall as its placeholder's lines while it is empty. The element only reads the lines
+  `minRows` and `maxRows`, and as tall as its placeholder's lines while it is empty. It is as tall as before to the
+  fraction of a pixel: a whole number of lines of its text style, where Chromium would lay lines of a line height that
+  is no whole number of its layout units (cupertino's) out a fraction taller. The element only reads the lines
   to say them (`rowschange`). The text it holds no longer gives it a width in a place that sizes it to its content. A
   browser without `field-sizing` fits the height in the resize observer's report, as before.
 - A chat composer watches its capsule's width on a box of its own that its layout cannot change, so deciding the
