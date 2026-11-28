@@ -223,7 +223,10 @@ export class TanreiDescriptionList extends TanreiLightElement {
     typeof ResizeObserver === 'undefined'
       ? null
       : new ResizeObserver((entries) => {
-          TanreiDescriptionList.resized(new Set(entries.map((entry) => TanreiDescriptionList.owners.get(entry.target)).filter((box): box is TanreiDescriptionList => !!box)));
+          // A list reported at no size is one that is not rendered (itself or an ancestor `display: none`): it is left
+          // out, and keeps what it had (see `readTogether`) — told by the report itself, so nothing is read for it.
+          const laidOut = entries.filter(({ contentRect }) => contentRect.width > 0 || contentRect.height > 0);
+          TanreiDescriptionList.resized(new Set(laidOut.map((entry) => TanreiDescriptionList.owners.get(entry.target)).filter((box): box is TanreiDescriptionList => !!box)));
         });
   /** The lists to read in this turn (`read`), and those to read in the next frame (`resized`) with the frame asked for. */
   private static readonly due = new Set<TanreiDescriptionList>();
@@ -366,27 +369,14 @@ export class TanreiDescriptionList extends TanreiLightElement {
     TanreiDescriptionList.readTogether(boxes);
   };
 
-  /**
-   * Whether the list can be measured: it is laid out (an element that is not rendered, itself or an ancestor `display:
-   * none`, has no box), or its layout is one no width stacks (nothing is read of it).
-   */
-  private static laidOut(box: TanreiDescriptionList): boolean {
-    return box.layout === 'stacked' || box.layout === 'stat' || box.getClientRects().length > 0;
-  }
-
   private static readTogether(boxes: TanreiDescriptionList[]) {
     const live = boxes.filter((box) => box.isConnected);
     for (const box of live) {
       box.list = box.querySelector<HTMLDListElement>(':scope > dl');
       box.watch(box.list);
     }
-    // A list that is not rendered (itself or an ancestor `display: none`) lays nothing out: its terms have no column to
-    // read, which would say that the list is not drawn and stacks under no width (DSL-4: a list stacked by its width
-    // was drawn in two columns in the frame it was shown in again). It keeps the width it had; its observer reports it
-    // laid out when it is shown, and it is measured then. Its list is found, watched and marked all the same.
-    const drawn = live.map((box) => TanreiDescriptionList.laidOut(box));
-    const held = live.map((box, index) => drawn[index] && box.hold());
-    const read = live.map((box, index) => {
+    const held = live.map((box) => box.hold());
+    const read = live.map((box) => {
       const list = box.list;
       if (!list) return null;
       if (DEBUG) {
@@ -396,7 +386,16 @@ export class TanreiDescriptionList extends TanreiLightElement {
       }
       // DSL-13: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
       const separation = styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS);
-      return drawn[index] ? { list, separation, width: box.measure(list), room: box.room() } : { list, separation, width: undefined, room: 0 };
+      const width = box.measure(list);
+      const room = box.room();
+      // A list that is not rendered (itself or an ancestor `display: none`) lays nothing out: its terms have no column
+      // to read, which would say that the list is not drawn and stacks under no width (DSL-4: a list stacked by its
+      // width was drawn in two columns in the frame it was shown in again). It keeps the width it had; its observer
+      // reports it laid out when it is shown, and it is measured then. Its list is found, watched and marked all the
+      // same. Such a list has no room (its width reads 0): only then is it asked whether it has a box, so a rendered
+      // list reads nothing more. A layout no width stacks has nothing to keep.
+      const drawn = box.layout === 'stacked' || box.layout === 'stat' || room > 0 || box.getClientRects().length > 0;
+      return { list, separation, width: drawn ? width : undefined, room };
     });
     live.forEach((box, index) => box.release(held[index]));
     live.forEach((box, index) => {
@@ -490,7 +489,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
    * written and no frame is asked for: the list's container query draws the other form at the new width.
    */
   private static resized(boxes: Set<TanreiDescriptionList>) {
-    const live = [...boxes].filter((box) => box.isConnected && box.list && TanreiDescriptionList.laidOut(box));
+    const live = [...boxes].filter((box) => box.isConnected && box.list);
     const held = live.map((box) => box.hold());
     const widths = live.map((box) => box.measure(box.list!));
     live.forEach((box, index) => box.release(held[index]));

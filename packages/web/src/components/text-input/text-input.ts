@@ -234,10 +234,11 @@ function facesArrived(): Promise<unknown> | null {
 
 /**
  * TXI-13: the lines a copy of the label is laid out in, and the width of the widest, in the copy's own (untransformed)
- * pixels. Each line is the run of text fragments that share a vertical band; a field that is not laid out has one line.
+ * pixels. Each line is the run of text fragments that share a vertical band; a field that is not laid out has one line,
+ * and says so (`laidOut`: no box to count them in, so the count is no measure).
  */
-function labelLines(copy: HTMLElement | null): { count: number; widest: number } {
-  if (!copy) return { count: 1, widest: 0 };
+function labelLines(copy: HTMLElement | null): { count: number; widest: number; laidOut: boolean } {
+  if (!copy) return { count: 1, widest: 0, laidOut: true };
   const range = document.createRange();
   range.selectNodeContents(copy);
   const lines: { top: number; bottom: number; left: number; right: number }[] = [];
@@ -252,11 +253,14 @@ function labelLines(copy: HTMLElement | null): { count: number; widest: number }
       line.right = Math.max(line.right, rect.right);
     } else lines.push({ top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right });
   }
+  // The copy's box (one: it is positioned, so a block), which a copy that is not rendered (itself or an ancestor
+  // `display: none`) does not have: its lines are then laid out nowhere, and say nothing (`laidOut`). Read as the copy's
+  // rects, the one read that also says whether there is a box: a rendered copy costs no read more.
+  const [box] = copy.getClientRects();
   // An ancestor may be scaled (a dialog opening): the widths are wanted in the copy's own pixels.
-  const box = copy.getBoundingClientRect().width;
   const own = Number.parseFloat(getComputedStyle(copy).width);
-  const scale = box > 0 && own > 0 ? box / own : 1;
-  return { count: Math.max(1, lines.length), widest: Math.max(0, ...lines.map((l) => (l.right - l.left) / scale)) };
+  const scale = box && box.width > 0 && own > 0 ? box.width / own : 1;
+  return { count: Math.max(1, lines.length), widest: Math.max(0, ...lines.map((l) => (l.right - l.left) / scale)), laidOut: !!box };
 }
 
 
@@ -1938,18 +1942,23 @@ export class TanreiTextInput extends TanreiElement {
    */
   private measureIcons(entries: ResizeObserverEntry[]) {
     const field = this.renderRoot.querySelector<HTMLElement>('.field');
-    // A field that is not rendered (itself or an ancestor `display: none`) lays nothing out: every box reads 0. It keeps
-    // the lengths it had, and the label and the text their place beside them — let go while hidden, they moved back
-    // once it was shown again (both move over a transition). Its observer reports the boxes when it is shown.
-    if (!field || !field.getClientRects().length) return;
-    let changed = false;
-    for (const entry of entries) {
+    if (!field) return;
+    const lengths = entries.map((entry) => {
       const box = entry.target as HTMLElement;
-      const side = box.classList.contains('leading') ? 'lead' : 'trail';
+      const side: 'lead' | 'trail' = box.classList.contains('leading') ? 'lead' : 'trail';
       const size = entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width;
       // The box is never narrower than an icon (its least length); half a pixel is the rounding of a layout.
       const wider = size > 0 && size - Number.parseFloat(getComputedStyle(box).minInlineSize) > 0.5;
-      const length = wider ? `${Math.round(size * 100) / 100}px` : '';
+      return { side, length: wider ? `${Math.round(size * 100) / 100}px` : '' };
+    });
+    // A field that is not rendered (itself or an ancestor `display: none`) lays nothing out: every box reads 0. It keeps
+    // the lengths it had, and the label and the text their place beside them — let go while hidden, they moved back
+    // once it was shown again (both move over a transition). Its observer reports the boxes when it is shown. Only a
+    // length about to be let go can be such a 0, and only then is the field's box read: a field whose boxes are an
+    // icon's, or that keeps its lengths, reads nothing more.
+    if (lengths.some(({ side, length }) => !length && this.iconBoxes[side]) && !field.getClientRects().length) return;
+    let changed = false;
+    for (const { side, length } of lengths) {
       if (this.iconBoxes[side] === length) continue;
       this.iconBoxes[side] = length;
       if (length) field.style.setProperty(`--_${side}`, length);
@@ -2012,14 +2021,13 @@ export class TanreiTextInput extends TanreiElement {
   private readonly readLabel = (): (() => void) | undefined => {
     const field = this.renderRoot?.querySelector<HTMLElement>('.field');
     if (!field) return undefined;
-    const [restingCopy, floatedCopy] = [this.renderRoot.querySelector<HTMLElement>('.measure-resting'), this.renderRoot.querySelector<HTMLElement>('.measure-floated')];
+    const resting = labelLines(this.renderRoot.querySelector('.measure-resting'));
+    const floated = labelLines(this.renderRoot.querySelector('.measure-floated'));
     // A field that is not rendered (itself or an ancestor `display: none`) lays its copies out nowhere: each reads as one
     // line, which would take a wrapped label's room away, to be given back a frame after it is shown again. It keeps
     // what it had; the copies' observer reports them laid out when it is shown, and they are measured then. (Without
-    // copies there is nothing to lay out: one line.)
-    if ((restingCopy || floatedCopy) && !field.getClientRects().length) return undefined;
-    const resting = labelLines(restingCopy);
-    const floated = labelLines(floatedCopy);
+    // copies there is nothing to lay out: one line.) Told by the copies' own reads: a rendered field reads nothing more.
+    if (!resting.laidOut || !floated.laidOut) return undefined;
     const wraps = resting.count > 1 || floated.count > 1;
     return () => {
       field.toggleAttribute('data-label-wraps', wraps);
