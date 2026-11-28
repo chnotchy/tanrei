@@ -325,6 +325,11 @@ export interface HeldTask {
   begun: string[];
   /** The same motions in the first frame drawn after the task: `<motion> at <current time> ms`, or `<motion> finished` once over (`idle` once cancelled). */
   at: string[];
+  /**
+   * The motions among them cancelled in the next two frames, as their frame callbacks read them — what the frames after
+   * the task cut short (an element held as it is first drawn, which turned off a transition its focus had begun).
+   */
+  cut: string[];
 }
 
 /**
@@ -363,14 +368,20 @@ export const heldTaskFrame = (host: Locator, act: string): Promise<HeldTask> =>
       const begun = all(document).filter((animation) => !before.has(animation) && animation.playState !== 'finished' && Number(animation.effect?.getComputedTiming().endTime) !== Number.POSITIVE_INFINITY);
       const end = performance.now() + Math.max(300, ...begun.map((animation) => Number(animation.effect!.getComputedTiming().endTime))) + 200;
       while (performance.now() < end);
-      return new Promise<{ begun: string[]; at: string[] }>((resolve) =>
+      const at = await new Promise<string[]>((resolve) =>
         requestAnimationFrame(() =>
-          resolve({
-            begun: begun.map(name).sort(),
-            at: begun.map((animation) => `${name(animation)} ${animation.playState === 'finished' || animation.playState === 'idle' ? animation.playState : `at ${Math.round(Number(animation.currentTime))} ms`}`).sort(),
-          }),
+          resolve(begun.map((animation) => `${name(animation)} ${animation.playState === 'finished' || animation.playState === 'idle' ? animation.playState : `at ${Math.round(Number(animation.currentTime))} ms`}`).sort()),
         ),
       );
+      // The two frames after it: their resize observers and their styles run between these callbacks.
+      for (let frame = 0; frame < 2; frame++) await new Promise((resolve) => requestAnimationFrame(resolve));
+      // Cancelled with nothing in its place: a transition its property's next change replaced goes on as the new one.
+      const now = all(document);
+      const replaced = (animation: Animation) => {
+        const { target, pseudoElement } = animation.effect as KeyframeEffect;
+        return now.some((other) => other !== animation && (other.effect as KeyframeEffect | null)?.target === target && (other.effect as KeyframeEffect).pseudoElement === pseudoElement && name(other) === name(animation));
+      };
+      return { begun: begun.map(name).sort(), at, cut: begun.filter((animation) => animation.playState === 'idle' && !replaced(animation)).map(name).sort() };
     },
     [EVERY_ANIMATION, act] as const,
   );
@@ -379,10 +390,16 @@ export const heldTaskFrame = (host: Locator, act: string): Promise<HeldTask> =>
  * `heldTaskFrame()`, with what it saw held to the rule: the change began each of `expected` (and maybe more), and every
  * motion it began stands at its start in the first frame drawn after its task — none of it over, or under way, before a
  * frame draws it. `what` names the change in the messages.
+ *
+ * `firstShowing`: the change shows, for the first time, what the page did not draw before (a surface's first opening),
+ * and none of the motions it began is cut short in the two frames after — the frames in which what it shows is first
+ * drawn, and settles (MOT-3). What the opening moves there, the colors of the element it focuses and the states it gives
+ * its controls, moves as on every later opening (MOT-1, MBR-49).
  */
-export async function expectFromNextFrame(host: Locator, act: string, expected: readonly string[], what: string): Promise<HeldTask> {
+export async function expectFromNextFrame(host: Locator, act: string, expected: readonly string[], what: string, { firstShowing = false }: { firstShowing?: boolean } = {}): Promise<HeldTask> {
   const seen = await heldTaskFrame(host, act);
   expect(seen.begun, `${what}: the motions it begins`).toEqual(expect.arrayContaining([...expected]));
   expect(seen.at, `${what}: every motion it began stands at its start in the first frame drawn after the task`).toEqual(seen.begun.map((motion) => `${motion} at 0 ms`));
+  if (firstShowing) expect(seen.cut, `${what}: no motion it began is cut short in the two frames after, where what it shows is first drawn`).toEqual([]);
   return seen;
 }

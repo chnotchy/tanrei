@@ -793,7 +793,7 @@ test.describe('forms, focus and dismissal', () => {
     await mount(page, [fx('s', { open: false, variant: 'modal' }, '<tanrei-button id="marked" autofocus>Apply</tanrei-button>')]);
     await opener(page);
     await tabTo(page, page.locator('#opener'));
-    await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-side-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'opened');
+    await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-side-sheet dialog.sheet translate', 'tanrei-button button background-color'], 'opened', { firstShowing: true });
   });
 
   test('SSH-2, SSH-3: closed at the end of a task that outlasts its motions, a modal sheet slides out and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {

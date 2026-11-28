@@ -179,7 +179,7 @@ test.describe('focus', () => {
     // marked control's state motion lasts, the control was drawn focused at once, with no frame of its colors changing.
     await mount(page, [f('marked', { open: false }, { content: '<button id="first-marked">First</button> <tanrei-button id="go" label="Go" autofocus><span slot="icon">add</span></tanrei-button>' })]);
     await tabTo(page, page.locator('#open-marked'));
-    await expectFromNextFrame(host(page, 'marked'), '(el) => { el.open = true; }', ['tanrei-modal-layer dialog opacity', 'tanrei-button button.has-icon background-color'], 'opened');
+    await expectFromNextFrame(host(page, 'marked'), '(el) => { el.open = true; }', ['tanrei-modal-layer dialog opacity', 'tanrei-button button.has-icon background-color'], 'opened', { firstShowing: true });
     expect(await page.evaluate(() => document.activeElement?.id)).toBe('go');
   });
 

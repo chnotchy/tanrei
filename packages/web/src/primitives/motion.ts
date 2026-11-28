@@ -1012,9 +1012,27 @@ export class AnimatedSize implements ReactiveController {
 // is held again as it is first drawn, which a resize observer of its box tells: in the round of resize observers where
 // its components' own observers are told the boxes they measure, so that what they write there is styled with the hold.
 // It is let go two frames after that, as at its first update.
+//
+// Settling holds what starts; it never cuts what is under way. A host in which a transition already runs as it is first
+// drawn is not held again (`moving`): that transition was begun by the change that showed it — the task of the act or
+// the prop that opened a surface, before its first frame — and not by anything the host measured of itself, which it
+// could not before it was drawn. What a surface's opening does to what it shows is that opening's on every showing: the
+// colors of the element it moves focus to (a menu's first item, a dialog's marked element, a drawer's selected
+// destination), the states it gives its controls (an image preview's). They move on every later opening (MOT-1), and
+// the first is drawn as every later one is (MBR-49). Held, they would be cut where they stand —
+// `transition-property: none` cancels a running transition, and its value jumps to its end (MOT-2) — and drawn there at
+// once the first time only. What settling holds is what a host writes of itself from that frame on, having measured
+// itself drawn (a size, a mark fitted to it), which a page that drew it at once would never have shown moving.
+//
+// So that a write of that frame is not mistaken for one of the showing, the question is asked before any component
+// writes in the frame: the observer is made with the module and kept observing an element in no document (an image
+// made for nothing else), which is never reported, because a frame's observers are told in the order they started to
+// observe (WebKit forgets one that observes nothing, and counts it from its next `observe()`). Only the read phase's
+// (src/primitives/read-phase.ts) may come before it. Asking brings style up to date: after the first host of a round,
+// all it has left to style is the holds written before it, a `transition-property` that lays nothing out.
 interface Settler {
   done(): void;
-  /** Holds the element again, as it is first drawn. */
+  /** Holds the element: as it is connected, and again as it is first drawn. */
   hold?(): void;
   /** The element that settles, watched until it is drawn where it is not when let go (`watchUntilDrawn`). */
   host?: Element;
@@ -1022,7 +1040,22 @@ interface Settler {
 let settlingNow: Settler[] | null = null;
 /** The settlers waiting to be drawn, each with the box whose resize observer tells it (`watchUntilDrawn`). */
 const undrawn = new Map<Settler, Element>();
-let drawnWatch: ResizeObserver | undefined;
+const drawnWatch =
+  typeof ResizeObserver == 'function'
+    ? new ResizeObserver((entries) => {
+        for (const { target } of entries) {
+          // No box is no visibility (`checkVisibility()`).
+          if (!target.checkVisibility()) continue;
+          drawnWatch!.unobserve(target);
+          for (const [each, box] of undrawn) {
+            if (box !== target || !undrawn.delete(each) || moving(each.host!)) continue;
+            each.hold!();
+            settleAfterTwoFrames({ done: each.done });
+          }
+        }
+      })
+    : null;
+drawnWatch?.observe(new Image());
 
 const settleAfterTwoFrames = (settler: Settler): void => {
   if (typeof requestAnimationFrame !== 'function') return settler.done();
@@ -1073,18 +1106,7 @@ const watchUntilDrawn = (settler: Settler, host: Element): void => {
     if (!box || (box !== host && box.checkVisibility())) return;
   }
   undrawn.set(settler, box);
-  (drawnWatch ??= new ResizeObserver((entries) => {
-    for (const { target } of entries) {
-      if (!target.getClientRects().length || !target.checkVisibility()) continue;
-      drawnWatch!.unobserve(target);
-      for (const [each, box] of undrawn) {
-        if (box !== target) continue;
-        undrawn.delete(each);
-        each.hold?.();
-        settleAfterTwoFrames({ done: each.done });
-      }
-    }
-  })).observe(box);
+  drawnWatch!.observe(box);
 };
 
 /** Whether `element` is outside the flat tree: it, or an element up its tree, is a child of a shadow host that no slot takes. */
@@ -1093,8 +1115,19 @@ const outsideFlatTree = (element: Element): boolean => {
   return false;
 };
 
-/** The settler waits to be drawn no more: its host was taken out of the page. Its box is unwatched where no other waits on it. */
+/**
+ * Whether a transition runs in what `host`'s settling holds — its shadow root, or a light-DOM element's subtree — other
+ * than on the element that appears, which settling leaves alone.
+ */
+const moving = (host: Element): boolean =>
+  ((host.shadowRoot ?? host) as Element).getAnimations({ subtree: true }).some((animation) => animation instanceof CSSTransition && !(animation.effect as KeyframeEffect).target!.hasAttribute(APPEARING));
+
+/**
+ * The settler waits to be drawn no more, and lets nothing go that is no longer its: its host was taken out of the page.
+ * Its box is unwatched where no other waits on it.
+ */
 const stopWaiting = (settler: Settler) => {
+  settler.host = undefined;
   const box = undrawn.get(settler);
   if (box && undrawn.delete(settler) && ![...undrawn.values()].includes(box)) drawnWatch!.unobserve(box);
 };
@@ -1105,8 +1138,10 @@ const stopWaiting = (settler: Settler) => {
  * callback or a resize observer is written — and `settleStyles` (src/styles/motion.ts) starts no transition in it
  * meanwhile. A host the page does not draw then (`display: none` on it or an ancestor, a subtree
  * `content-visibility: hidden` skips) settles again from the first frame it is drawn in until two frames after it, so
- * that it is first shown at rest whenever that is. It makes a state written late arrive without a motion, not on time: the
- * component still writes its first state where it renders (`willUpdate`).
+ * that it is first shown at rest whenever that is — unless a transition already runs in it then, begun by what showed
+ * it (the focus or the states a surface's opening gives it), which plays on as on every later showing. It makes a state
+ * written late arrive without a motion, not on time: the component still writes its first state where it renders
+ * (`willUpdate`).
  */
 export class Settle implements ReactiveController {
   /** Whether the host is settling. */
@@ -1119,10 +1154,6 @@ export class Settle implements ReactiveController {
   }
 
   hostConnected() {
-    this.settling = true;
-    this.host.setAttribute(SETTLING, '');
-    settlers.add(this.host);
-    if (stillSurfaces.size) markIfHeld(this.host);
     const settler: Settler = (this.settler = {
       host: this.host,
       done: () => {
@@ -1130,12 +1161,15 @@ export class Settle implements ReactiveController {
         this.settling = false;
         this.host.removeAttribute(SETTLING);
       },
+      // As it is connected, and again as it is first drawn: only this connection's settler waits for that (stopWaiting).
       hold: () => {
-        if (settler !== this.settler) return;
         this.settling = true;
         this.host.setAttribute(SETTLING, '');
       },
     });
+    settler.hold!();
+    settlers.add(this.host);
+    if (stillSurfaces.size) markIfHeld(this.host);
     void this.host.updateComplete.then(() => {
       if (settler === this.settler) settleAfterTwoFrames(settler);
     });
@@ -1146,7 +1180,6 @@ export class Settle implements ReactiveController {
     // there as what is let go regardless, which no connection heeds.
     if (this.settler) {
       stopWaiting(this.settler);
-      this.settler.host = undefined;
       this.settler = undefined;
     }
     this.settling = false;

@@ -117,7 +117,7 @@ test.describe('presentation and focus', () => {
     await mount(page, [closed('basic')]);
     await tabTo(page, page.locator('#open-basic'));
     const marked = `(el) => { el.querySelector('tanrei-button')?.setAttribute('autofocus', ''); el.open = true; }`;
-    await expectFromNextFrame(host(page, 'basic'), marked, ['tanrei-dialog dialog.container opacity', 'tanrei-button button background-color'], 'opened');
+    await expectFromNextFrame(host(page, 'basic'), marked, ['tanrei-dialog dialog.container opacity', 'tanrei-button button background-color'], 'opened', { firstShowing: true });
   });
 
   test('DLG-4, DLG-13: closed at the end of a task that outlasts its motions, it fades out over its scrim and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {

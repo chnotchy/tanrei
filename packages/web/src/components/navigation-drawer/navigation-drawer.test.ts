@@ -2229,7 +2229,7 @@ test.describe('forms and focus', () => {
       return { ...given, props: { ...given.props, open: false } };
     };
     await mountFixtures(page, spec, { icons: true, fixtures: [closed('modal')] });
-    await expectFromNextFrame(drawer(page, 'modal'), '(el) => { el.open = true; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color'], 'the modal drawer opened');
+    await expectFromNextFrame(drawer(page, 'modal'), '(el) => { el.open = true; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color'], 'the modal drawer opened', { firstShowing: true });
     await mountFixtures(page, spec, { icons: true, fixtures: [closed('modal-collapsible-closed')] });
     const rows = ['tanrei-navigation-drawer dialog.drawer width', 'tanrei-navigation-drawer-item span.container width', 'tanrei-navigation-drawer-item span.text opacity'];
     await expectFromNextFrame(drawer(page, 'modal-collapsible-closed'), '(el) => { el.open = true; }', rows, 'the collapsible drawer opened');
@@ -2247,7 +2247,7 @@ test.describe('forms and focus', () => {
     await tabTo(page, page.locator('#menu'));
     // Its focus motion over first: the opening's blur begins one of its own.
     await motionEnded(page);
-    await expectFromNextFrame(drawer(page, 'm'), '(el) => { el.open = true; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'], 'the modal drawer opened');
+    await expectFromNextFrame(drawer(page, 'm'), '(el) => { el.open = true; }', ['tanrei-navigation-drawer dialog.drawer translate', 'tanrei-navigation-drawer-item span.indicator background-color', 'tanrei-button button background-color'], 'the modal drawer opened', { firstShowing: true });
     expect(await activeValue(page)).toBe('inbox');
   });
 

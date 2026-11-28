@@ -2141,12 +2141,12 @@ test.describe('submenus', () => {
     await mountFixtures(page, spec, { fixtures: [overlay('file', FILE)] });
     await wire(page);
     await tabTo(page, anchor(page, 'file'));
-    await expectFromNextFrame(menu(page, 'file'), '(el) => { el.open = true; }', ['tanrei-menu div.surface opacity', 'tanrei-menu-item div.row background-color'], 'the menu opened');
+    await expectFromNextFrame(menu(page, 'file'), '(el) => { el.open = true; }', ['tanrei-menu div.surface opacity', 'tanrei-menu-item div.row background-color'], 'the menu opened', { firstShowing: true });
     await motionEnded(page);
     await pressTo(page, 'Open recent');
     await motionEnded(page);
     const right = `(el, active) => active.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, composed: true, cancelable: true }))`;
-    await expectFromNextFrame(menu(page, 'file'), right, ['tanrei-submenu div.surface opacity', 'tanrei-menu-item div.row background-color'], 'the submenu opened');
+    await expectFromNextFrame(menu(page, 'file'), right, ['tanrei-submenu div.surface opacity', 'tanrei-menu-item div.row background-color'], 'the submenu opened', { firstShowing: true });
     expect(await focused(page)).toBe('Report.pdf');
   });
 

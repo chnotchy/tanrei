@@ -183,6 +183,10 @@ customElements.define('x-settle', class extends Late {
 customElements.define('x-unsettled', class extends Late {
   static styles = [late];
 });
+customElements.define('x-settle-focus', class extends Late {
+  static styles = [late, css\`:host(:focus) .mark { background: rgb(0, 0, 255); }\`, settleStyles];
+  settle = new Settle(this);
+});
 `;
 
 /** A page of the package's tokens with `body` in it and the elements defined by a module script at its end. */
@@ -973,6 +977,46 @@ test.describe('Settle', () => {
     const host = page.locator('x-settle');
     await rewrite(host, (el) => el.shadowRoot!.querySelector('.mark')!.setAttribute('data-on', ''));
     await expect.poll(() => runs(host)).toEqual(['mark:background-color']);
+  });
+
+  test('MOT-3, MOT-1, MOT-2: a host connected where the page draws nothing is not held again as it is first drawn where a transition already runs in it then, begun by what showed it — the focus or a state a surface that opens gives it — and that transition plays on, not cut; one beside it in which nothing moves is held', async ({ page }) => {
+    await open(page, '<div id="stage"><div id="hide" style="display: none"><x-settle-focus id="focused" tabindex="0"></x-settle-focus><x-settle-focus id="given"></x-settle-focus><x-settle-focus id="still"></x-settle-focus></div></div>');
+    await painted(page);
+    const seen = await page.locator('#stage').evaluate(async (stage) => {
+      const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      type Kept = HTMLElement & { updateComplete: Promise<unknown>; runs: string[] };
+      const hosts = Object.fromEntries(['focused', 'given', 'still'].map((id) => [id, stage.querySelector(`#${id}`) as Kept]));
+      await Promise.all(Object.values(hosts).map((host) => host.updateComplete));
+      // Far longer than settling from the first update lasts.
+      for (let i = 0; i < 6; i++) await nextFrame();
+      const whileHidden = Object.values(hosts).some((host) => host.hasAttribute('data-tanrei-settling'));
+      const cancelled: string[] = [];
+      for (const [id, host] of Object.entries(hosts)) {
+        host.runs.length = 0;
+        host.shadowRoot!.addEventListener('transitioncancel', (event) => cancelled.push(`${id} ${(event.target as Element).classList[0]}:${(event as TransitionEvent).propertyName}`));
+      }
+      const mark = (id: string) => hosts[id]!.shadowRoot!.querySelector('.mark')!;
+      await new Promise<void>((resolve) => setTimeout(resolve));
+      // Shown and styled, then given focus and a state in the same task, as a surface that opens places itself, moves
+      // focus and gives its controls their states.
+      (stage.querySelector('#hide') as HTMLElement).style.removeProperty('display');
+      void document.documentElement.offsetWidth;
+      hosts.focused!.focus();
+      mark('given').removeAttribute('data-on');
+      // In the frame after the first one drawn, where they are told they are drawn.
+      await nextFrame();
+      await nextFrame();
+      const settling = Object.fromEntries(Object.entries(hosts).map(([id, host]) => [id, host.hasAttribute('data-tanrei-settling')]));
+      for (let i = 0; i < 3; i++) await nextFrame();
+      const moving = Object.fromEntries(Object.keys(hosts).map((id) => [id, mark(id).getAnimations().map((animation) => `${(animation as CSSTransition).transitionProperty}:${animation.playState}`)]));
+      const runs = Object.fromEntries(Object.entries(hosts).map(([id, host]) => [id, [...host.runs]]));
+      return { whileHidden, settling, runs, cancelled, moving };
+    });
+    expect(seen.whileHidden, 'not settling while not drawn').toBe(false);
+    expect(seen.settling, 'a host the showing moves is not held as it is first drawn; one in which nothing moves is').toEqual({ focused: false, given: false, still: true });
+    expect(seen.runs, 'the focused colors and the state given move; nothing moves in the other').toEqual({ focused: ['mark:background-color'], given: ['mark:background-color'], still: [] });
+    expect(seen.cancelled, 'nothing the showing began is cut').toEqual([]);
+    expect(seen.moving, 'still moving five frames on').toEqual({ focused: ['background-color:running'], given: ['background-color:running'], still: [] });
   });
 
   test('MOT-3: a host taken out of the page while it waits to be drawn waits no more, and settles as always where it is connected again', async ({ page }) => {

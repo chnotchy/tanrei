@@ -185,7 +185,7 @@ test.describe('presentation, focus and closing', () => {
     // begins the colors of the day that focus leaves, which WebKit drew over at once about one time in six (Linux).
     await mount(page, [docked('d', { value: '2026-09-17' })]);
     await tabTo(page, opener(page, 'd'));
-    await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = true; }', ['tanrei-date-time-picker div.surface docked-open'], 'opened');
+    await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = true; }', ['tanrei-date-time-picker div.surface docked-open'], 'opened', { firstShowing: true });
     await motionEnded(page);
     await expectFromNextFrame(host(page, 'd'), '(el) => { el.open = false; }', ['tanrei-date-time-picker div.surface docked-close', 'tanrei-calendar span.box background-color'], 'closed');
   });

@@ -149,6 +149,18 @@ How the web package keeps MOT-3 and MOT-4 (`packages/web/src/primitives/motion.t
   that it is first shown at rest whenever that is. Meanwhile nothing in it starts a transition
   (`transition-property: none`, never a zero duration, which still runs a transition that has a delay). The element a
   surface's entrance moves (`data-tanrei-appear`) is left alone: its entrance is MOT-4's to play or skip.
+- **Settling holds what starts, never what is under way.** An element in which a transition already runs as it is
+  first drawn is not held again. That transition was begun by the change that showed it — the task of the act or the
+  prop that opened a surface, before its first frame — not by anything the element measured of itself, which it could
+  not do undrawn. What a surface's opening does to what it shows belongs to the opening, on every showing: the colors
+  of the element it moves focus to (a menu's first item, a dialog's marked element, a drawer's selected destination)
+  and the states it gives its controls (an image preview's) move on every later opening (MOT-1), and the first opening
+  draws what every later one draws (MBR-49). Held, they would be cut where they stand — `transition-property: none`
+  cancels a running transition, whose value jumps to its end (MOT-2) — and drawn at their end at once on the first
+  opening only. What settling holds from that frame is what the element writes of itself having measured itself drawn
+  (a size, a mark fitted to it), which a page that drew it at once would never have shown moving. The question is
+  asked before any component's own resize observer writes in that frame (the watcher is made with the module, and a
+  frame's observers are told in the order they began to observe), so that such a write is not taken for the opening's.
 - **Layout is forced before settling ends.** The elements that ask in one frame are let go together, by one pair of
   frame callbacks, and before they are let go the document is laid out once. A state written after the last frame drawn
   while they settled — in a task between two frames (an image preview's zoom-in control, enabled when its picture has

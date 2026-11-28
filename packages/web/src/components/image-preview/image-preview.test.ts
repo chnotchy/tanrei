@@ -323,7 +323,7 @@ test.describe('the modal layer', () => {
     // WebKit dates a transition begun in a task from the frame drawn before it: where opening took longer than the
     // controls' state motions last, they were drawn in their end state at once, as no other engine draws them.
     await mount(page, fx({ open: false }));
-    await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-image-preview dialog.container opacity', 'tanrei-image-preview div.pages scale'], 'opened');
+    await expectFromNextFrame(host(page), '(el) => { el.open = true; }', ['tanrei-image-preview dialog.container opacity', 'tanrei-image-preview div.pages scale'], 'opened', { firstShowing: true });
   });
 
   test('IMP-4, IMP-33: closed at the end of a task that outlasts its motions, it fades out and the opener takes its focused colors back from the first frame drawn after that task', async ({ page }) => {
