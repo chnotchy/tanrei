@@ -10,15 +10,17 @@ import { tab } from '../../test/harness.js';
 import { withoutFocusVisibleOption } from '../../test/focus-visible-option.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-/** The module as it is built: it imports nothing, so a page can load it alone. */
-const MODULE = fs.readFileSync(path.join(pkg, 'dist/primitives/modal.js'), 'utf8');
+/** The module as it is built, and the one module it imports (where its probe stands), so that a page can load them alone. */
+const MODULES = Object.fromEntries(['modal.js', 'probe-place.js'].map((file) => [file, fs.readFileSync(path.join(pkg, 'dist/primitives', file), 'utf8')]));
 const PAGE = 'http://modal.test/';
 
 async function open(page: Page, body: string) {
   await page.unroute(PAGE);
-  await page.unroute(`${PAGE}modal.js`);
   await page.route(PAGE, (route) => route.fulfill({ contentType: 'text/html; charset=utf-8', body: `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>modal</title></head><body>${body}</body></html>` }));
-  await page.route(`${PAGE}modal.js`, (route) => route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: MODULE }));
+  for (const [file, text] of Object.entries(MODULES)) {
+    await page.unroute(`${PAGE}${file}`);
+    await page.route(`${PAGE}${file}`, (route) => route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: text }));
+  }
   await page.goto(PAGE);
 }
 
