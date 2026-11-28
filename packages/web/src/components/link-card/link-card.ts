@@ -58,6 +58,11 @@ const MOVING_PARTS = ':scope > [data-part="body"] > :is([data-part="title"], [da
 const ARRIVING = 'data-tanrei-arriving';
 /** LKC-13: while the picture's box folds away or opens again, link-card.css draws its room in the fill and clips. */
 const FOLDING = 'data-tanrei-folding';
+/**
+ * LKC-37: on the product's own media picture, once the card has drawn it (its fade begun, or drawn at once), at the
+ * address it has; the file item's mark of a picture it has drawn. The stylesheet does not read it: it draws nothing.
+ */
+const DRAWN = 'data-drawn';
 /** LKC-13: the height of the text's box while the box above it moves (a length the element measured, not a design value). */
 const TEXT_BLOCK = '--_lc-text-block';
 
@@ -154,8 +159,9 @@ let cards = 0;
  * `@tanrei/web/link-card.css` draws all of it before and without this script, so a page of link cards does not move
  * when the script arrives (LKC-36). The script adds what a document cannot hold: the host computed anew from `href`
  * (one written in the document that differs is replaced, and reported), the title as the link's name and the other
- * parts as its description, `data-external` where the page was not marked, a picture that fails taken away, the
- * shared press primitive, and the debug reports.
+ * parts as its description, `data-external` where the page was not marked, a picture that fails taken away,
+ * `data-drawn` on the media `<img>` once it has drawn that picture (LKC-37), the shared press primitive, and the debug
+ * reports.
  *
  * **A card the element builds.** A `<tanrei-link-card>` that holds no anchor is given one from its attributes —
  * `href`, `headline`, `description`, `image`, `image-alt`, `site-name`, `site-icon`, `target`, `target-label`,
@@ -248,6 +254,10 @@ export class TanreiLinkCard extends TanreiLightElement {
    */
   private readonly seen = new WeakSet<HTMLImageElement>();
   private readonly held = new WeakSet<HTMLImageElement>();
+  /** LKC-37: the media picture marked drawn, and the address it was drawn from. */
+  private drawn: { picture: HTMLImageElement; src: string } | null = null;
+  /** LKC-37: the card is read as it comes back into the page, where it could hear no picture's `load`. */
+  private returning = false;
   /** LKC-13: the fade of a picture that has arrived, while it runs. */
   private arrival: Animation | null = null;
   /** LKC-13: the motion of the picture's box folding away (no picture) or opening again (the new one), while it runs. */
@@ -281,7 +291,14 @@ export class TanreiLinkCard extends TanreiLightElement {
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener, true);
     linkSettings().reread?.add(this.reread);
     this.unwatchWords = watchWords(this.reread);
-    if (this.hasUpdated) this.read();
+    if (this.hasUpdated) {
+      this.returning = true;
+      try {
+        this.read();
+      } finally {
+        this.returning = false;
+      }
+    }
   }
 
   override disconnectedCallback() {
@@ -528,6 +545,7 @@ export class TanreiLinkCard extends TanreiLightElement {
       // Not a link and not drawn as a card: the title as text. It asks for nothing, so its pictures are taken away.
       this.endArrival();
       this.endSizing();
+      this.undraw();
       for (const picture of anchor.querySelectorAll('img[data-part="media"], img[data-part="site-icon"]')) picture.remove();
       for (const attribute of ['aria-labelledby', 'aria-describedby', 'target', 'rel']) if (this.given.delete(attribute) || attribute === 'target') mark(anchor, attribute, null);
       if (this.wroteExternal !== null) mark(anchor, 'data-external', null);
@@ -650,7 +668,12 @@ export class TanreiLinkCard extends TanreiLightElement {
     }
 
     // LKC-10, LKC-11, LKC-13, LKC-14: the pictures — decoration, asked for as pictures, without the page's address.
-    const media = this.readPicture(anchor.querySelector<HTMLImageElement>(':scope > img[data-part="media"]'), 'image', 'LKC-13');
+    const found = anchor.querySelector<HTMLImageElement>(':scope > img[data-part="media"]');
+    // LKC-37: the mark stands only on the media picture drawn, at the address it was drawn from: a picture taken out of
+    // the anchor, or given another address, is no longer the one drawn, and a mark the card did not write is taken off.
+    if (this.drawn && (this.drawn.picture !== found || this.drawn.src !== (found?.getAttribute('src') ?? ''))) this.undraw();
+    if (found && this.drawn?.picture !== found) mark(found, DRAWN, null);
+    const media = this.readPicture(found, 'image', 'LKC-13');
     this.readPicture(site?.querySelector<HTMLImageElement>(':scope > img[data-part="site-icon"]') ?? null, 'siteIcon', 'LKC-10');
     // Removing a failed icon may have emptied the site line.
     if (site && !site.firstElementChild) {
@@ -724,10 +747,15 @@ export class TanreiLinkCard extends TanreiLightElement {
       this.failed(picture, prop, failure);
       return null;
     }
-    // LKC-13: a media picture whole when the card first sees it was already held by the browser: it is drawn at once.
-    if (prop === 'image' && !this.seen.has(picture)) {
+    // LKC-13: a media picture whole when the card first sees it was already held by the browser: it is drawn at once,
+    // and so is one that arrived while the card was out of the page, where it could not hear its `load`. LKC-37: either
+    // is marked drawn as it is drawn.
+    if (prop === 'image' && (!this.seen.has(picture) || this.returning)) {
       this.seen.add(picture);
-      if (picture.complete && picture.naturalWidth > 0) this.held.add(picture);
+      if (picture.complete && picture.naturalWidth > 0 && this.drawn?.picture !== picture) {
+        this.held.add(picture);
+        this.draw(picture);
+      }
     }
     return picture;
   }
@@ -743,6 +771,8 @@ export class TanreiLinkCard extends TanreiLightElement {
     const drawn = prop === 'image' && anchor && picture.parentElement === anchor ? this.drawnBox(anchor, picture) : null;
     if (picture === this.sizing?.picture) this.sizing.picture = null;
     if (prop === 'image') this.endArrival();
+    // LKC-37: a picture that cannot be loaded is no picture drawn.
+    if (picture === this.drawn?.picture) this.undraw();
     picture.remove();
     if (anchor && drawn) this.resize(anchor, drawn, null);
     if (DEBUG) report(this, behavior, `its ${prop} "${src.length > 96 ? `${src.slice(0, 96)}…` : src}" cannot be loaded or decoded: the card is drawn without it`);
@@ -868,6 +898,20 @@ export class TanreiLinkCard extends TanreiLightElement {
     motion.finished.then(done, done);
   }
 
+  /** LKC-37: the media picture is drawn, at the address it now has. */
+  private draw(picture: HTMLImageElement) {
+    if (this.drawn && this.drawn.picture !== picture) this.undraw();
+    this.drawn = { picture: picture, src: picture.getAttribute('src') ?? '' };
+    mark(picture, DRAWN, '');
+  }
+
+  /** LKC-37: no picture is marked drawn. */
+  private undraw() {
+    const drawn = this.drawn;
+    this.drawn = null;
+    if (drawn) mark(drawn.picture, DRAWN, null);
+  }
+
   /** LKC-13: the picture whole, and nothing drawn beneath it. */
   private endArrival() {
     const motion = this.arrival;
@@ -891,7 +935,10 @@ export class TanreiLinkCard extends TanreiLightElement {
     // LKC-13: read first — a picture the card first sees whole, as it loads, is one it cannot tell from a picture the
     // browser held, and is drawn at once.
     this.read();
-    if (event.type === 'load' && part === 'media') this.arrive(picture);
+    if (event.type !== 'load' || part !== 'media' || picture.parentElement !== this.anchor()) return;
+    this.arrive(picture);
+    // LKC-37: marked once its fade has begun, or it is drawn at once — never before what its arrival starts.
+    this.draw(picture);
   };
 
   private readonly release = (event?: Event) => {
