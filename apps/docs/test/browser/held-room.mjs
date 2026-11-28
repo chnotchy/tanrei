@@ -92,41 +92,56 @@ function observeShifts() {
  * time it is in the view. With `defined`, each step waits (up to that many ms) until every element in the view is
  * defined, its faces in, then two frames: an element is defined once its stage comes near the view
  * (lib/define-on-demand.ts), so the page is defined as it is paged through.
+ *
+ * With `settled` as well (the read of a page already paged through defined), a step with nothing left to draw is read
+ * once the two frames after its scroll are drawn, as a step of the read before the modules is: every element in the
+ * view was defined before this read began, none of them has an update pending, and the faces are in. The wait for
+ * the elements and the four frames after it are for what a step defines, and such a step defines nothing. In a page
+ * paged through defined, that is every step (the Text field's page at a phone's width: 127 steps, each drawn 6 frames
+ * rather than 2: 12.7 s of the read in Chromium, 25.6 s in WebKit, on a laptop). Read at both, the 8236 steps of the
+ * 144 pages of the held-room files in the three engines gave every figure, table and list the same height to a
+ * hundredth of a pixel. Any other step waits as before. It returns how many steps were read so (`quick`).
  */
-async function pageThrough({ defined, grid, legend }) {
+async function pageThrough({ defined, settled = false, grid, legend }) {
   const seen = {};
   const lost = new Set();
+  let quick = 0;
   const frame = () => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   const inView = (box) => {
     const rect = box.getBoundingClientRect();
     return rect.height > 0 && rect.bottom > 0 && rect.top < innerHeight;
   };
   const boxes = () => [...document.querySelectorAll('[data-example-stage][id], tanrei-table, .availability .platforms, .matrix tanrei-description-list')].filter((box) => !box.closest('[data-fixture-gallery]') && inView(box));
+  const keyOf = (box) =>
+    box.localName === 'tanrei-description-list'
+      ? box.matches('.platforms') ? grid : legend
+      : box.localName !== 'tanrei-table' ? `#${box.id}` : `${box.classList.contains('docs-keyboard-map') ? 'keyboard table' : 'table'} "${box.getAttribute('label')}"`;
+  // The tags defined before this read began: a step whose elements are all of these tags defines nothing.
+  const definedBefore = new Set(settled ? [...document.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.startsWith('tanrei-') && customElements.get(name)) : []);
   for (let top = 0; ; top += innerHeight - 120) {
     scrollTo(0, top);
     await frame();
     if (defined) {
-      const names = [...new Set(boxes().flatMap((box) => [box, ...box.querySelectorAll('*')].map((element) => element.localName).filter((name) => name.startsWith('tanrei-'))))];
-      const late = await Promise.race([
-        Promise.all(names.map((name) => customElements.whenDefined(name))).then(() => null),
-        new Promise((resolve) => setTimeout(() => resolve(names.filter((name) => !customElements.get(name))), defined)),
-      ]);
-      for (const name of late ?? []) lost.add(name);
-      await document.fonts.ready;
-      await frame();
-      await frame();
+      const elements = boxes().flatMap((box) => [box, ...box.querySelectorAll('*')].filter((element) => element.localName.startsWith('tanrei-')));
+      const names = [...new Set(elements.map((element) => element.localName))];
+      const drawn = settled && document.fonts.status === 'loaded' && names.every((name) => definedBefore.has(name)) && !elements.some((element) => element.isUpdatePending);
+      if (drawn) quick++;
+      else {
+        const late = await Promise.race([
+          Promise.all(names.map((name) => customElements.whenDefined(name))).then(() => null),
+          new Promise((resolve) => setTimeout(() => resolve(names.filter((name) => !customElements.get(name))), defined)),
+        ]);
+        for (const name of late ?? []) lost.add(name);
+        await document.fonts.ready;
+        await frame();
+        await frame();
+      }
     }
-    for (const box of boxes()) {
-      const key =
-        box.localName === 'tanrei-description-list'
-          ? box.matches('.platforms') ? grid : legend
-          : box.localName !== 'tanrei-table' ? `#${box.id}` : `${box.classList.contains('docs-keyboard-map') ? 'keyboard table' : 'table'} "${box.getAttribute('label')}"`;
-      seen[key] ??= box.getBoundingClientRect().height;
-    }
+    for (const box of boxes()) seen[keyOf(box)] ??= box.getBoundingClientRect().height;
     if (scrollY + innerHeight >= document.documentElement.scrollHeight - 1) break;
   }
   scrollTo(0, 0);
-  return { seen, lost: [...lost] };
+  return { seen, lost: [...lost], quick };
 }
 
 /**
@@ -231,14 +246,14 @@ export function heldRoomTests({ cases, known: knownChanges = [] }) {
             release();
             // Once to define the page as a reader would reach it, and again to read it as it stands then.
             await page.evaluate(pageThrough, { defined: DEFINED, grid: GRID, legend: LEGEND });
-            const { seen: after, lost } = await page.evaluate(pageThrough, { defined: DEFINED, grid: GRID, legend: LEGEND });
+            const { seen: after, lost, quick } = await page.evaluate(pageThrough, { defined: DEFINED, settled: true, grid: GRID, legend: LEGEND });
             assert.deepEqual(lost, [], `${name}: elements in the view not defined once their modules were let through`);
             assert.ok(held() > 0, 'no element module was asked for: the build names its chunks otherwise, and this test held nothing');
             const changed = Object.entries(before)
               .filter(([key, height]) => key in after && Math.abs(after[key] - height) >= 0.5)
               .map(([key, height]) => ({ key, said: `${key} ${height.toFixed(2)} → ${after[key].toFixed(2)} px`, known: knownFor(url, viewport.width, key) }));
             const known = changed.filter((change) => change.known);
-            t.diagnostic(`${held()} module requests held; ${Object.keys(before).length} figures and tables read; ${changed.length} changed (${known.length} known): ${changed.map((change) => change.said).join(', ') || 'none'}`);
+            t.diagnostic(`${held()} module requests held; ${Object.keys(before).length} figures and tables read (${quick} steps of the last read with nothing left to draw); ${changed.length} changed (${known.length} known): ${changed.map((change) => change.said).join(', ') || 'none'}`);
             assert.deepEqual(
               changed.filter((change) => !change.known).map((change) => change.said),
               [],

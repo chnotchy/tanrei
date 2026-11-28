@@ -64,6 +64,12 @@ const root = (page) =>
     return { theme: html.dataset.theme, tanreiTheme: html.dataset.tanreiTheme, mode: html.dataset.docsMode, contrast: html.getAttribute('data-tanrei-contrast'), look: html.dataset.docsLook, shared: html.hasAttribute('data-docs-appearance-shared'), stored: JSON.parse(localStorage.getItem(key) ?? 'null') };
   }, APPEARANCE_KEY);
 
+/**
+ * A new context's storage holding `appearance` as the site keeps a reader's choice (under APPEARANCE_KEY, for the
+ * served origin): what a page the reader chose it on leaves, without loading that page first.
+ */
+const kept = (appearance) => ({ cookies: [], origins: [{ origin, localStorage: [{ name: APPEARANCE_KEY, value: JSON.stringify(appearance) }] }] });
+
 /** The look's stylesheet in the page: its element and the address it links, or null. */
 const lookSheet = (page) => page.evaluate((id) => (document.getElementById(id) ? { as: document.getElementById(id).localName, href: document.getElementById(id).getAttribute('href') } : null), LOOK_SHEET_ID);
 
@@ -367,8 +373,8 @@ for (const engine of ENGINES) {
     });
 
     test('the next page is drawn in a gallery example from its first frame: the look’s stylesheet is in before anything is drawn', LIMIT, async () => {
-      const { context, page } = await open();
-      await page.evaluate((key) => localStorage.setItem(key, JSON.stringify({ look: 'cupertino' })), APPEARANCE_KEY);
+      // The look kept by a page before, as the reader's choice is kept (`kept`): the next page is the first one loaded.
+      const context = await browser.newContext({ viewport: WIDE, reducedMotion: 'reduce', colorScheme: 'light', storageState: kept({ look: 'cupertino' }) });
       const next = await context.newPage();
       // Each frame until the first one that draws the page (its body there, the page not hidden): what the root's
       // tokens say then, and whether the look's sheet is in.
@@ -416,10 +422,8 @@ for (const engine of ENGINES) {
     });
 
     test('a shared link shows its appearance on its page, keeps nothing until the reader keeps it, and is what “Copy link” copies', LIMIT, async () => {
-      const { context, page } = await open();
-      await page.evaluate((key) => localStorage.setItem(key, JSON.stringify({ mode: 'light', contrast: 'standard', look: 'm3-like' })), APPEARANCE_KEY);
-      await page.goto(`${origin}${PAGE}?look=${SHOWCASE}&mode=dark&contrast=medium`);
-      await settled(page);
+      // An appearance the reader kept before (`kept`); the shared link is the first page loaded.
+      const { context, page } = await open({ storageState: kept({ mode: 'light', contrast: 'standard', look: 'm3-like' }) }, `${PAGE}?look=${SHOWCASE}&mode=dark&contrast=medium`);
       const shown = await root(page);
       assert.deepEqual(shown, { theme: 'dark', tanreiTheme: 'dark', mode: 'dark', contrast: 'medium', look: SHOWCASE, shared: true, stored: { mode: 'light', contrast: 'standard', look: 'm3-like' } });
       assert.match((await lookSheet(page))?.href ?? '', /\/look-cupertino\./, 'drawn in the look it shares');
@@ -459,11 +463,21 @@ for (const engine of ENGINES) {
     });
 
     test('the look’s button and the toggle are named in the page’s language', LIMIT, async () => {
-      for (const [dir, lang] of [['', 'en'], ['ja/', 'ja'], ['zh-cn/', 'zh-cn'], ['hi/', 'hi'], ['es/', 'es'], ['ar/', 'ar']]) {
-        const { context, page } = await open({}, `/${dir}foundations/accessibility/`);
-        const words = strings(lang).frame;
-        assert.equal(await page.locator('#docs-appearance').getAttribute('label'), words.appearanceOf.replace('{look}', DEFAULT), lang);
-        assert.equal(await page.locator('#docs-mode').getByRole('button', { name: words.darkMode, exact: true }).count(), 1, lang);
+      // The six pages in turn in one page of one context: each is only read, and nothing is chosen or kept, so each
+      // loads as a first visit does but for the site's files, already in the context's cache.
+      const { context, page } = await open({}, '/foundations/accessibility/');
+      try {
+        for (const [dir, lang] of [['', 'en'], ['ja/', 'ja'], ['zh-cn/', 'zh-cn'], ['hi/', 'hi'], ['es/', 'es'], ['ar/', 'ar']]) {
+          if (dir) {
+            await page.goto(`${origin}/${dir}foundations/accessibility/`);
+            await settled(page);
+          }
+          assert.equal(await page.evaluate((key) => localStorage.getItem(key), APPEARANCE_KEY), null, `${lang}: nothing is kept`);
+          const words = strings(lang).frame;
+          assert.equal(await page.locator('#docs-appearance').getAttribute('label'), words.appearanceOf.replace('{look}', DEFAULT), lang);
+          assert.equal(await page.locator('#docs-mode').getByRole('button', { name: words.darkMode, exact: true }).count(), 1, lang);
+        }
+      } finally {
         await context.close();
       }
     });

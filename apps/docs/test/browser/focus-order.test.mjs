@@ -130,80 +130,91 @@ const focused = (page) =>
 
 for (const engine of ENGINES) {
   describe(`the focus order figure in ${engine}`, () => {
+    // One context for the engine's pages, each test a page of its own in it: the site's scripts, styles and faces are
+    // fetched once and served from its cache to every page after (a page of the figure loaded about a quarter sooner so
+    // in Firefox, a twentieth in WebKit, on a laptop). Nothing these pages do keeps anything: no test here changes a
+    // control that the site keeps the state of (the sidebar, the appearance, a page's own examples).
     let browser;
+    let context;
     before(async () => {
       browser = await launch(engine);
+      context = await browser.newContext({ viewport: VIEWPORT });
     });
     after(async () => {
+      await context?.close();
       await browser?.close();
     });
 
     for (const { path: address, name } of PAGES) {
       test(`${address}: Tab stops where the numbers say, in their order, and nowhere else of the component`, LIMIT, async () => {
-        const context = await browser.newContext({ viewport: VIEWPORT });
         const page = await context.newPage();
-        await page.goto(`${origin}${address}`);
-        await drawn(page);
-        const laid = await numbers(page);
-        assert.ok(laid.length > 0, `${name}: the figure numbers at least one stop`);
-        assert.deepEqual(
-          laid.map(({ n }) => n),
-          laid.map((_, i) => i + 1),
-          'the numbers count from 1',
-        );
-        assert.equal(await stopsAround(page), 'before');
-        const tab = engine === 'webkit' ? 'Alt+Tab' : 'Tab';
-        for (const { n, box } of laid) {
+        try {
+          await page.goto(`${origin}${address}`);
+          await drawn(page);
+          const laid = await numbers(page);
+          assert.ok(laid.length > 0, `${name}: the figure numbers at least one stop`);
+          assert.deepEqual(
+            laid.map(({ n }) => n),
+            laid.map((_, i) => i + 1),
+            'the numbers count from 1',
+          );
+          assert.equal(await stopsAround(page), 'before');
+          const tab = engine === 'webkit' ? 'Alt+Tab' : 'Tab';
+          for (const { n, box } of laid) {
+            await page.keyboard.press(tab);
+            const now = await focused(page);
+            assert.equal(now.where, 'subject', `${name}: Tab ${n} reaches the component (it reached ${JSON.stringify(now)})`);
+            now.box.forEach((value, i) => assert.ok(Math.abs(value - box[i]) <= 1, `${name}: Tab ${n} reaches ${now.tag} at ${now.box.map(Math.round)}, where number ${n} is at ${box.map(Math.round)}`));
+          }
           await page.keyboard.press(tab);
-          const now = await focused(page);
-          assert.equal(now.where, 'subject', `${name}: Tab ${n} reaches the component (it reached ${JSON.stringify(now)})`);
-          now.box.forEach((value, i) => assert.ok(Math.abs(value - box[i]) <= 1, `${name}: Tab ${n} reaches ${now.tag} at ${now.box.map(Math.round)}, where number ${n} is at ${box.map(Math.round)}`));
+          assert.deepEqual(await focused(page), { where: 'after' }, `${name}: after the last number, Tab leaves the component`);
+          // The caption's list says as many stops, each in words.
+          const words = await page.evaluate((selector) => [...document.querySelector(selector).querySelectorAll('[data-focus-order-list] li')].map((item) => item.textContent.trim()), FRAME);
+          assert.equal(words.length, laid.length);
+          for (const word of words) assert.ok(word, `${name}: every stop is said in words`);
+        } finally {
+          await page.close();
         }
-        await page.keyboard.press(tab);
-        assert.deepEqual(await focused(page), { where: 'after' }, `${name}: after the last number, Tab leaves the component`);
-        // The caption's list says as many stops, each in words.
-        const words = await page.evaluate((selector) => [...document.querySelector(selector).querySelectorAll('[data-focus-order-list] li')].map((item) => item.textContent.trim()), FRAME);
-        assert.equal(words.length, laid.length);
-        for (const word of words) assert.ok(word, `${name}: every stop is said in words`);
-        await context.close();
       });
     }
 
     test('the keyboard map draws every row of the spec, each chord a Keyboard shortcut read in the page’s language', LIMIT, async () => {
-      const context = await browser.newContext({ viewport: VIEWPORT });
       const page = await context.newPage();
-      for (const [lang, name] of [
-        ['en', 'tabs'],
-        ['ja', 'menu'],
-        ['ar', 'tree-view'],
-        ['en', 'dialog'],
-        ['es', 'combobox'],
-        ['zh-cn', 'select'],
-        ['hi', 'date-time-picker'],
-        ['ja', 'table'],
-        ['ar', 'list'],
-      ]) {
-        await page.goto(`${origin}${lang === 'en' ? '' : `/${lang}`}/components/${name}/`);
-        await settle(page, '.docs-keyboard-map', { scroll: 'center' });
-        const rows = await page.evaluate(() =>
-          [...document.querySelectorAll('.docs-keyboard-map tbody tr')].map((row) => ({
-            chords: [...row.querySelectorAll('tanrei-keyboard-shortcut')].map((shortcut) => ({ label: shortcut.getAttribute('label'), defined: Boolean(customElements.get(shortcut.localName)), caps: shortcut.shadowRoot?.querySelectorAll('[part~="container"]').length ?? 0 })),
-          })),
-        );
-        const keyboard = getSpec(name).accessibility.keyboard;
-        assert.equal(rows.length, keyboard.length, `${lang}: a row for each row of ${name}'s spec`);
-        const names = strings(lang).keys;
-        keyboard.forEach((row, i) => {
-          const chords = keySegments(row.keys).filter((segment) => 'chord' in segment);
-          assert.equal(rows[i].chords.length, chords.length, `${lang}: ${row.keys}`);
-          chords.forEach((segment, j) => {
-            const drawnChord = rows[i].chords[j];
-            assert.ok(drawnChord.defined && drawnChord.caps > 0, `${lang}: ${row.keys}: the chord is drawn as caps`);
-            for (const key of segment.chord) if (names[key]) assert.ok(drawnChord.label.includes(names[key]), `${lang}: ${row.keys}: “${drawnChord.label}” names ${key} as ${names[key]}`);
+      try {
+        for (const [lang, name] of [
+          ['en', 'tabs'],
+          ['ja', 'menu'],
+          ['ar', 'tree-view'],
+          ['en', 'dialog'],
+          ['es', 'combobox'],
+          ['zh-cn', 'select'],
+          ['hi', 'date-time-picker'],
+          ['ja', 'table'],
+          ['ar', 'list'],
+        ]) {
+          await page.goto(`${origin}${lang === 'en' ? '' : `/${lang}`}/components/${name}/`);
+          await settle(page, '.docs-keyboard-map', { scroll: 'center' });
+          const rows = await page.evaluate(() =>
+            [...document.querySelectorAll('.docs-keyboard-map tbody tr')].map((row) => ({
+              chords: [...row.querySelectorAll('tanrei-keyboard-shortcut')].map((shortcut) => ({ label: shortcut.getAttribute('label'), defined: Boolean(customElements.get(shortcut.localName)), caps: shortcut.shadowRoot?.querySelectorAll('[part~="container"]').length ?? 0 })),
+            })),
+          );
+          const keyboard = getSpec(name).accessibility.keyboard;
+          assert.equal(rows.length, keyboard.length, `${lang}: a row for each row of ${name}'s spec`);
+          const names = strings(lang).keys;
+          keyboard.forEach((row, i) => {
+            const chords = keySegments(row.keys).filter((segment) => 'chord' in segment);
+            assert.equal(rows[i].chords.length, chords.length, `${lang}: ${row.keys}`);
+            chords.forEach((segment, j) => {
+              const drawnChord = rows[i].chords[j];
+              assert.ok(drawnChord.defined && drawnChord.caps > 0, `${lang}: ${row.keys}: the chord is drawn as caps`);
+              for (const key of segment.chord) if (names[key]) assert.ok(drawnChord.label.includes(names[key]), `${lang}: ${row.keys}: “${drawnChord.label}” names ${key} as ${names[key]}`);
+            });
           });
-        });
+        }
+      } finally {
+        await page.close();
       }
-      await context.close();
     });
   });
 }
