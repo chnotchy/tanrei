@@ -12,6 +12,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expectPressHeldAtEveryMoment } from '../../../test/held-press.js';
 import { expectPressShownAndHeld, watchPress, watchedPress } from '../../../test/watched-press.js';
 import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
+import { countWheelListeners, wheelListenersCounted } from '../../../test/wheel-listeners.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -650,6 +651,25 @@ test.describe('which item is current', () => {
     await wheel(page, 100);
     await expect.poll(() => current(page)).toBe('#s5');
     expect(await events(page)).toEqual(['select:#s4', 'currentchange:#s4', 'currentchange:#s5']);
+  });
+
+  // The person's own scrolling is heard on the window while the element is connected, not from the view's stop to that
+  // scrolling: a wheel listener added to the window or taken off it has WebKit restyle the whole document at its next
+  // read (test/wheel-listeners.ts).
+  test('TOC-12: holding a chosen item until the view stops, and ending the hold at a notch of the wheel, adds or takes off no wheel listener on the window or the document', async ({ page }) => {
+    await reading(page, { sections: [600, 600, 600, 200, 200] });
+    await countWheelListeners(page);
+    await toc(page).locator('a[href="#s4"]').click();
+    expect(await current(page)).toBe('#s4');
+    const end = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBe(Math.round(end));
+    // Past the view's time of standing still (STILL_MS, 150 ms) and more: the move to the target is over, and the hold has arrived.
+    await page.waitForTimeout(400);
+    await frame(page);
+    expect(await current(page)).toBe('#s4');
+    await wheel(page, 100);
+    await expect.poll(() => current(page)).toBe('#s5');
+    expect(await wheelListenersCounted(page)).toEqual([]);
   });
 
   test('TOC-13: loaded at the fragment of its fifth heading the fifth item is current in the first drawing and no other row is marked before it; an address that comes to name a target while it is shown — a link elsewhere, a step back in the history — makes that item current and holds it as a chosen one', async ({ page, browserName }) => {

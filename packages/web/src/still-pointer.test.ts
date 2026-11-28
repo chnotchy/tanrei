@@ -17,6 +17,8 @@ import { boxAtRest } from '../test/at-rest.js';
 import { motionEnded } from '../test/motions.js';
 import { transitionsRun, watchTransitions } from '../test/transitions.js';
 import { STILL_POINTER } from './styles/motion.js';
+import { countWheelListeners, wheelListenersCounted } from '../test/wheel-listeners.js';
+import { askForFrame } from '../test/frame-asked.js';
 
 interface Case {
   /** What opens, and what the pointer is over. */
@@ -293,4 +295,113 @@ test('MOT-3: an element that draws nothing under a pointer carries no rule that 
   const button = loadSpec('button');
   await mountFixtures(page, button, { fixtures: button.fixtures.filter((f) => f.id === 'filled-medium') });
   expect(await fixtureHost(page, button, 'filled-medium').evaluate(stillRules, STILL_POINTER)).toBeGreaterThan(0);
+});
+
+// The hold's acts are heard on the window from the page's first hold, for the page's life (`hearActs()`,
+// src/primitives/motion.ts), not from each opening to the act that ends it: a `wheel` listener added to the window or
+// taken off it has WebKit restyle the whole document at its next read (test/wheel-listeners.ts) — the read of every
+// opening, and the pressed feedback of the press that let it go. After that first hold, each overlay here opens (by a
+// press or a script) under a pointer the person has not moved, is held, and is let go by each kind of act; none of it
+// adds or takes off a wheel listener on the window or the document.
+const OVERLAYS = `
+  <tanrei-button id="p-opener">Filters</tanrei-button>
+  <tanrei-popover id="p" anchor="p-opener" headline="Filters"><tanrei-button id="p-inner">Apply</tanrei-button></tanrei-popover>
+  <tanrei-button id="m-opener">Edit</tanrei-button>
+  <tanrei-menu id="m" anchor="m-opener"><tanrei-menu-item label="Cut"></tanrei-menu-item><tanrei-menu-item label="Copy"></tanrei-menu-item></tanrei-menu>
+  <tanrei-select id="s" label="Country"><tanrei-option value="ca">Canada</tanrei-option><tanrei-option value="fr">France</tanrei-option></tanrei-select>
+  <tanrei-dialog id="d" headline="Discard draft?"><tanrei-button slot="actions" id="d-action">Discard</tanrei-button></tanrei-dialog>`;
+
+/** Whether the overlay `id` is drawn open: a surface of its own in the top layer, or its modal dialog. */
+const drawnOpen = (page: Page, id: string) => page.locator(`#${id}`).evaluate((el) => !!el.shadowRoot?.querySelector(':popover-open, dialog[open]'));
+/** Whether anything of the package in the overlay `id` (its own shadow tree or its content) carries the hold's mark. */
+const held = (page: Page, id: string) =>
+  page.locator(`#${id}`).evaluate((el, mark) => !!el.shadowRoot?.querySelector(`[${mark}]`) || !!el.querySelector(`[${mark}]`), STILL_POINTER);
+/** Where a press on `selector` lands: the middle of its box at rest. */
+const centre = async (page: Page, selector: string) => {
+  const box = await boxAtRest(page.locator(selector));
+  return [box.left + box.width / 2, box.top + box.height / 2] as const;
+};
+const press = async (page: Page) => {
+  await page.mouse.down();
+  await page.mouse.up();
+};
+
+test('MOT-3: holding a still pointer as a popover, a menu, a select or a dialog opens, and letting it go at a move, a press, a wheel or a key, adds or takes off no wheel listener on the window or the document', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 600 });
+  await mountFixtures(page, loadSpec('popover'), { fixtures: [] });
+  await page.evaluate((markup) => {
+    const main = document.querySelector('main') as HTMLElement;
+    main.style.display = 'block';
+    main.innerHTML = markup;
+    // Wired as a product wires them: each asks to open or close, and is told so.
+    type Overlay = HTMLElement & { open: boolean };
+    const popover = document.getElementById('p') as Overlay;
+    popover.addEventListener('toggle', (event) => (popover.open = (event as unknown as CustomEvent<{ open: boolean }>).detail.open));
+    const menu = document.getElementById('m') as Overlay;
+    document.getElementById('m-opener')!.addEventListener('click', () => (menu.open = !menu.open));
+    for (const overlay of [popover, menu, document.getElementById('d') as Overlay]) overlay.addEventListener('close', () => (overlay.open = false));
+  }, OVERLAYS);
+  await askForFrame(page);
+  await page.evaluate(() => Promise.all([...document.querySelectorAll('main *')].map((el) => (el as unknown as { updateComplete?: Promise<unknown> }).updateComplete)));
+  // The page's first hold starts hearing the acts, once: counted from after it, nothing is added or taken off again.
+  await page.locator('#p').evaluate((el) => ((el as unknown as { open: boolean }).open = true));
+  await expect.poll(() => held(page, 'p')).toBe(true);
+  await page.locator('#p').evaluate((el) => ((el as unknown as { open: boolean }).open = false));
+  await expect.poll(() => drawnOpen(page, 'p')).toBe(false);
+  await countWheelListeners(page);
+
+  // The popover, opened by a press on its opener: held until the pointer moves; closed by a press outside it.
+  const [px, py] = await centre(page, '#p-opener');
+  await page.mouse.move(px, py);
+  await press(page);
+  await expect.poll(() => drawnOpen(page, 'p')).toBe(true);
+  await expect.poll(() => held(page, 'p')).toBe(true);
+  await page.mouse.move(px + 2, py + 2);
+  await expect.poll(() => held(page, 'p')).toBe(false);
+  await page.mouse.move(700, 550);
+  await press(page);
+  await expect.poll(() => drawnOpen(page, 'p')).toBe(false);
+
+  // Opened by a script under the resting pointer: let go by a wheel (the page is shorter than the window, so nothing
+  // scrolls and no box moves), then closed from the keyboard.
+  await page.locator('#p').evaluate((el) => ((el as unknown as { open: boolean }).open = true));
+  await expect.poll(() => drawnOpen(page, 'p')).toBe(true);
+  await expect.poll(() => held(page, 'p')).toBe(true);
+  await page.mouse.wheel(0, 40);
+  await expect.poll(() => held(page, 'p')).toBe(false);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => drawnOpen(page, 'p')).toBe(false);
+
+  // The menu, opened by a press: let go by a key, which closes it.
+  const [mx, my] = await centre(page, '#m-opener');
+  await page.mouse.move(mx, my);
+  await press(page);
+  await expect.poll(() => drawnOpen(page, 'm')).toBe(true);
+  await expect.poll(() => held(page, 'm')).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => held(page, 'm')).toBe(false);
+  await expect.poll(() => drawnOpen(page, 'm')).toBe(false);
+
+  // The select, opened by a press: the move to an option lets it go, and the press there chooses it and closes it.
+  const [sx, sy] = await centre(page, '#s');
+  await page.mouse.move(sx, sy);
+  await press(page);
+  await expect.poll(() => drawnOpen(page, 's')).toBe(true);
+  await expect.poll(() => held(page, 's')).toBe(true);
+  const [ox, oy] = await centre(page, '#s tanrei-option[value="fr"]');
+  await page.mouse.move(ox, oy);
+  await press(page);
+  await expect.poll(() => drawnOpen(page, 's')).toBe(false);
+  await expect.poll(() => held(page, 's')).toBe(false);
+
+  // The dialog, opened by a script under the resting pointer: let go by a press where the pointer rests, closed by a key.
+  await page.locator('#d').evaluate((el) => ((el as unknown as { open: boolean }).open = true));
+  await expect.poll(() => drawnOpen(page, 'd')).toBe(true);
+  await expect.poll(() => held(page, 'd')).toBe(true);
+  await press(page);
+  await expect.poll(() => held(page, 'd')).toBe(false);
+  await page.keyboard.press('Escape');
+  await expect.poll(() => drawnOpen(page, 'd')).toBe(false);
+
+  expect(await wheelListenersCounted(page)).toEqual([]);
 });
