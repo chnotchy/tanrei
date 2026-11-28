@@ -897,8 +897,11 @@ export class TanreiNumberInput extends TanreiElement {
     // A field that is not rendered (itself or an ancestor `display: none`) lays nothing out: every box reads 0, which
     // would say the steppers stand below the line. It keeps what it had, and is read again when it is shown — a frame
     // late, in the next read phase: written now, the frame it is shown in drew the steppers on a row of their own.
-    if (!body.getClientRects().length) return undefined;
-    const wrapped = !!steppers && steppers.getBoundingClientRect().top >= body.getBoundingClientRect().bottom - 0.5;
+    // One read gives both: `.body` is a flex container (number-input.styles.ts), a single box, so its one client rect
+    // is its bounding rect.
+    const bodyBox = body.getClientRects()[0];
+    if (!bodyBox) return undefined;
+    const wrapped = !!steppers && steppers.getBoundingClientRect().top >= bodyBox.bottom - 0.5;
     if (field.hasAttribute('data-wrapped') === wrapped) return undefined;
     return () => field.toggleAttribute('data-wrapped', wrapped);
   };

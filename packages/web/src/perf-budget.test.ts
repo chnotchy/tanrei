@@ -66,10 +66,36 @@ const production = () =>
  * Counts, on `__perf`, every layout and style read the page makes from the start (`reads`), and every `updated` of a
  * Tanrei element by its tag (`updates`). Installed before the bundle runs, so the elements' own references to the
  * prototypes are the counted ones.
+ *
+ * A trace's DOM snapshots are not the page's reads (`traced` counts them apart). Playwright's trace (CI records one on a
+ * retry) snapshots the page before and after each action from a script of its own in the page's world, so through the
+ * same prototypes: it reads every element's scroll offsets and the rectangle of each target, which took a build of 100
+ * Buttons from 0 reads past 10 to 6480. Those reads all happen inside the snapshotter's synchronous `captureSnapshot`,
+ * called on the object its init script puts on the window (before this script runs) under the name below; counted
+ * apart while it runs, a traced attempt measures what an untraced one does, and a retry can pass or show the failure.
  */
 function counters() {
-  const perf = { reads: 0, updates: {} as Record<string, number> };
+  const perf = { reads: 0, traced: 0, updates: {} as Record<string, number> };
   (globalThis as { __perf?: typeof perf }).__perf = perf;
+  let snapshotting = 0;
+  for (const key of Object.keys(window)) {
+    if (!key.startsWith('__playwright_snapshot_streamer_')) continue;
+    const streamer = (window as unknown as Record<string, { captureSnapshot?: (...args: unknown[]) => unknown }>)[key]!;
+    const capture = streamer.captureSnapshot;
+    if (typeof capture !== 'function') continue;
+    streamer.captureSnapshot = function (this: unknown, ...args: unknown[]) {
+      snapshotting++;
+      try {
+        return capture.apply(this, args);
+      } finally {
+        snapshotting--;
+      }
+    };
+  }
+  const read = () => {
+    if (snapshotting) perf.traced++;
+    else perf.reads++;
+  };
   const wrap = (owner: object, name: string) => {
     const descriptor = Object.getOwnPropertyDescriptor(owner, name)!;
     if (descriptor.get) {
@@ -77,7 +103,7 @@ function counters() {
       Object.defineProperty(owner, name, {
         ...descriptor,
         get(this: unknown) {
-          perf.reads++;
+          read();
           return get.call(this);
         },
       });
@@ -86,7 +112,7 @@ function counters() {
       Object.defineProperty(owner, name, {
         ...descriptor,
         value(this: unknown, ...args: unknown[]) {
-          perf.reads++;
+          read();
           return fn.apply(this, args);
         },
       });
@@ -130,16 +156,17 @@ async function budgetPage(page: Page) {
 async function counted(page: Page, act: (page: Page) => Promise<unknown>) {
   await twoFrames(page);
   await page.evaluate(() => {
-    const perf = (globalThis as unknown as { __perf: { reads: number; updates: Record<string, number> } }).__perf;
+    const perf = (globalThis as unknown as { __perf: { reads: number; traced: number; updates: Record<string, number> } }).__perf;
     perf.reads = 0;
+    perf.traced = 0;
     perf.updates = {};
   });
   await act(page);
   await twoFrames(page);
   await twoFrames(page);
   return page.evaluate(() => {
-    const { reads, updates } = (globalThis as unknown as { __perf: { reads: number; updates: Record<string, number> } }).__perf;
-    return { reads, updates: { ...updates }, drawn: Object.values(updates).reduce((sum, count) => sum + count, 0) };
+    const { reads, traced, updates } = (globalThis as unknown as { __perf: { reads: number; traced: number; updates: Record<string, number> } }).__perf;
+    return { reads, traced, updates: { ...updates }, drawn: Object.values(updates).reduce((sum, count) => sum + count, 0) };
   });
 }
 
@@ -151,7 +178,9 @@ const built = (page: Page, markup: string) =>
     });
     await twoFrames(page);
     await page.evaluate((html) => {
-      (globalThis as unknown as { __perf: { reads: number } }).__perf.reads = 0;
+      const perf = (globalThis as unknown as { __perf: { reads: number; traced: number } }).__perf;
+      perf.reads = 0;
+      perf.traced = 0;
       document.querySelector('#pane')!.innerHTML = html;
     }, markup);
   });
@@ -555,7 +584,7 @@ test.describe('the run-time budgets (perf-budgets.json)', () => {
       await built(page, markup(10));
       const small = await built(page, markup(10));
       const large = await built(page, markup(100));
-      held('reads', name, large.reads - small.reads, `${small.reads} reads at 10, ${large.reads} at 100`);
+      held('reads', name, large.reads - small.reads, `${small.reads} reads at 10, ${large.reads} at 100${small.traced || large.traced ? ` (and a trace's snapshots read ${small.traced} and ${large.traced}, not counted)` : ''}`);
     });
   }
 
