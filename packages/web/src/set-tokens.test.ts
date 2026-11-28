@@ -98,6 +98,32 @@ test('every write changes the number of the element’s custom properties, whate
   }
 });
 
+test('every write changes the number of custom properties of every element the element written holds, also one that setTokens() wrote on before', async ({ page }) => {
+  // The size WebKit compares is each element's own: what it holds and what it inherits, which its computed style lists.
+  // A name of setTokens() that an element below already held, added on an element above, left the number of that
+  // element (and of all it holds) as it was: one name more inherited, one of its own fewer.
+  await mount(page);
+  const ELEMENTS = ['html', '#box', '#inner'];
+  // The computed style's length: the properties of the engine, as many for every element, and the custom ones.
+  const counts = () => page.evaluate((selectors) => selectors.map((selector) => getComputedStyle(document.querySelector(selector)!).length), ELEMENTS);
+  // Each element written in turn, below first, and each kind of write: a name declared above, a new one, one taken off.
+  const writes: [string | undefined, Tokens][] = [];
+  const kinds: Tokens[] = [{ '--a': '1' }, { '--a': '2' }, { '--a': '3' }, { '--n': '1' }, { '--n': '' }, { '--a': '4', '--b': '5' }, { '--c': '6' }, { '--c': '7' }];
+  for (const tokens of kinds) {
+    for (const on of ['#inner', '#box', undefined]) writes.push([on, tokens]);
+  }
+  for (const [on, tokens] of writes) {
+    const before = await counts();
+    await write(page, tokens, on);
+    const after = await counts();
+    // The element written and everything below it.
+    ELEMENTS.slice(ELEMENTS.indexOf(on ?? 'html')).forEach((selector) => {
+      const index = ELEMENTS.indexOf(selector);
+      expect(after[index], `written on ${on ?? 'the root'} (${JSON.stringify(tokens)}): ${selector}`).not.toBe(before[index]);
+    });
+  }
+});
+
 test('a write of nothing changes nothing', async ({ page }) => {
   await mount(page);
   const { before, after, markers } = await write(page, {});
