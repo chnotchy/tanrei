@@ -2836,6 +2836,32 @@ test.describe('entries that act', () => {
     await expect(link).toHaveAttribute('tabindex', '-1');
   });
 
+  test('MBR-1, MBR-21: before its elements are defined, a bar of titles and actions alone — no link item to show — is as tall as it will be drawn, one row of titles between its paddings, so nothing under it moves when the script arrives', async ({ page }) => {
+    await page.setContent(`<!doctype html><html lang="en" data-tanrei-theme="light"><head><meta charset="utf-8"><title>before definition</title>
+      <style>${dist('tokens.css')}</style><style>${dist('menubar.css')}</style><style>body { margin: 16px; inline-size: 320px; }</style></head><body>
+      <tanrei-menubar label="Application" overflow-label="More">
+        <tanrei-menubar-menu label="File"><tanrei-menu-item label="New"></tanrei-menu-item></tanrei-menubar-menu>
+        <tanrei-menubar-menu label="Edit"><tanrei-menu-item label="Undo"></tanrei-menu-item></tanrei-menubar-menu>
+        <tanrei-menubar-menu label="View"><tanrei-menu-item label="Zoom"></tanrei-menu-item></tanrei-menubar-menu>
+        <tanrei-menubar-menu label="Window"><tanrei-menu-item label="Minimize"></tanrei-menu-item></tanrei-menubar-menu>
+        <tanrei-menubar-item label="Run"></tanrei-menubar-item>
+      </tanrei-menubar>
+      <p id="after" style="margin: 0">after</p></body></html>`);
+    expect(await page.evaluate(() => !!customElements.get('tanrei-menubar'))).toBe(false);
+    const read = () => page.evaluate(() => ({ bar: document.querySelector('tanrei-menubar')!.getBoundingClientRect().height, after: document.querySelector('#after')!.getBoundingClientRect().top }));
+    const before = await read();
+    await page.addScriptTag({ type: 'module', content: dist('tanrei.bundle.js') });
+    await page.waitForFunction(() => !!customElements.get('tanrei-menubar'));
+    await page.evaluate(async () => {
+      await (document.querySelector('tanrei-menubar') as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      await document.fonts.ready;
+      for (let i = 0; i < 3; i++) await new Promise((resolve) => requestAnimationFrame(resolve));
+    });
+    const after = await read();
+    expect(Math.abs(after.bar - before.bar), `the bar ${before.bar} → ${after.bar} px high`).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(after.after - before.after), `what is under it ${before.after} → ${after.after}`).toBeLessThanOrEqual(0.5);
+  });
+
   test('MBR-46: forced colors — an action as a title, in the button text color; a link item’s label and mark in the link color; a disabled bar item, action or link, in the disabled text color; the current link item, whose fill the mode removes, by a line in the link color', async ({ page }) => {
     await mountFixtures(page, spec, {
       fixtures: [mixed('forced', [m('File', it('New')), b('Run'), b('Documentation', { href: '#docs' }), b('Source', { href: '#src', target: 'new', targetLabel: 'opens in a new tab' }), b('History', { href: '#history', current: true }), b('Off', { disabled: true }), b('Gone', { href: '#gone', disabled: true })])],

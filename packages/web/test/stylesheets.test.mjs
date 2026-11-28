@@ -97,9 +97,9 @@ test('the cloak is exported on its own, hides every element the package defines,
   };
   for (const [, list, body] of rules) {
     for (const selector of selectors(list)) {
-      // Or the element's own `::before`: a box it generates, not a child or a sibling (the empty line that sets the
-      // baseline a tag or a keycap is held on).
-      assert.match(outside(selector), /^(?::where)+(?:::before)?$/, selector);
+      // Or the element's own `::before` or `::after`: a box it generates, not a child or a sibling (the empty line that
+      // sets the baseline a tag or a keycap is held on; a field's help, laid out below its control).
+      assert.match(outside(selector), /^(?::where)+(?:::before|::after)?$/, selector);
       assert.match(selector, /:not\(:defined\)/, selector);
       // A rule that gives an element a box leaves one that is `hidden` to the browser's `display: none`.
       if (/(?:^|;)\s*display:\s*(?!\s|none\b)/.test(body)) assert.match(selector, /:not\([^)]*\[hidden\]/, selector);

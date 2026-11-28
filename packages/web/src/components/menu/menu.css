@@ -2,8 +2,9 @@
  * A menu drawn in place before its elements are defined (specs/menu.spec.json; MNU-19's verify, MNU-20, MNU-23, MNU-28,
  * MNU-36). `<tanrei-menu inline open>` — the form tests and documentation draw a menu in — holds its rows as child
  * elements whose words are attributes, so until the elements are defined nothing of it is laid out and it has no size:
- * a page that draws one moves by the menu's whole height when the script arrives. This stylesheet gives that first
- * paint the block size the surface will have, so that what is under it stays where it is:
+ * a page that draws one moves by the menu's whole height when the script arrives, and what stands beside it moves
+ * when the menu takes its width. This stylesheet gives that first paint the box the surface will have, so that what is
+ * under it and beside it stays where it is:
  *
  *   <tanrei-menu inline open>
  *     <tanrei-menu-item label="Copy"></tanrei-menu-item>
@@ -29,48 +30,122 @@
   :where(tanrei-menu[inline][open]:not(:defined)) {
     --_mnu-ff-height: var(--tanrei-comp-menu-container-height-medium);
     --_mnu-ff-padding-block: var(--tanrei-comp-menu-container-padding-block-medium);
-    --_mnu-ff-glyphs: max(var(--tanrei-comp-menu-mark-size-medium), var(--tanrei-comp-menu-leading-icon-size-medium), var(--tanrei-comp-menu-trailing-icon-size-medium));
+    --_mnu-ff-padding-inline: var(--tanrei-comp-menu-container-padding-inline-medium);
+    --_mnu-ff-title-padding-inline: var(--tanrei-comp-menu-group-title-padding-inline-medium);
+    --_mnu-ff-gap: var(--tanrei-comp-menu-container-gap-medium);
+    --_mnu-ff-mark: var(--tanrei-comp-menu-mark-size-medium);
+    --_mnu-ff-leading: var(--tanrei-comp-menu-leading-icon-size-medium);
+    --_mnu-ff-trailing: var(--tanrei-comp-menu-trailing-icon-size-medium);
   }
   :where(tanrei-menu[inline][open][size='small']:not(:defined)) {
     --_mnu-ff-height: var(--tanrei-comp-menu-container-height-small);
     --_mnu-ff-padding-block: var(--tanrei-comp-menu-container-padding-block-small);
-    --_mnu-ff-glyphs: max(var(--tanrei-comp-menu-mark-size-small), var(--tanrei-comp-menu-leading-icon-size-small), var(--tanrei-comp-menu-trailing-icon-size-small));
+    --_mnu-ff-padding-inline: var(--tanrei-comp-menu-container-padding-inline-small);
+    --_mnu-ff-title-padding-inline: var(--tanrei-comp-menu-group-title-padding-inline-small);
+    --_mnu-ff-gap: var(--tanrei-comp-menu-container-gap-small);
+    --_mnu-ff-mark: var(--tanrei-comp-menu-mark-size-small);
+    --_mnu-ff-leading: var(--tanrei-comp-menu-leading-icon-size-small);
+    --_mnu-ff-trailing: var(--tanrei-comp-menu-trailing-icon-size-small);
   }
+  /* MNU-2, MNU-3: as wide as its widest row, within its least and greatest width and the window less its margins. */
   :where(tanrei-menu[inline][open]:not(:defined)) {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    inline-size: max-content;
+    min-inline-size: min(var(--tanrei-comp-menu-surface-min-width), calc(100vw - 2 * var(--tanrei-comp-menu-surface-viewport-margin)));
+    max-inline-size: min(var(--tanrei-comp-menu-surface-max-width), calc(100vw - 2 * var(--tanrei-comp-menu-surface-viewport-margin)));
     padding-block: var(--tanrei-comp-menu-surface-padding-block);
+    padding-inline: var(--tanrei-comp-menu-surface-padding-inline);
+  }
+  /* MNU-59: the mark's and the leading icon's columns of a section — the rows outside any group, or a group (its
+     outermost, MNU-29) — where one of its rows has a mark (a checkbox or a radio item) or a leading icon; always, or
+     never, by the menu's `icon-space`. The menu's own values are its rows' outside any group; a group sets its own. */
+  :where(tanrei-menu[inline][open]:not(:defined)),
+  :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group) {
+    --_mnu-ff-mark-column: 0px;
+    --_mnu-ff-leading-column: 0px;
+  }
+  :where(tanrei-menu[inline][open]:not(:defined):has(> :is(tanrei-menu-checkbox-item, tanrei-menu-radio-item))),
+  :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group:has(> :is(tanrei-menu-checkbox-item, tanrei-menu-radio-item), > tanrei-menu-group > :is(tanrei-menu-checkbox-item, tanrei-menu-radio-item))) {
+    --_mnu-ff-mark-column: calc(var(--_mnu-ff-mark) + var(--_mnu-ff-gap));
+  }
+  :where(tanrei-menu[inline][open]:not(:defined):has(> :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)[leading-icon]:not([leading-icon='']))),
+  :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group:has(> :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)[leading-icon]:not([leading-icon='']), > tanrei-menu-group > :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)[leading-icon]:not([leading-icon='']))) {
+    --_mnu-ff-leading-column: calc(var(--_mnu-ff-leading) + var(--_mnu-ff-gap));
+  }
+  :where(tanrei-menu[inline][open][icon-space='never']:not(:defined)),
+  :where(tanrei-menu[inline][open][icon-space='never']:not(:defined)) > :where(tanrei-menu-group) {
+    --_mnu-ff-mark-column: 0px;
+    --_mnu-ff-leading-column: 0px;
+  }
+  :where(tanrei-menu[inline][open][icon-space='always']:not(:defined)),
+  :where(tanrei-menu[inline][open][icon-space='always']:not(:defined)) > :where(tanrei-menu-group) {
+    --_mnu-ff-mark-column: calc(var(--_mnu-ff-mark) + var(--_mnu-ff-gap));
+    --_mnu-ff-leading-column: calc(var(--_mnu-ff-leading) + var(--_mnu-ff-gap));
+  }
+  /* MNU-19: the trailing icon's column of the surface, where one of its rows opens a submenu or ends in a glyph. */
+  :where(tanrei-menu[inline][open]:not(:defined)) {
+    --_mnu-ff-trailing-column: 0px;
+  }
+  :where(tanrei-menu[inline][open]:not(:defined):has(> tanrei-submenu, > tanrei-menu-group > tanrei-submenu, > :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item)[trailing-icon]:not([trailing-icon='']), > tanrei-menu-group > :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item)[trailing-icon]:not([trailing-icon='']))) {
+    --_mnu-ff-trailing-column: calc(var(--_mnu-ff-gap) + var(--_mnu-ff-trailing));
   }
   :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-group) {
     display: flex;
     flex: none;
     flex-direction: column;
   }
-  /* A row: at least the container's height and the pointer's target, padded, a line of the label. */
+  /* A row: at least the container's height and the pointer's target, padded; the columns its section and the surface
+     keep, and its own mark, leading icon and trailing glyph, before and after its words. */
   :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu) {
+    --_mnu-ff-own-mark: 0px;
+    --_mnu-ff-own-leading: 0px;
+    --_mnu-ff-own-trailing: 0px;
     display: block;
     flex: none;
     box-sizing: border-box;
     min-block-size: max(var(--_mnu-ff-height), var(--tanrei-sys-target-pointer));
     padding-block: var(--_mnu-ff-padding-block);
+    padding-inline: calc(var(--_mnu-ff-padding-inline) + max(var(--_mnu-ff-mark-column), var(--_mnu-ff-own-mark)) + max(var(--_mnu-ff-leading-column), var(--_mnu-ff-own-leading)))
+      calc(var(--_mnu-ff-padding-inline) + max(var(--_mnu-ff-trailing-column), var(--_mnu-ff-own-trailing)));
     font:
       var(--tanrei-comp-menu-label-typescale-font-weight) var(--tanrei-comp-menu-label-typescale-font-size)/var(--tanrei-comp-menu-label-typescale-line-height)
       var(--tanrei-comp-menu-label-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-menu-label-typescale-letter-spacing);
   }
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-checkbox-item, tanrei-menu-radio-item) {
+    --_mnu-ff-own-mark: calc(var(--_mnu-ff-mark) + var(--_mnu-ff-gap));
+  }
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu):where([leading-icon]:not([leading-icon=''])) {
+    --_mnu-ff-own-leading: calc(var(--_mnu-ff-leading) + var(--_mnu-ff-gap));
+  }
+  :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-submenu, :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item)[trailing-icon]:not([trailing-icon=''])) {
+    --_mnu-ff-own-trailing: calc(var(--_mnu-ff-gap) + var(--_mnu-ff-trailing));
+  }
+  /* The label's lines, the first moved down by half of what it is shorter than the tallest glyph beside it (MNU-20):
+     its words laid out for their room, and not painted. */
   :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)::before {
-    content: '';
+    content: attr(label);
     display: block;
-    /* The label's line, moved down by half of what it is shorter than the tallest glyph beside it. */
-    block-size: calc((max(1lh, var(--_mnu-ff-glyphs)) + 1lh) / 2);
+    padding-block-start: calc((max(1lh, var(--_mnu-ff-mark), var(--_mnu-ff-leading), var(--_mnu-ff-trailing)) - 1lh) / 2);
+    min-block-size: 1lh;
+    visibility: hidden;
+    overflow-wrap: break-word;
+    word-break: auto-phrase;
+    unicode-bidi: plaintext;
   }
   :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu):where([supporting-text]:not([supporting-text='']))::after {
-    content: '';
+    content: attr(supporting-text);
     display: block;
     font:
       var(--tanrei-comp-menu-supporting-text-typescale-font-weight) var(--tanrei-comp-menu-supporting-text-typescale-font-size)/var(--tanrei-comp-menu-supporting-text-typescale-line-height)
       var(--tanrei-comp-menu-supporting-text-typescale-font-family);
-    block-size: 1lh;
+    letter-spacing: var(--tanrei-comp-menu-supporting-text-typescale-letter-spacing);
+    visibility: hidden;
+    overflow-wrap: break-word;
+    word-break: auto-phrase;
+    unicode-bidi: plaintext;
   }
   /* A submenu is a row; its own items are another surface's. (Every element these rules style for the sake of the
      menu's :defined has a name: an engine goes through what is under an element that is defined for the elements such
@@ -78,17 +153,23 @@
   :where(tanrei-menu[inline][open]:not(:defined)) :where(tanrei-submenu) > :where(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu, tanrei-menu-group) {
     display: none;
   }
-  /* A group's title (not a group's inside a group, MNU-29). */
+  /* A group's title (not a group's inside a group, MNU-29): its lines, laid out for their room and not painted. */
   :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group[label]:not([label='']))::before {
-    content: '';
+    content: attr(label);
     display: block;
     flex: none;
     box-sizing: content-box;
+    min-block-size: 1lh;
     padding-block: var(--_mnu-ff-padding-block);
+    padding-inline: var(--_mnu-ff-title-padding-inline);
     font:
       var(--tanrei-comp-menu-group-title-typescale-font-weight) var(--tanrei-comp-menu-group-title-typescale-font-size)/var(--tanrei-comp-menu-group-title-typescale-line-height)
       var(--tanrei-comp-menu-group-title-typescale-font-family);
-    block-size: 1lh;
+    letter-spacing: var(--tanrei-comp-menu-group-title-typescale-letter-spacing);
+    visibility: hidden;
+    overflow-wrap: break-word;
+    word-break: auto-phrase;
+    unicode-bidi: plaintext;
   }
   /* MNU-23: between a group and what is next to it. */
   :where(tanrei-menu[inline][open]:not(:defined)) > :where(tanrei-menu-group:not(:first-child), tanrei-menu-group + :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)) {

@@ -25,17 +25,59 @@ const SHIFT_BUDGET = 0.01;
 
 /**
  * The elements a rule of the cloak gives `declaration` — read from the built stylesheet, so a component it starts
- * holding, or takes out of the page, is tested here without anyone editing a list.
+ * holding, or takes out of the page, is tested here without anyone editing a list. With `styled`, only the elements
+ * the rule styles (named in its last compound), not those it asks about on the way (a tab view whose panels after the
+ * first it takes out of the page is not itself taken out).
  */
-function tagsWith(declaration: RegExp): string[] {
+function tagsWith(declaration: RegExp, { styled = false } = {}): string[] {
   const css = dist('cloak.css').replace(/\/\*[\s\S]*?\*\//g, '');
   const tags = new Set<string>();
   for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (!declaration.test(body!)) continue;
-    for (const [tag] of selector!.matchAll(/tanrei-[a-z-]+/g)) tags.add(tag);
+    for (const one of styled ? lastCompounds(selector!) : [selector!]) {
+      for (const [tag] of one.matchAll(/tanrei-[a-z-]+/g)) tags.add(tag);
+    }
   }
   // An element that stands only inside another (a tab, a stepper's step) is tested in its container's fixtures.
   return [...tags].filter((tag) => fs.existsSync(path.join(here, '../../../specs', `${tag.replace(/^tanrei-/, '')}.spec.json`))).sort();
+}
+
+/** `text` split at each `separator` that stands outside any parentheses or brackets. */
+function topLevel(text: string, separator: string): string[] {
+  const out = [''];
+  let depth = 0;
+  for (const char of text) {
+    if (char === '(' || char === '[') depth += 1;
+    if (char === ')' || char === ']') depth -= 1;
+    if (char === separator && depth === 0) out.push('');
+    else out[out.length - 1] += char;
+  }
+  return out.filter((part) => part.trim() !== '' && part.trim() !== '>');
+}
+
+/**
+ * The compounds a selector list styles: of each selector, its last compound — and where the selector is written in
+ * `:where()` (the cloak's are), the last compound of each selector inside it.
+ */
+function lastCompounds(list: string): string[] {
+  return topLevel(list, ',').flatMap((selector) => {
+    const last = topLevel(selector.trim(), ' ').at(-1)!.trim();
+    // A rule for a box the element generates (its `::before`, its `::after`) styles no element.
+    if (/::[\w-]+$/.test(last)) return [];
+    const inside = /^:where\((.*)\)(?::where\(.*\))*$/.exec(last);
+    if (!inside) return [last];
+    // The first `:where()` holds the element; the ones after it hold its conditions.
+    let depth = 0;
+    let end = 0;
+    for (let i = ':where('.length - 1; i < last.length; i++) {
+      if (last[i] === '(') depth += 1;
+      if (last[i] === ')' && --depth === 0) {
+        end = i;
+        break;
+      }
+    }
+    return topLevel(last.slice(':where('.length, end), ',').map((each) => topLevel(each.trim(), ' ').at(-1)!);
+  });
 }
 
 /**
@@ -43,6 +85,12 @@ function tagsWith(declaration: RegExp): string[] {
  * will be, so that the page's size holds before it is defined, and they are tested with the controls it holds.
  */
 const SIZED_BY_THE_PAGE = ['tanrei-scroll-area', 'tanrei-split-view'];
+
+/**
+ * The elements whose height is their items' (a list's column, line or grid of the product's content): the cloak lays
+ * each out as the box it will be, its items in it, and holds it by that layout rather than by a height of its own.
+ */
+const LAID_OUT = ['tanrei-list'];
 
 /**
  * The fixtures whose element the cloak holds lower than it will be drawn, by spec, with why: the cloak holds a
@@ -88,6 +136,12 @@ const GROWS: Record<string, Grows[]> = {
   snackbar: [{ grows: (props) => !!props.action, why: 'an action that does not fit beside the text takes a row of its own under it' }],
   'text-input': [ROWS],
   'text-field': [ROWS],
+  'tab-view': [
+    {
+      grows: (props, fixture) => props.value !== undefined && props.value !== null && fixture.items?.[0]?.props?.value !== props.value,
+      why: 'the panel shown is the one its value names, which CSS cannot match to a panel: the cloak holds the first panel, here a lower one',
+    },
+  ],
 };
 
 /**
@@ -194,7 +248,7 @@ function stages({ tag, sized }: { tag: string; sized: boolean }) {
       width: element?.getBoundingClientRect().width ?? 0,
       visibility: style?.visibility ?? '',
       // A rule holds its height: a minimum, or a row it keeps the room of (a field's label and supporting rows) — or, for
-      // an element the page sizes, the box the size applies to.
+      // an element the page sizes, the box the size applies to, and for one whose height is its items', their layout.
       held: !!style && (!['0px', 'auto'].includes(style.minBlockSize) || style.paddingBlockStart !== '0px' || style.paddingBlockEnd !== '0px' || (sized && style.display !== 'inline')),
       wraps: !!element && ((!!element.shadowRoot && wraps(element.shadowRoot)) || wraps(element)),
     };
@@ -217,7 +271,7 @@ async function mountedLate(first: Page, tag: string, browserName: string, option
   await page.evaluate(() => document.fonts.ready);
   await frames(page, 2);
   expect(await page.evaluate((t) => !!customElements.get(t), tag)).toBe(false);
-  const sized = SIZED_BY_THE_PAGE.includes(tag);
+  const sized = SIZED_BY_THE_PAGE.includes(tag) || LAID_OUT.includes(tag);
   const before = await page.evaluate(stages, { tag, sized });
   expect(before.length).toBe((options.fixtures ?? spec.fixtures).length);
   if (browserName === 'chromium') await observeShifts(page);
@@ -226,7 +280,7 @@ async function mountedLate(first: Page, tag: string, browserName: string, option
 }
 
 test.describe('an element whose surface is in the top layer takes no room before it is defined, as after', () => {
-  const tags = tagsWith(/display: none/);
+  const tags = tagsWith(/display: none/, { styled: true });
   test('the cloak takes the overlays out of the page', () => {
     expect(tags).toEqual(['tanrei-bottom-sheet', 'tanrei-date-time-picker', 'tanrei-dialog', 'tanrei-image-preview', 'tanrei-modal-layer', 'tanrei-popover', 'tanrei-side-sheet']);
   });
@@ -649,6 +703,132 @@ test.describe('the cloak holds a multi-line input at its fewest rows, at every s
     test(`${tag.replace(/^tanrei-/, '')}: with the cloak and no script, each multi-line fixture is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
       const { page, before, after } = await mountedLate(first, tag, browserName, { fixtures });
       expect(before.filter((stage) => !stage.held).map((stage) => stage.id)).toEqual([]);
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
+  }
+});
+
+test.describe('the cloak holds a rating and a swatch at the width they are drawn', () => {
+  // RAT-1, RAT-14: a rating is its marks' containers in a row, `max` of them; SWC-1, SWC-7: a swatch is its sample,
+  // the gap and its column of text. The cloak held their height and no width, so a row of them wrapped only once they
+  // were drawn: on the docs' Rating page, a figure of four ratings was 96 px high before and 240 px drawn at a phone's
+  // width, and the Swatch page's first figure 106 px before and 164 px drawn. Each fixture is as wide as it is drawn.
+  for (const tag of ['tanrei-rating', 'tanrei-swatch']) {
+    test(`${tag.replace(/^tanrei-/, '')}: with the cloak and no script, every fixture is as wide as once it is defined`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, tag, browserName);
+      const wrong = before.flatMap((stage, i) => (Math.abs(stage.width - after[i]!.width) <= 0.5 ? [] : [`${stage.id}: held ${stage.width}px wide, drawn ${after[i]!.width}px`]));
+      expect(wrong).toEqual([]);
+      await page.close();
+    });
+  }
+});
+
+test.describe('the cloak holds a field’s help and its error text at the lines they wrap onto', () => {
+  // FLD-7, FLD-26, FLD-31: a help or an error text longer than its line wraps where the field draws it, from the start
+  // of the control's content. The cloak held one line of it, so a narrow field grew when it was defined: on the docs'
+  // Color field page, two fields 17.5rem wide were 248 px high before and 280 px drawn. Held here in fields narrow
+  // enough that their texts take two lines or more, at each size, with a leading glyph, and in a Field around a box.
+  const HELP = 'Six hexadecimal digits, like #0f766e, or a name the browser knows.';
+  const ERROR = 'We cannot ship there yet. Choose another country, or ask when we will.';
+  const style = 'inline-size: 13rem';
+  const texts = (base: Record<string, unknown>): Fixture[] => [
+    ...['small', 'medium', 'large'].map((size) => ({ id: `help-${size}`, props: { ...base, size, label: 'Color', supportingText: HELP, style } })),
+    { id: 'error', props: { ...base, label: 'Color', error: true, errorText: ERROR, style } },
+    { id: 'help-and-error', props: { ...base, label: 'Color', supportingText: HELP, error: true, errorText: ERROR, style } },
+    { id: 'outlined', props: { ...base, variant: 'outlined', label: 'Color', supportingText: HELP, style } },
+  ];
+  const SUBJECTS: { tag: string; fixtures: Fixture[] }[] = [
+    { tag: 'tanrei-text-field', fixtures: [...texts({}), { id: 'leading-icon', props: { label: 'Search', leadingIcon: 'search', supportingText: HELP, style } }] },
+    { tag: 'tanrei-select-field', fixtures: texts({}) },
+    { tag: 'tanrei-combobox-field', fixtures: texts({}) },
+    { tag: 'tanrei-color-field', fixtures: [...texts({ value: '#0f766e' }), { id: 'picker', props: { value: '#0f766e', picker: true, pickerLabel: 'Choose color', label: 'Brand color', supportingText: 'Six hexadecimal digits, like #0f766e.', style: 'inline-size: 17.5rem' } }] },
+    { tag: 'tanrei-number-field', fixtures: texts({}) },
+    { tag: 'tanrei-field', fixtures: [{ id: 'help', props: { label: 'Color', supportingText: HELP, style }, items: [{ kind: 'text-input', props: {} }] }, { id: 'error', props: { label: 'Color', error: true, errorText: ERROR, style }, items: [{ kind: 'text-input', props: {} }] }, { id: 'color-input', props: { label: 'Color', supportingText: HELP, style }, items: [{ kind: 'color-input', props: { value: '#0f766e' } }] }, { id: 'number-input', props: { label: 'Count', supportingText: HELP, style }, items: [{ kind: 'number-input', props: {} }] }] },
+  ];
+  for (const { tag, fixtures } of SUBJECTS) {
+    test(`${tag.replace(/^tanrei-/, '')}: with the cloak and no script, each field whose help or error text wraps is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, tag, browserName, { fixtures });
+      // The texts are drawn on more lines than one: what this holds.
+      expect(after.filter((stage) => !stage.wraps).map((stage) => stage.id)).toEqual([]);
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
+  }
+});
+
+test.describe('the cloak holds a row of tabs at the height its content gives it, in every system', () => {
+  // TAB-16, TAB-18: a row is the container height of its size, or taller where its labels need more: the label's line
+  // inside the indicator's paddings, with the track's padding or the variant's underline above and below. In
+  // cupertino a small row is 33.98 px drawn and its container height 32: held at the token, a docs figure of tonal
+  // tabs grew by 1.98 px when it was defined. Each fixture of the Tabs and the Tab view, under each preset, is held as
+  // the default system's test holds it (above).
+  for (const tag of ['tanrei-tabs', 'tanrei-tab-view']) {
+    const name = tag.replace(/^tanrei-/, '');
+    for (const system of PRESETS) {
+      test(`${system}, ${name}: with the cloak and no script, each fixture is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+        const { spec, page, before, after } = await mountedLate(first, tag, browserName, { system });
+        const fixtures = new Map(spec.fixtures.map((fixture) => [fixture.id, fixture]));
+        const wrong = before.flatMap((stage, i) => {
+          const drawn = after[i]!;
+          if (!stage.held) return [];
+          const fixture = fixtures.get(stage.id)!;
+          const why = GROWS[name]?.find((reason) => reason.grows((fixture.props ?? {}) as Record<string, unknown>, fixture))?.why ?? (drawn.wraps ? WRAPS : undefined);
+          if (why ? stage.height <= drawn.height + 0.5 : Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+          return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px${why ? ` (it grows: ${why})` : ''}`];
+        });
+        expect(wrong).toEqual([]);
+        expect(before.filter((stage) => stage.held).length, 'the cloak holds some of the fixtures').toBeGreaterThan(0);
+        await page.close();
+      });
+    }
+  }
+});
+
+test.describe('the cloak holds a file item’s second line at the lines it wraps onto, in every system', () => {
+  // FIT-4: the second line joins the format, the size and the status in words (the error in its place while it
+  // failed), a dot between each two, the status's mark before the status; it wraps and is never cut. The cloak held it
+  // at one line where a format or a size stood before the status, so a row whose line wrapped grew when it was defined:
+  // on the docs' File item page, a column of six rows 22.5rem wide was 412 px high before and 432 px drawn at a phone's
+  // width, and in cupertino, whose face is wider where the system has no San Francisco, 388 px and 406 px at a
+  // desktop's. Held here in rows and tiles narrow enough that the line wraps, its actions still beside the texts
+  // (FIT-24), in each status, with and without a format and a size, under the default system and each preset.
+  const style = 'inline-size: 16rem';
+  const labels = { removeLabel: 'Remove {name}', retryLabel: 'Retry {name}' };
+  const FIXTURES: Fixture[] = [
+    { id: 'format-size-status', props: { ...labels, style, name: 'brief.pdf', formatText: 'PDF', sizeText: '820 KB', statusText: 'Waiting for the files before it to be sent' } },
+    { id: 'size-uploading', props: { ...labels, style, name: 'floor-plan.png', sizeText: '3.4 MB', status: 'uploading', statusText: 'Uploading, about a minute left', progress: 0.4 } },
+    { id: 'format-done', props: { ...labels, style, name: 'contract.pdf', formatText: 'PDF', status: 'done', statusText: 'Uploaded on 4 December by the review team' } },
+    { id: 'size-error-retryable', props: { ...labels, style: 'inline-size: 20rem', name: 'site-photo.png', sizeText: '6.8 MB', status: 'error', errorText: 'The connection was lost. Try again once you are online.', retryable: true } },
+    { id: 'error', props: { ...labels, style, name: 'scan-archive.zip', status: 'error', errorText: 'Larger than 10 MB. Choose a smaller file, or split it in two.' } },
+    { id: 'format-size-done-readonly', props: { style: 'inline-size: 12rem', name: 'invoice-0412.pdf', formatText: 'PDF', sizeText: '96 KB', status: 'done', statusText: 'Sent on 4 December', readonly: true } },
+    { id: 'tile-format-size-error', props: { ...labels, name: 'floor-plan.png', form: 'tile', formatText: 'PNG', sizeText: '3.4 MB', status: 'error', errorText: 'Larger than 10 MB.' } },
+    { id: 'tile-size-done', props: { ...labels, name: 'survey.pdf', form: 'tile', sizeText: '1.1 MB', status: 'done', statusText: 'Uploaded just now' } },
+  ];
+  for (const system of [undefined, ...PRESETS]) {
+    test(`${system ?? 'the default system'}, file-item: with the cloak and no script, each file item whose second line wraps is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, 'tanrei-file-item', browserName, { ...(system ? { system } : {}), fixtures: FIXTURES });
+      // The second lines are drawn on more lines than one, and the rows' actions beside their texts: what this holds.
+      expect(after.filter((stage) => !stage.wraps).map((stage) => stage.id)).toEqual([]);
+      expect(await page.evaluate(() => [...document.querySelectorAll('tanrei-file-item')].filter((item) => item.shadowRoot?.querySelector('[data-stacked]')).map((item) => item.closest('[data-fixture]')!.getAttribute('data-fixture')))).toEqual([]);
       const wrong = before.flatMap((stage, i) => {
         const drawn = after[i]!;
         if (Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];

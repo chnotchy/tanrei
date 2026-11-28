@@ -1,0 +1,43 @@
+---
+'@tanrei/web': patch
+---
+
+Before their elements are defined, lists, menus drawn in place, menu bars, fields whose help or error text wraps, file
+items, ratings, swatches, number tickers, and tabs and tab views with their panels keep the box they are drawn in.
+
+- The cloak (`@tanrei/web/cloak.css`) lays a list out as the list lays out its items: a column, a line or lines that
+  wrap, its `gap` apart. In a reorderable list each item keeps its handle's room; an action, a link or an option keeps
+  its paddings, its least height and its text style, and an option the room of its check. Before, a list's items stood
+  one under another with no gap: a docs figure of a column, a line and a grid was 602 px high before and 474 px drawn,
+  and a figure of options 254 px before and 336 px drawn.
+- `menu.css` holds a menu drawn in place at the width it is drawn as well as its height: its rows' labels and
+  supporting texts are laid out, unpainted, in their text styles, with the room of the mark, leading icon and trailing
+  icon columns its sections keep, within the surface's least and greatest width. A label or a supporting text that
+  wraps holds its lines. Before, such a menu had no width, so two menus side by side that wrap onto two rows once drawn
+  stood on one: a docs figure was 406 px high before and 764 px drawn. Not held: the width of a shortcut or a trailing
+  text, which the element draws from what CSS cannot measure.
+- `menubar.css` holds a bar at the height it is drawn: one row of titles between its paddings, where it holds no link
+  item to show. Before, a bar of titles was as tall as its paddings alone (72 px before, 108 px drawn).
+- The cloak lays a field's help, or its error text while it is in error, out in the supporting text's style where the
+  field draws it, from the start of its control's content, so a text that wraps holds its lines. Before, the cloak held
+  one line of it: a docs figure of two narrow color fields was 248 px high before and 280 px drawn. A label that wraps,
+  and a help beside a count, are still held at fewer lines than they may take.
+- The cloak holds a file item: a row at its name's lines (laid out, unpainted, between its lead and its actions), its
+  second line and its upload bar; a tile at its box (the token's square, or its `width` and `height` where the browser
+  reads attributes as lengths) and the name and second line beneath it. The second line is written as the item joins
+  it — the format, the size and the status or the error, a dot between each two, the status's mark as its indent — so
+  it wraps onto the lines it is drawn on. Before, a file item had no height: a docs figure of six rows was 144 px high
+  before and 432 px drawn. Not held: a row's actions moved onto a line of their own (FIT-24), and where a line breaks
+  beside the status's mark it may break a word sooner or later than it is drawn.
+- The cloak holds a rating at its width, `max` marks of its size's container, a swatch at its sample, gap and column of
+  text (its `label` and `supporting-text` laid out, unpainted, in their text styles), and a number ticker at a line of
+  the text around it, as wide as its `value` written plainly. Before, a row of them wrapped only once they were drawn:
+  a docs figure of four ratings was 96 px high before and 240 px drawn.
+- The cloak holds a row of tabs' panels and a tab view: the first panel is shown under the row (beside a column of
+  vertical tabs) and the others take no room, and a tab view keeps its row's height above it. Before, every panel stood
+  under the row: a docs figure of vertical tabs was 238 px high before and 172 px drawn. Not held: a panel the row's
+  `value` names where it is not the first, which CSS cannot match.
+- The cloak holds a row of tabs, a tab view's row and a vertical tab that draw their labels at the height the label
+  gives them where that is more than the container height: the label's line inside the indicator's paddings, with the
+  track's padding or the variant's underline above and below it. Before, a small row in cupertino (33.98 px drawn) was
+  held at its container height, 32 px.
