@@ -135,7 +135,10 @@ function tanreiElements(root: Document | ShadowRoot): Updating[] {
  * on it and the one element the query styles. It has a box, of no size and painted nowhere, so a frame styles and lays
  * it out with the page: in WebKit an element of no box put in the root element and taken out again had the whole page
  * laid out once more (0.7 s on a long page). Its hidden visibility keeps it from assistive technology and the pointer
- * as well, and its strict containment clips what it holds. Null where the browser cannot make it.
+ * as well, and its strict containment clips what it holds. It stands at the end of the body, not in the root element
+ * (src/primitives/probe-place.ts says why): taken out of the root element once the page had been read, it had Firefox
+ * style the whole body again (0.7 s on the documentation's Button page). Null where the browser cannot make it, and
+ * in a document with no body, which answers no: its elements draw the gap form from script.
  */
 function placeProbe(): HTMLElement | null {
   try {
@@ -148,7 +151,7 @@ function placeProbe(): HTMLElement | null {
     const root = outer.attachShadow({ mode: 'open' });
     root.adoptedStyleSheets = [sheet];
     root.append(inner);
-    document.documentElement.append(outer);
+    document.body.append(outer);
     return outer;
   } catch {
     return null;

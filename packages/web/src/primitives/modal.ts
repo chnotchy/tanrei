@@ -1,3 +1,5 @@
+import { fixedProbeParent } from './probe-place.js';
+
 /**
  * The modal `<dialog>`s of Tanrei's surfaces open in this window, the topmost last: every surface opened with
  * `openModal()` (src/primitives/modal-exit.ts) — a dialog, a modal layer, a modal side or bottom sheet, a modal navigation
@@ -249,14 +251,16 @@ export const SCROLL_HOLD_INSET = { left: '--tanrei-scroll-hold-inset-left', righ
 
 /**
  * Where the window's own box stands — the containing block of an element in `position: fixed`, and the box the top layer
- * and its backdrop are laid out in — read from such an element, a child of the root, for the instant it is measured. The
- * root's `clientWidth` does not say it: Chromium keeps a stable gutter and reports it as no room taken. The scroll hold
- * reads it, and so does what is sized against the window while the scroll is held (the drawer over the content, NVD-97).
+ * and its backdrop are laid out in — read from such an element for the instant it is measured: at the end of the body,
+ * or a child of the root where the body would hold it in a box of its own (`fixedProbeParent()`, src/primitives/probe-place.ts:
+ * a child put in the root element and taken out has Firefox style the whole body twice). The root's `clientWidth` does
+ * not say it: Chromium keeps a stable gutter and reports it as no room taken. The scroll hold reads it, and so does what
+ * is sized against the window while the scroll is held (the drawer over the content, NVD-97).
  */
 export function windowBox(root: HTMLElement) {
   const probe = document.createElement('div');
-  probe.style.cssText = 'position: fixed; left: 0; right: 0; top: 0; height: 0; margin: 0; padding: 0; border: 0; visibility: hidden; pointer-events: none';
-  root.append(probe);
+  probe.style.cssText = 'position:fixed;left:0;right:0;top:0;height:0;margin:0;padding:0;border:0;visibility:hidden;pointer-events:none';
+  fixedProbeParent(root).append(probe);
   const { left, right } = probe.getBoundingClientRect();
   probe.remove();
   return { left, right };
