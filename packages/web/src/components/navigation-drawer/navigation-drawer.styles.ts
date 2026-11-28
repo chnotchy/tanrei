@@ -178,11 +178,18 @@ export const drawerStyles = css`
      \`100vw\`, which counts a classic scroll bar, or the gutter the page's scroll hold keeps, as the window's and cut
      the rows' ends by its width; \`100vw\` only until the element has measured it, and without script. The panel itself
      is held to its containing block as well (below), which is the window exactly, so that the strip stays whatever the
-     rows are laid out at. */
+     rows are laid out at.
+     The element holds the width it writes to the width from which the window no longer holds the rows narrower than
+     container.width — container.width, the start inset and a touch target from where the room is reckoned — so that a
+     window wider than that writes nothing new: every element of the drawer inherits the name, and a window that changed
+     width with nothing to change in the rows restyled each of them (WebKit: 0.2 s a width on a documentation page). It
+     reads that sum, and where the room is reckoned from, as the cascade computes them, in \`object-position\` — a real
+     property, which draws nothing on an element that is not a replaced one. */
   :host([data-as='modal']) {
     --_nvd-asked: ${t('container-width')};
     --_nvd-over-from: 0px;
     --_nvd-w: max(0px, min(${t('container-width')}, calc(var(--_nvd-window, 100vw) - var(--_nvd-over-from) - var(--_inset-start) - var(--tanrei-sys-target-touch))));
+    object-position: calc(${t('container-width')} + var(--_inset-start) + var(--tanrei-sys-target-touch)) var(--_nvd-over-from);
   }
   :host([data-as='modal'][data-collapsible]),
   :host([data-held][data-as='modal']) {

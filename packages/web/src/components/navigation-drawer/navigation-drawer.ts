@@ -80,6 +80,11 @@ import { TanreiElement } from '../../primitives/element.js';
 import { startFromNextFrame, statesFromNextFrame } from '../../primitives/motion.js';
 import { cancelPhaseRead, readInPhase, readTogether } from '../../primitives/read-phase.js';
 import { DEBUG } from '../../primitives/debug.js';
+// What the drawer writes on its host, its dialog or its panel (each holds every item) is written counted: a custom
+// property written alone leaves the element's number of them as it was, and WebKit then compares the token set each
+// element below inherits, value by value (a name written alone on the host of an open drawer of 350 elements: 0.19 to
+// 0.29 s; counted, 0.18 to 0.20 s — what is left is the restyle of every element that inherits it).
+import { writeCounted } from '../../set-tokens.js';
 
 export type { TanreiNavigationChangeDetail } from '../../primitives/index.js';
 
@@ -2183,12 +2188,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * gutter its scroll hold keeps (Linux, Windows), so that a drawer that measured the window while the scroll was held
    * laid its rows out a bar's width wider than the panel; and never off the drawer, whose width follows it. Where the
    * hold keeps a gutter the root's box and the window's own box stay as they were, and so does the value.
+   *
+   * It is held to the width from which it no longer holds the rows narrower (\`windowWrite()\`).
    */
   private readonly windowWatch = new ResizeObserver(() => {
     const { left, right } = windowBox(document.documentElement);
-    const value = `${right - left}px`;
-    if (this.style.getPropertyValue(WINDOW) !== value) this.style.setProperty(WINDOW, value);
+    this.windowWidth = right - left;
+    writeCounted(this.style, this.windowWrite());
   });
+  /** NVD-97: the width of the window's own box as \`windowWatch\` last measured it; null while it is not watched, and until it has. */
+  private windowWidth: number | null = null;
   private watchingWindow = false;
   /** NVD-57, NVD-58: the value whose selection was last shown (null: none was selected); undefined before the first. */
   private shownFor: string | null | undefined = undefined;
@@ -3363,8 +3372,31 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (on) this.windowWatch.observe(document.documentElement, { box: 'border-box' });
     else {
       this.windowWatch.disconnect();
-      this.style.removeProperty(WINDOW);
+      this.windowWidth = null;
+      writeCounted(this.style, { [WINDOW]: '' });
     }
+  }
+
+  /**
+   * NVD-97: what the window's width writes (\`--_nvd-window\`, for \`writeCounted()\`): the width measured, held to
+   * the width from which the window no longer holds the rows narrower than container.width — container.width, the
+   * start inset and a touch target from where the room is reckoned. Every element of the drawer inherits the name, so a
+   * write that changes nothing in the rows restyles each of them all the same, and a window wider than that writes the
+   * same length again, which is no write (WebKit: 0.2 s a width for a documentation page's drawer over the content,
+   * closed or open). Never taken off for it: the styles' \`100vw\` in its place has every element that reads the
+   * width restyled with every width of the window as well. The sum and where the room is reckoned from are read as the
+   * cascade computes them (\`object-position\` on the host, the styles' NVD-97), before anything is written; \`from\`
+   * is where it is reckoned from once a write that comes with this one moves it. Nothing to write before the window is
+   * measured; where a length cannot be read, the width itself.
+   */
+  private windowWrite(from?: number): Record<string, string> {
+    const width = this.windowWidth;
+    if (width === null) return {};
+    const [room, over] = getComputedStyle(this)
+      .objectPosition.split(/\s+/)
+      .map((length) => (length.endsWith('px') ? Number.parseFloat(length) : Number.NaN));
+    const most = (room ?? Number.NaN) + (from ?? over ?? Number.NaN);
+    return { [WINDOW]: `${Number.isNaN(most) ? width : Math.min(width, most)}px` };
   }
 
   override disconnectedCallback() {
@@ -3633,10 +3665,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
    * frame, so that it is drawn at its width from the first.
    */
   private writeWidths() {
-    const write = (name: string, value: number | null) => (value === null ? this.style.removeProperty(name) : this.style.setProperty(name, `${value}px`));
-    write('--tanrei-navigation-drawer-width', this.dragWidth ?? given(this.width));
-    write('--_nvd-min-given', given(this.minWidth));
-    write('--_nvd-max-given', given(this.maxWidth));
+    const length = (value: number | null) => (value === null ? '' : `${value}px`);
+    writeCounted(this.style, { '--tanrei-navigation-drawer-width': length(this.dragWidth ?? given(this.width)), '--_nvd-min-given': length(given(this.minWidth)), '--_nvd-max-given': length(given(this.maxWidth)) });
   }
 
   /**
@@ -3662,8 +3692,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       // As the host, the panel follows the room at once, without the change of form's motion.
       this.setAttribute('data-resizing', '');
       this.settleResize();
-      if (narrowed) this.style.setProperty('--_nvd-room', narrowed);
-      else this.style.removeProperty('--_nvd-room');
+      writeCounted(this.style, { '--_nvd-room': narrowed });
     };
     if (!this.resizeShown) return writeRoom;
     const next = {
@@ -4126,8 +4155,12 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.opening = true;
     readTogether(() => {
       this.opening = false;
+      // NVD-97: whether the window holds the rows narrower, read again as it opens: the tokens may have changed since.
+      const measured = this.windowWrite();
       return () => {
-        if (this.open && this.modal && !this.held && !this.shown && this.isConnected) this.show();
+        if (!(this.open && this.modal && !this.held && !this.shown && this.isConnected)) return;
+        writeCounted(this.style, measured);
+        this.show();
       };
     });
   }
@@ -4245,7 +4278,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // A drag the product's close interrupted ends where the drawer is drawn: it leaves from there.
     this.drag = null;
     dialog?.classList.remove('dragging');
-    dialog?.style.removeProperty('--_drag');
+    if (dialog) writeCounted(dialog.style, { '--_drag': '' });
     holdPageScroll(this, false);
     const widening = !dialog || dialog.classList.contains('widening');
     // What focus goes back to (`restoreFocus`, now or once its column has taken the dialog's place): often outside it.
@@ -4354,11 +4387,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
     const top = Math.max(0, header ? header.getBoundingClientRect().bottom : 0);
     const rtl = getComputedStyle(this).direction === 'rtl';
     const start = rtl ? document.documentElement.clientWidth - box.right : box.left;
-    this.style.setProperty('--_top', `${Math.round(top * 100) / 100}px`);
-    this.style.setProperty('--_start', `${Math.round(start * 100) / 100}px`);
-    // NVD-97: where the room over the content is reckoned from, for the strip of scrim it leaves at the window's end.
-    this.style.setProperty('--_nvd-from', `${Math.round(start * 100) / 100}px`);
-    this.style.setProperty('--_reach', `${Math.round(Math.max(0, window.innerHeight - box.top) * 100) / 100}px`);
+    const length = (value: number) => `${Math.round(value * 100) / 100}px`;
+    writeCounted(this.style, {
+      '--_top': length(top),
+      '--_start': length(start),
+      // NVD-97: where the room over the content is reckoned from, for the strip of scrim it leaves at the window's end,
+      // and the window's width where the room it leaves from there holds the rows narrower.
+      '--_nvd-from': length(start),
+      ...this.windowWrite(Math.round(start * 100) / 100),
+      '--_reach': length(Math.max(0, window.innerHeight - box.top)),
+    });
   }
 
   /**
@@ -4430,7 +4468,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.drag = null;
     const panel = this.panel;
     panel?.classList.remove('dragging');
-    panel?.style.removeProperty('--_drag');
+    if (panel) writeCounted(panel.style, { '--_drag': '' });
     this.leavingHeld = true;
     const run = ++this.overRun;
     this.syncOver();
@@ -4605,7 +4643,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     drag.lastTime = event.timeStamp;
     const offset = Math.max(0, distance);
     const rtl = getComputedStyle(this).direction === 'rtl';
-    dialog.style.setProperty('--_drag', `${rtl ? offset : -offset}px`);
+    writeCounted(dialog.style, { '--_drag': `${rtl ? offset : -offset}px` });
   };
 
   private readonly onPointerUp = (event: PointerEvent) => {
@@ -4615,7 +4653,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (!drag || !dialog || event.pointerId !== drag.id || !drag.following) return;
     const distance = this.towardStart(event.clientX - drag.x);
     dialog.classList.remove('dragging');
-    dialog.style.removeProperty('--_drag');
+    writeCounted(dialog.style, { '--_drag': '' });
     // The click that ends a drag is not an activation.
     this.dragged = true;
     setTimeout(() => (this.dragged = false), 0);
@@ -4848,7 +4886,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         // column — and the room over the content is reckoned from the column's start (the host's \`--_nvd-from\`, which
         // the width its rows are laid out at reads there).
         this.place = { '--_top': `${box.top}px`, '--_start': `${start}px`, '--_height': `${box.height}px`, '--_column-drawn': `${box.width}px` };
-        this.style.setProperty('--_nvd-from', `${start}px`);
+        writeCounted(this.style, { '--_nvd-from': `${start}px`, ...this.windowWrite(start) });
         this.presented = true;
         // MOT-4: a drawer that appears open before the document's first paint never showed its column: it is drawn open
         // at its full width, scrim and all, from its first frame, and does not widen from the column
@@ -4876,7 +4914,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
       if (DEBUG && this.resizeShown && (changed.has('label') || changed.has('resizeLabel') || changed.has('resizable')) && !this.resizeLabel.trim() && !this.label.trim()) {
         report(this, 'NVD-102', 'resizeLabel and label are empty, so the resize handle has no accessible name; give the drawer a label');
       }
-    } else this.style.removeProperty('--_nvd-room');
+    } else writeCounted(this.style, { '--_nvd-room': '' });
     // NVD-66: groups become destinations, or stop being ones, at once; nothing is emitted for it.
     if (changed.has('selectableGroups') && changed.get('selectableGroups') !== undefined) this.destinations.sync();
     // NVD-58: turned on, it shows the selection it has.
