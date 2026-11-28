@@ -9570,7 +9570,7 @@
             "text": "['comment', 'keyword', 'string', 'constant', 'function', 'type', 'tag', 'property', 'punctuation']"
           },
           "default": "['comment', 'keyword', 'string', 'constant', 'function', 'type', 'tag', 'property', 'punctuation']",
-          "description": "The syntax roles a run may name (COD-18), besides `plain`: the values of the token axis `comp.code-block.syntax`,\nas every design system has them. Data, not selectors: each is drawn by ONE rule from the two tokens that carry its\nname — `syntax.color.<role>` and `syntax.emphasis.<role>`, a step of weight added to the code's own. The list is\nheld to the generated tokens twice: the build refuses to write `code.css` while it differs from the roles\n`src/generated/tokens.css` names (scripts/build.js), and a role a layer ADDS to the axis gets the same\nrule from `roleRule` — in the build of a product's own stylesheet, and in the element when it first meets a run of\nthat role whose tokens the cascade has."
+          "description": "The syntax roles a run may name (COD-18), besides `plain`: the values of the token axis `comp.code-block.syntax`,\nas every design system has them. Data, not selectors: each is drawn by ONE rule from the two tokens that carry its\nname — `syntax.color.<role>` and `syntax.emphasis.<role>`, a step of weight added to the code's own. The list is\nheld to the generated tokens: the build refuses to write `code.css` while it differs from the roles\n`src/generated/tokens.css` names (scripts/build.js). A role a layer ADDS to the axis has no rule of its own (a rule\nadded to the page at run time has the engine build every rule of the page again, and one added to the element's own\nsheet is never seen on a page that loads `code.css`, where that sheet is not adopted): its run carries the same two\nvalues in its own style (`addedRoleValues`, written by the element), which ONE rule reads (`ADDED_ROLE_RULE`)."
         },
         {
           "kind": "function",
@@ -9583,6 +9583,32 @@
               }
             }
           ]
+        },
+        {
+          "kind": "variable",
+          "name": "RUN_VALUES",
+          "type": {
+            "text": "readonly `--${string}`[]"
+          },
+          "default": "[RUN_COLOR, RUN_WEIGHT]"
+        },
+        {
+          "kind": "function",
+          "name": "addedRoleValues",
+          "return": {
+            "type": {
+              "text": "(readonly [`--${string}`, string])[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "role",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "The two values of a run of `role`, a role a design system added: what `roleRule` would draw it with, as values."
         },
         {
           "kind": "variable",
@@ -9700,6 +9726,22 @@
           "name": "roleRule",
           "declaration": {
             "name": "roleRule",
+            "module": "src/components/code-block/code-block.light.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "RUN_VALUES",
+          "declaration": {
+            "name": "RUN_VALUES",
+            "module": "src/components/code-block/code-block.light.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "addedRoleValues",
+          "declaration": {
+            "name": "addedRoleValues",
             "module": "src/components/code-block/code-block.light.ts"
           }
         },
