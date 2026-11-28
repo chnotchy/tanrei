@@ -1,10 +1,10 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SEPARATIONS, SEPARATION_VALUES, type SeparationProp, SizeConsumerController, compChoice, report, styleQueries } from '../../primitives/index.js';
 import type { TanreiDescriptionListSizeRegistry } from '../../registry.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { FacesWatch } from '../../primitives/faces.js';
-import { afterFirstPaint, documentPainted } from '../../primitives/first-paint.js';
+import { documentPainted } from '../../primitives/first-paint.js';
 import { readInPhase } from '../../primitives/read-phase.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -28,12 +28,11 @@ const LIST_CSS: string = (() => {
   }
 })();
 
-const TAG = 'tanrei-description-list';
 const PREFIX = '--tanrei-comp-description-list';
 const LAYOUTS: readonly string[] = ['inline', 'stacked', 'stat'];
 const CORE_SIZES: readonly string[] = ['small', 'medium'];
 const DEFAULT_SIZE = 'medium';
-/** The most columns description-list.css reads from the attribute itself; the element writes the rule of a larger number. */
+/** The most columns description-list.css reads from the attribute itself; the element writes a larger number on the list (`--_dl-columns`). */
 const COLUMNS_IN_SHEET = 6;
 /** The members of the size axis (`dev.tanrei.axes.size.members`) as description-list.css names them. */
 const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
@@ -46,75 +45,35 @@ const SIZE_MEMBERS: readonly (readonly [string, string])[] = [
   ...TYPE_LONGHANDS.map((longhand) => [`--_dl-stat-${longhand}`, `stat-value-typescale-*-${longhand}`] as const),
   ['--_dl-stat-tracking', 'stat-value-typescale-*-letter-spacing'],
 ];
-/** Attribute values are interpolated into CSS: only token-name characters are accepted. */
+/** A size's name is written into token names: only token-name characters are accepted. */
 const KEY = /^[a-z0-9][a-z0-9-]*$/;
-/** The list's own terms and values, grouped or not, as description-list.css reaches them. */
-const LIST = `:where(${TAG}) > :where(dl)`;
+/** DSL-4: the width under which the list stacks, as description-list.css reads it (the list's own line height). */
+const STACKS_BELOW = '--_dl-stacks-below';
 
-type Root = Document | ShadowRoot;
-
-const sheets = new Map<string, CSSStyleSheet>();
-/** A stylesheet of the page, made once and shared by every root that needs it. */
-function sheet(id: string, text: () => string): CSSStyleSheet | null {
-  if (typeof CSSStyleSheet === 'undefined') return null;
-  let made = sheets.get(id);
-  if (!made) {
-    made = new CSSStyleSheet();
-    try {
-      made.replaceSync(text());
-    } catch {
-      // A browser that cannot construct it: the page's own copy of description-list.css draws the list.
-    }
-    sheets.set(id, made);
+let made: CSSStyleSheet | null | undefined;
+/** The list's stylesheet, made once and shared by every root that needs it. */
+function sheet(): CSSStyleSheet | null {
+  if (made !== undefined) return made;
+  if (typeof CSSStyleSheet === 'undefined') return (made = null);
+  made = new CSSStyleSheet();
+  try {
+    made.replaceSync(LIST_CSS);
+  } catch {
+    // A browser that cannot construct it: the page's own copy of description-list.css draws the list.
   }
   return made;
 }
 
 /**
- * DSL-23: a size a design system added — the default's rules, read from that size's tokens — for a list that sets it
- * and for one that takes it from its container (DSL-25: the custom state that carries the size it draws).
+ * Writes a name on the list's own style only when it differs, and takes it away for null. What the element decides is
+ * written on the list, never as a rule: a rule added to a page's sheets, or a sheet added to them, has WebKit build
+ * every rule of the page again and style the whole page once more (on a long page 0.2 to 0.8 s each; in Chromium a
+ * few milliseconds), where a name on the list restyles the list alone.
  */
-const sizeRules = (size: string) =>
-  `:where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
-  ).join(' ')} }`;
-
-/** DSL-7: more columns than the stylesheet reads from the attribute. */
-const columnsRule = (columns: number) => `:where(${TAG}[columns='${columns}']) { --_dl-columns: ${columns}; }`;
-
-/**
- * DSL-4: an inline list that is narrower than `width` draws every fact as the stacked layout draws it — the term on
- * lines of its own, its values under it — and the two columns again from that width on. A container query of the list
- * itself, so the browser draws the other form as the list is resized, in the same frame and with no script.
- *
- * DSL-24: never while the list is measured (`data-measuring`). The rule puts every value in the term's column, so a
- * list measured while it is stacked would read its longest value as its widest term and write a width it is always
- * narrower than: it would stay stacked whatever room it is given later.
- */
-const stackRule = (width: string) => {
-  const list = LIST.replace(TAG, `${TAG}[data-stacks-below='${width}']:not([data-measuring])`);
-  return `@container (inline-size < ${width}px) {
-  ${list} { grid-template-columns: minmax(0, 1fr); }
-  ${list} > :where(div) > :where(dd), ${list} > :where(dd) { grid-column: 1; padding-inline-start: 0; }
-  ${list} > :where(dd + dt + dd) { margin-block-start: 0; border-block-start-width: 0; padding-block-start: 0; }
-}`;
-};
-
-/**
- * The sheet of the rules the element writes: one per page, grown as lists need a rule it does not have yet. Its rules
- * are in no cascade layer, so they also win over a copy of description-list.css that a page loads into a layer of its own.
- */
-const written = new Set<string>();
-function writtenSheet(id: string, rule: () => string): CSSStyleSheet | null {
-  const made = sheet('written', () => '');
-  if (!made || written.has(id)) return made;
-  try {
-    made.insertRule(rule(), made.cssRules.length);
-    written.add(id);
-  } catch {
-    // A browser that cannot read the rule draws the list as a page without the script does.
-  }
-  return made;
+function ownStyle(element: HTMLElement, property: string, value: string | null) {
+  if (value === null) {
+    if (element.style.getPropertyValue(property) !== '') element.style.removeProperty(property);
+  } else if (element.style.getPropertyValue(property) !== value) element.style.setProperty(property, value);
 }
 
 /** Writes an attribute only when it differs: what is written here is observed, and must settle. */
@@ -152,8 +111,9 @@ function mark(element: Element, name: string, value: string | null) {
  * which draws the list before and without this script; the element adds the same sheet to the root it is connected
  * to, so it also works inside another component's shadow root. The script adds the one thing a stylesheet cannot say:
  * an inline list whose values would be left less than `comp.description-list.column.min-width` draws its terms above
- * their values. The element measures the widest term and writes that width as a container query of the list, so the
- * browser itself draws the other form as the list is resized. Without the script such a list wraps its terms instead.
+ * their values. The element measures the widest term and writes that width on the list, which a container query of the
+ * stylesheet compares with the list's width, so the browser itself draws the other form as the list is resized.
+ * Without the script such a list wraps its terms instead.
  * The list takes no input and emits no event.
  *
  * @tag tanrei-description-list
@@ -247,7 +207,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('list', () => LIST_CSS), '--_dl-fact-gap');
+    adoptUnlessDrawn(this, sheet(), '--_dl-line');
     this.mutations?.observe(this, { childList: true, subtree: true, characterData: true });
     this.faces.connect();
     if (this.hasUpdated) this.read();
@@ -302,13 +262,16 @@ export class TanreiDescriptionList extends TanreiLightElement {
   }
 
   /**
-   * DSL-23: a size the core does not have was added by a design system — its rules are added to the root, falling
-   * back to the default's tokens — or is unknown to the active one, which a debug build says.
+   * DSL-23: a size the core does not have was added by a design system — the default's names, read from that size's
+   * tokens and falling back to the default's, are written on the list — or is unknown to the active one, which a debug
+   * build says. A core size takes them away again: the stylesheet draws it.
    */
   private readSize(size: string) {
+    const known = !CORE_SIZES.includes(size) && KEY.test(size);
+    for (const [name, token] of SIZE_MEMBERS) {
+      ownStyle(this, name, known ? `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}))` : null);
+    }
     if (CORE_SIZES.includes(size)) return;
-    const known = KEY.test(size);
-    if (known) adopt(this.getRootNode() as Root, writtenSheet(`size:${size}`, () => sizeRules(size)));
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-fact-gap-${size}`).trim() === '')) {
       report(this, 'DSL-23', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }
@@ -317,15 +280,15 @@ export class TanreiDescriptionList extends TanreiLightElement {
   /** DSL-7: the columns the list may draw. One for a number that is less than one or not whole, and for an inline list. */
   private readColumns() {
     const columns = Number(this.columns);
+    // More than the stylesheet reads from the attribute: the number, on the list.
+    ownStyle(this, '--_dl-columns', Number.isInteger(columns) && columns > COLUMNS_IN_SHEET && (this.layout === 'stacked' || this.layout === 'stat') ? String(columns) : null);
     if (!Number.isInteger(columns) || columns < 1) {
       if (DEBUG) report(this, 'DSL-7', `columns "${String(this.getAttribute('columns') ?? this.columns)}" is not a whole number of at least 1; the list is drawn in one column`);
       return;
     }
-    if (columns > 1 && this.layout !== 'stacked' && this.layout !== 'stat') {
-      if (DEBUG) report(this, 'DSL-7', `an inline list has one column; columns ${columns} is drawn as 1 (the stacked and stat layouts draw columns)`);
-      return;
+    if (DEBUG && columns > 1 && this.layout !== 'stacked' && this.layout !== 'stat') {
+      report(this, 'DSL-7', `an inline list has one column; columns ${columns} is drawn as 1 (the stacked and stat layouts draw columns)`);
     }
-    if (columns > COLUMNS_IN_SHEET) adopt(this.getRootNode() as Root, writtenSheet(`columns:${columns}`, () => columnsRule(columns)));
   }
 
   /**
@@ -387,25 +350,24 @@ export class TanreiDescriptionList extends TanreiLightElement {
       // DSL-13: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
       const separation = styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS);
       const width = box.measure(list);
-      const room = box.room();
       // A list that is not rendered (itself or an ancestor `display: none`) lays nothing out: its terms have no column
       // to read, which would say that the list is not drawn and stacks under no width (DSL-4: a list stacked by its
       // width was drawn in two columns in the frame it was shown in again). It keeps the width it had; its observer
       // reports it laid out when it is shown, and it is measured then. Its list is found, watched and marked all the
-      // same. Such a list has no room (its width reads 0): only then is it asked whether it has a box, so a rendered
-      // list reads nothing more. A layout no width stacks has nothing to keep.
-      const drawn = box.layout === 'stacked' || box.layout === 'stat' || room > 0 || box.getClientRects().length > 0;
-      return { list, separation, width: drawn ? width : undefined, room };
+      // same. Such a list has no width (it reads 0): only then is it asked whether it has a box, so a rendered list
+      // reads one width more. A layout no width stacks has nothing to keep.
+      const drawn = box.layout === 'stacked' || box.layout === 'stat' || box.clientWidth > 0 || box.getClientRects().length > 0;
+      return { list, separation, width: drawn ? width : undefined };
     });
     live.forEach((box, index) => box.release(held[index]));
     live.forEach((box, index) => {
       const each = read[index];
       if (!each) {
-        mark(box, 'data-stacks-below', null);
+        box.write(null);
         return;
       }
       mark(each.list, 'data-separation', each.separation);
-      if (each.width !== undefined) box.write(each.width, each.room);
+      if (each.width !== undefined) box.write(each.width);
     });
   }
 
@@ -456,28 +418,13 @@ export class TanreiDescriptionList extends TanreiLightElement {
     return (Math.ceil((term + gap + least) * 100) / 100).toString();
   }
 
-  /** The width the list's container query compares with its width (DSL-4): its content box, read with `measure()`. */
-  private room(): number {
-    const style = getComputedStyle(this);
-    return this.clientWidth - (Number.parseFloat(style.paddingLeft) || 0) - (Number.parseFloat(style.paddingRight) || 0);
-  }
-
   /**
-   * Writes the width under which the list stacks, and the rule that stacks it there (DSL-4). A rule added to the page's
-   * sheets has the browser build every rule of the page again and style the whole page once more — in WebKit, on a long
-   * page, as long as a layout of it (0.8 s). So while the page has not been painted, the rule of a list that has `room`
-   * to stay in two columns is added once the page has been painted, in the frame callbacks before the frame's own style:
-   * until then no rule could draw that list otherwise. A list narrower than its width now has its rule at once, and is
-   * stacked in the frame it is measured in.
+   * Writes the width under which the list stacks (DSL-4) on the list itself, where the stylesheet's one container query
+   * compares it with the list's width: a write that restyles the list alone, made at once in the frame it is measured
+   * in, before the page has been painted too.
    */
-  private write(width: string | null, room = 0) {
-    if (width !== null) {
-      const root = this.getRootNode() as Root;
-      const add = () => adopt(root, writtenSheet(`stack:${width}`, () => stackRule(width)));
-      // A pixel of slack: what is compared is the layout's width, which the read may round.
-      if (documentPainted() || room < Number(width) + 1) add();
-      else void afterFirstPaint().then(add);
-    }
+  private write(width: string | null) {
+    ownStyle(this, STACKS_BELOW, width === null ? null : `${width}px`);
     mark(this, 'data-stacks-below', width);
   }
 

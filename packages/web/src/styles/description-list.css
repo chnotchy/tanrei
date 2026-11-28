@@ -22,12 +22,19 @@
  * This stylesheet draws everything, before and without script (an element that is not yet defined is still an
  * element). The element (src/components/description-list/description-list.ts) adds the one thing a stylesheet cannot
  * say: DSL-4 compares the widest term with the list's own width. It measures the terms and writes the width under
- * which the list stacks as a container query of that list (`data-stacks-below`, and one rule in a sheet it adds), so
- * the browser itself draws the other form as the list is resized. Without the script a list that is too narrow wraps
- * its terms instead of stacking: nothing is cut. It also writes
+ * which the list stacks on the list itself (`--_dl-stacks-below`, and the same width as `data-stacks-below`), which
+ * one container query below compares with the list's width, so the browser itself draws the other form as the list
+ * is resized. Without the script a list that is too narrow wraps its terms instead of stacking: nothing is cut. It
+ * also writes
  *
  *   data-measuring (on the wrapper)   while it reads the widest term, within one task: never painted
  *   data-separation (on the `dl`)     the separation the tokens name, where the browser has no style queries (DSL-13)
+ *   --_dl-columns (on the wrapper)    DSL-7: a number of columns larger than the attribute rules below read
+ *   --_dl-fact-gap and the size's other names (on the wrapper)   DSL-23: a size a design system added, from its tokens
+ *
+ * The element adds no rule to the page: a rule added to a page's sheets, or a sheet added to them, has WebKit build
+ * every rule of the page again and style the whole page once more (on a long page 0.2 to 0.8 s each), where a name or
+ * an attribute written on the list restyles the list alone.
  *
  * Every value is a `--tanrei-comp-description-list-*` token.
  *
@@ -36,9 +43,8 @@
  * - Every selector starts at the element's name and has no specificity (`:where()`; a rule on `::after` has a
  *   pseudo-element's), so one class of the product's wins, and the ORDER of the rules decides between two of them.
  *   The one declaration of `data-measuring` is `!important`: what the element reads must be the two columns,
- *   whatever another rule says of the list's columns — a product's, or the rule the element writes, which is in no
- *   layer so that it wins over a copy of this sheet a page loads into a layer of its own. That rule does not apply at
- *   all while the list is measured: it also places every value in the term's column (DSL-24).
+ *   whatever another rule says of the list's columns — a product's. The rule that stacks a list by its width does not
+ *   apply at all while the list is measured: it also places every value in the term's column (DSL-24).
  * - A rule reaches the list's own groups, terms and values by child combinators only: a list inside a value is the
  *   product's.
  * - The space between two facts is the lower fact's: a margin, a line (its border) and a padding that together are
@@ -261,6 +267,45 @@
       margin-block-start: calc(var(--_dl-above-margin) - var(--tanrei-comp-description-list-stack-gap));
       border-block-start-width: var(--_dl-above-line);
       padding-block-start: var(--_dl-above-padding);
+    }
+  }
+
+  /* ── DSL-4: an inline list narrower than the width the element measured draws every fact as the stacked layout
+     does, and the two columns again from that width on. The width is the list's own line height, which no text of the
+     list is set in (every term and value sets its own, DSL-2), so that one container query of the list compares each
+     list with its own width: a container query reads `lh` from the container. DSL-24: never while the list is
+     measured (`data-measuring`) — the rule puts every value in the term's column, so a list measured while stacked
+     would read its longest value as its widest term, and stay stacked whatever room it is given later ──────────── */
+  :where(tanrei-description-list) {
+    /* None until the element has measured the list (and never without script, or in the stacked and stat layouts):
+       no width is less than 0. Set here, not only inherited, so that a list inside a value is no wider than its own. */
+    --_dl-stacks-below: 0px;
+    line-height: var(--_dl-stacks-below);
+  }
+  /* The query is asked of every list, not only of one that has a width yet, and in every state, also while it is
+     measured: Chromium answers a query again when the container's line height changes only where it has asked that
+     query of the container before. A list inserted after the page was painted is first styled while it is measured,
+     where the rule that stacks it does not match; asked nothing then, it never compared the width written after the
+     measure, and stayed in two columns however narrow it was. So a second rule of the query matches the list in every
+     state and sets a name nothing reads. (Making the rule that stacks match while measured, its width taken away
+     then, costs Chromium two style passes more for each list.) */
+  @container (inline-size < 1lh) {
+    :where(tanrei-description-list) > :where(dl) {
+      --_dl-asked: 1;
+    }
+    :where(tanrei-description-list:not([data-measuring])) > :where(dl) {
+      grid-template-columns: minmax(0, 1fr);
+
+      & > :where(div) > :where(dd),
+      & > :where(dd) {
+        grid-column: 1;
+        padding-inline-start: 0;
+      }
+      & > :where(dd + dt + dd) {
+        margin-block-start: 0;
+        border-block-start-width: 0;
+        padding-block-start: 0;
+      }
     }
   }
 
