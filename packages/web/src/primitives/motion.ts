@@ -1003,62 +1003,126 @@ export class AnimatedSize implements ReactiveController {
 // answered without styling the others (every engine skips a flush that element's own style does not need), and the
 // state may be anywhere in a shadow tree. It is a layout the frame was about to make; letting go then changes only
 // `transition-property`, which lays nothing out.
-let settlingNow: (() => void)[] | null = null;
-/**
- * MOT-3: calls `done` where settling ends — two frames from now, the document laid out once before — together with
- * every element that settles in the same frame. For what is first drawn again without being connected again, and so
- * settles again: the content of a view that opens (the search's), whose transitions stay off until then.
- */
-export const afterTwoFrames = (done: () => void): void => {
-  if (typeof requestAnimationFrame !== 'function') return done();
+//
+// An element that settles is let go only if it is drawn then. One that is not — mounted inside what the page does not
+// draw: `display: none` on it or an ancestor (a tab panel not shown, a hidden container), or a subtree
+// `content-visibility: hidden` skips (a closed `<details>`) — has drawn no frame yet: what it measures on its first
+// frame drawn (a resize observer told its boxes for the first time, a read phase after it) is written then. So it
+// settles on, and its two frames are counted from that first frame drawn, which a resize observer of its box tells.
+interface Settler {
+  done(): void;
+  /** The element that settles, let go only once it is drawn (`waits`); none for what is let go regardless. */
+  host?: Element;
+}
+let settlingNow: Settler[] | null = null;
+/** The settlers waiting to be drawn, each with the box whose resize observer tells it (`waits`). */
+const undrawn = new Map<Settler, Element>();
+let drawnWatch: ResizeObserver | undefined;
+
+const settleAfterTwoFrames = (settler: Settler): void => {
+  if (typeof requestAnimationFrame !== 'function') return settler.done();
   if (!settlingNow) {
-    const batch: (() => void)[] = [];
+    const batch: Settler[] = [];
     settlingNow = batch;
     requestAnimationFrame(() => {
       settlingNow = null;
       requestAnimationFrame(() => {
         void document.documentElement.offsetWidth;
-        for (const settled of batch) settled();
+        // Every element is asked first and let go after, so that letting one go (a style written) does not have the
+        // next one's question lay the document out again.
+        for (const settled of batch.filter((each) => !each.host || !waits(each, each.host))) settled.done();
       });
     });
   }
-  settlingNow.push(done);
+  settlingNow.push(settler);
+};
+
+/**
+ * MOT-3: calls `done` where settling ends — two frames from now, the document laid out once before — together with
+ * every element that settles in the same frame. For what is first drawn again without being connected again, and so
+ * settles again: the content of a view that opens (the search's), whose transitions stay off until then.
+ */
+export const afterTwoFrames = (done: () => void): void => settleAfterTwoFrames({ done });
+
+/**
+ * Whether `host` is not drawn now, and so waits to be: it has no box (`display: none` on it or an ancestor) or is in a
+ * subtree `content-visibility: hidden` skips (`checkVisibility()`; `visibility: hidden` lays it out still, and counts as
+ * drawn). A host of `display: contents` has no box of its own and draws its children in its place: the nearest element
+ * up its flat tree that has one is asked for it (a slot is of `display: contents` too), and only for a host found not
+ * drawn is its display asked. The box is watched by a resize observer, which is told as the box is first laid out —
+ * the first frame it is drawn in — and the settlers that wait on it count their two frames from there.
+ */
+const waits = (settler: Settler, host: Element): boolean => {
+  if (host.checkVisibility()) return false;
+  let box: Element | null = host;
+  while (box && getComputedStyle(box).display === 'contents') box = flatParent(box);
+  if (!box || (box !== host && box.checkVisibility())) return false;
+  undrawn.set(settler, box);
+  (drawnWatch ??= new ResizeObserver((entries) => {
+    for (const { target } of entries) {
+      if (!target.checkVisibility()) continue;
+      drawnWatch!.unobserve(target);
+      for (const [each, box] of undrawn) {
+        if (box !== target) continue;
+        undrawn.delete(each);
+        settleAfterTwoFrames(each);
+      }
+    }
+  })).observe(box);
+  return true;
+};
+
+/** The settler waits to be drawn no more: its host was taken out of the page. Its box is unwatched where no other waits on it. */
+const stopWaiting = (settler: Settler) => {
+  const box = undrawn.get(settler);
+  if (box && undrawn.delete(settler) && ![...undrawn.values()].includes(box)) drawnWatch!.unobserve(box);
 };
 
 /**
  * MOT-3: the host carries `data-tanrei-settling` from each time it is connected until two frames after its first
  * update there — the frame its first render is drawn in, and the one after it, where a state it measured in a frame
  * callback or a resize observer is written — and `settleStyles` (src/styles/motion.ts) starts no transition in it
- * meanwhile. It makes a state written late arrive without a motion, not on time: the component still writes its first
- * state where it renders (`willUpdate`).
+ * meanwhile. A host the page does not draw then (`display: none` on it or an ancestor, a subtree
+ * `content-visibility: hidden` skips) settles on until two frames after the first frame it is drawn in, so that it is
+ * first shown at rest whenever that is. It makes a state written late arrive without a motion, not on time: the
+ * component still writes its first state where it renders (`willUpdate`).
  */
 export class Settle implements ReactiveController {
   /** Whether the host is settling. */
   settling = false;
-  private connection = 0;
+  /** This connection's settler: one of an earlier connection lets nothing go. */
+  private settler?: Settler;
 
   constructor(private readonly host: Host) {
     host.addController(this);
   }
 
   hostConnected() {
-    const connection = ++this.connection;
     this.settling = true;
     this.host.setAttribute(SETTLING, '');
     settlers.add(this.host);
     if (stillSurfaces.size) markIfHeld(this.host);
-    const settled = () => {
-      if (connection !== this.connection) return;
-      this.settling = false;
-      this.host.removeAttribute(SETTLING);
-    };
+    const settler: Settler = (this.settler = {
+      host: this.host,
+      done: () => {
+        if (settler !== this.settler) return;
+        this.settling = false;
+        this.host.removeAttribute(SETTLING);
+      },
+    });
     void this.host.updateComplete.then(() => {
-      if (connection === this.connection) afterTwoFrames(settled);
+      if (settler === this.settler) settleAfterTwoFrames(settler);
     });
   }
 
   hostDisconnected() {
-    this.connection++;
+    // Taken out before it was let go: it waits to be drawn no more, and where it is still in a batch it is let go
+    // there as what is let go regardless, which no connection heeds.
+    if (this.settler) {
+      stopWaiting(this.settler);
+      this.settler.host = undefined;
+      this.settler = undefined;
+    }
     this.settling = false;
     this.host.removeAttribute(SETTLING);
     settlers.delete(this.host);

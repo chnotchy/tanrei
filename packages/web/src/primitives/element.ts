@@ -12,8 +12,9 @@ import { Settle } from './motion.js';
 //                        tree view, a table, an accordion
 //
 // What they carry: MOT-3 (docs/architecture/motion.md) — the element settles from each time it is connected until two
-// frames after its first update there (`Settle`, src/primitives/motion.ts), and nothing in it starts a transition
-// meanwhile. In a shadow root the rule is `settleStyles`, composed after the component's own styles here, so no
+// frames after its first update there, or, connected where the page draws nothing (a hidden container, a closed
+// details), until two frames after the first frame it is drawn in (`Settle`, src/primitives/motion.ts), and nothing in
+// it starts a transition meanwhile. In a shadow root the rule is `settleStyles`, composed after the component's own styles here, so no
 // component lists it — and after it `stillPointerStyles`, which holds a hover under a pointer at rest in a surface that
 // opened (`holdStillPointer()`), left out of an element that draws nothing under a pointer (`drawsHover`). A light-DOM
 // element's stylesheet has both written into it by the build as one rule (`settleRule()`, scripts/build.js), because its

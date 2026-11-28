@@ -1,10 +1,11 @@
 import { type CSSResult, unsafeCSS } from 'lit';
 
 // The first frame drawn at rest (MOT-3, docs/architecture/motion.md): while an element settles — from the moment it is
-// connected until two frames after its first update (`Settle`, src/primitives/motion.ts) — it carries
-// `data-tanrei-settling`, and nothing in it starts a transition. A state the element writes after its first render (an
-// attribute it reflects in `updated()`, a size it measured in a frame callback or a resize observer) is then drawn as
-// it is, not faded in from the state it never was in.
+// connected until two frames after its first update, or after the first frame it is drawn in where it was connected
+// undrawn (`Settle`, src/primitives/motion.ts) — it carries `data-tanrei-settling`, and nothing in it starts a
+// transition. A state the element writes after its first render (an attribute it reflects in `updated()`, a size it
+// measured in a frame callback or a resize observer) is then drawn as it is, not faded in from the state it never was
+// in.
 //
 // Transitions are turned off by `transition-property: none`, never by a zero duration and never by the `transition`
 // shorthand. A zero duration still starts a transition that has a delay (a transition runs where its duration plus its

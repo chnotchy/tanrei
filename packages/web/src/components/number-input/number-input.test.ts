@@ -20,6 +20,8 @@ import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberFor
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
 import { askForFrame } from '../../../test/frame-asked.js';
+import { mountForAppearing, shownAfterMountedHidden } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
 
 const spec = loadSpec('number-input');
 type P = Page;
@@ -458,6 +460,18 @@ test.describe('behavior: the box', () => {
     await setField(page, 'auto', { supportingText: 'x' });
     expect(await drawn('auto')).toBe(false);
     expect(await input(page, 'auto').getAttribute('aria-required')).toBe('true');
+  });
+
+  test('NMI-8, MOT-3: a number input mounted where the page draws nothing (a hidden container) is drawn at rest in the first frame it is shown — its floating label is not narrowed over the steppers’ length it measured at nothing while hidden', async ({ page }) => {
+    // Hidden, the steppers measure 0 and the label may reach the end; shown, they are measured in the first frame and
+    // the label ends before them. The element settles from that frame, not from its first update.
+    const ids = ['filled-empty', 'filled-value', 'outlined-empty', 'outlined-value'];
+    await mountForAppearing(page, spec, { fixtures: spec.fixtures.filter((f) => ids.includes(f.id)) });
+    for (const id of ids) {
+      const seen = await shownAfterMountedHidden(page, id);
+      expect(seen.motions, `${id}: no transition runs`).toEqual([]);
+      expectFirstFrameAtRest(seen);
+    }
   });
 
   test('NMI-8: a filled or outlined label rests in the input line in label.typescale while the input is empty and not focused, and floats otherwise — to the top of a filled container, onto an outlined one’s top edge with its gap — in label.floated-typescale, over motion.label-*; a filled number input keeps its height; the placeholder, the prefix and the suffix show only while the label is not in the input line; a label that does not fit wraps and ends before the steppers; the label it floats is its Field’s, or its own; labelHidden — its own or its Field’s — draws none, and a stacked input draws none at all', async ({ page }) => {

@@ -23,6 +23,8 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { mountForAppearing, shownAfterMountedHidden } from '../../../test/first-frame.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
 
 const spec = loadSpec('segmented-button');
 type P = Page;
@@ -505,6 +507,17 @@ test.describe('layout', () => {
     expect(await fill('icon-only', 0)).toBe(await token(page, '--tanrei-sys-icon-fill-unselected'));
     expect(await family('icon-only', 1)).toBe(await token(page, '--tanrei-sys-icon-family-selected'));
     expect(await css(seg(page, 'icon-only', 1).locator('.icon'), 'color')).toBe(await resolveColor(page, T('selected-icon-color')));
+  });
+
+  test('SEG-16, MOT-3: a set mounted where the page draws nothing (a hidden container) is drawn at rest in the first frame it is shown — its selected segment’s check is not grown in from the size it measured while hidden', async ({ page }) => {
+    // Hidden, the set measures its check probe at 0 and draws no check; shown, it measures it again in the first
+    // frame. Its elements settle from that frame, not from their first update.
+    await mountForAppearing(page, spec, { fixtures: spec.fixtures.filter((f) => ['single', 'multiple'].includes(f.id)) });
+    for (const id of ['single', 'multiple']) {
+      const seen = await shownAfterMountedHidden(page, id);
+      expect(seen.motions, `${id}: no transition runs`).toEqual([]);
+      expectFirstFrameAtRest(seen);
+    }
   });
 
   test('SEG-16: a selected segment with a drawn label shows the check before it, in place of its icon, at the check size in the selected icon color; an icon-only one keeps its icon; check size 0 draws none and reserves no room; the change takes the selection motion, at once where motion is reduced', async ({ page }) => {

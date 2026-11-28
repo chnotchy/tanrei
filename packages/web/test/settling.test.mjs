@@ -1,5 +1,6 @@
 // Every element of this package draws its first frames at rest (MOT-3, docs/architecture/motion.md): it settles from
-// each time it is connected until two frames after its first update, and nothing in it starts a transition meanwhile.
+// each time it is connected until two frames after its first update (or after the first frame it is drawn in, where it
+// was connected undrawn), and nothing in it starts a transition meanwhile.
 // That is written once, in the two base classes of src/primitives/element.ts, so an element has it by extending one of
 // them — and a class that extends Lit's own does not. An element that draws in the light DOM has its rules in the
 // document's stylesheet, so the build writes the settling rule into that stylesheet (`settleRule()`, scripts/build.js):

@@ -11,7 +11,9 @@
 // with `{ asMounted: true }`.
 import { type Page, expect } from '@playwright/test';
 import { type ElementFrame, type Frame, type Frames, type SampleOptions, frameAtRest, sampleFrames } from './frames.js';
+import { askForFrame } from './frame-asked.js';
 import { type DocumentOptions, type Spec, fixturesDocument, mountFixtures } from './harness.js';
+import { restyle } from './restyle.js';
 
 /** The stages of a fixtures document, as a page that is already there would be given them (no script, no holder). */
 const stagesOf = (document: string) =>
@@ -217,6 +219,35 @@ export async function appearAgain(page: Page, id: string, { sample, measured = f
     seen.mounted = { drawn: stage.drawn, rest: stageIn(seen.rest, `${root}/div:0`), semantics: { drawn: stage.semantics, rest: semantics } };
   }
   return seen;
+}
+
+/**
+ * On a page `mountForAppearing` mounted: takes everything off the stages' holder, inserts the stage of the fixture `id`
+ * as it was written but not drawn (`display: none` on the stage, as a product mounts a tab panel or a view it does not
+ * show yet), lets the page draw more frames than settling from the elements' first update lasts, and samples the
+ * frames of showing it. Its first frame is the first the elements are drawn in: whatever they measure there (a resize
+ * observer's first report of a box, a read phase after it) must arrive without a motion, as when they are mounted
+ * shown (MOT-3).
+ */
+export async function shownAfterMountedHidden(page: Page, id: string, { sample }: { sample?: SampleOptions } = {}): Promise<Frames> {
+  const holder = holderOf(page);
+  const found = await holder.evaluate((el, id) => {
+    el.replaceChildren();
+    const written = (window as Written).__tanreiStages?.querySelector(`[data-fixture="${CSS.escape(id)}"]`);
+    if (!written) return false;
+    el.insertAdjacentHTML('beforeend', written.outerHTML);
+    (el.lastElementChild as HTMLElement).style.display = 'none';
+    return true;
+  }, id);
+  if (!found) throw new Error(`shownAfterMountedHidden: the page has no stage of the fixture ${id} (mountForAppearing first)`);
+  await askForFrame(page);
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    let frames = 0;
+    const step = () => (++frames >= 5 ? resolve() : requestAnimationFrame(step));
+    requestAnimationFrame(step);
+  }));
+  const stage = holder.locator(`[data-fixture="${id}"]`);
+  return sampleFrames(holder, () => restyle(stage, { display: '' }), sample);
 }
 
 /** The properties whose numbers are all lengths (a shape cut from a measured box, a move): compared as boxes are. */

@@ -23,6 +23,8 @@ import { type Frames, type Probe, expectAnchored, expectAnimated, expectFirstFra
 import { resolveToken, rootTokens } from '../../test/harness.js';
 import { EVERY_ANIMATION } from '../../test/motions.js';
 import { holdClock } from '../../test/page-clock.js';
+import { rewrite } from '../../test/frame-asked.js';
+import { restyle } from '../../test/restyle.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const read = (file: string) => fs.readFileSync(path.join(pkg, file), 'utf8');
@@ -899,6 +901,95 @@ test.describe('Settle', () => {
     await frames(page);
     expect(await runs(host)).toEqual([]);
     await expect(host.locator('.mark')).toHaveCSS('background-color', 'rgb(255, 0, 0)');
+  });
+
+  test('MOT-3: a host connected where the page draws nothing — display: none on an ancestor or on itself, a closed details, a host of display: contents in a hidden container — settles until two frames after the first frame it is drawn in, and what it writes in that frame starts no transition', async ({ page }) => {
+    await open(page, '<div id="stage"></div>');
+    await painted(page);
+    const cases = {
+      'hidden ancestor': { markup: '<div id="hide" style="display: none"><x-settle></x-settle></div>', show: 'ancestor' },
+      'hidden itself': { markup: '<div id="hide"><x-settle style="display: none"></x-settle></div>', show: 'host' },
+      'closed details': { markup: '<details id="hide"><summary>s</summary><x-settle></x-settle></details>', show: 'details' },
+      'display: contents in a hidden container': { markup: '<div id="hide" style="display: none"><x-settle style="display: contents"></x-settle></div>', show: 'ancestor' },
+    } as const;
+    for (const [name, { markup, show }] of Object.entries(cases)) {
+      const seen = await page.locator('#stage').evaluate(
+        async (stage, { markup, show }) => {
+          const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+          stage.innerHTML = markup;
+          const el = stage.querySelector('x-settle') as HTMLElement & { updateComplete: Promise<unknown>; runs: string[] };
+          await el.updateComplete;
+          // Far longer than settling from the first update lasts.
+          for (let i = 0; i < 6; i++) await nextFrame();
+          const whileHidden = el.hasAttribute('data-tanrei-settling');
+          const mark = el.shadowRoot!.querySelector('.mark')!;
+          // What the element measures as it is first drawn is written there: a resize observer's first report of a
+          // box it has, as a component's own would be.
+          let written = false;
+          const watch = new ResizeObserver(() => {
+            if (written || mark.getBoundingClientRect().height === 0) return;
+            written = true;
+            mark.removeAttribute('data-on');
+          });
+          watch.observe(mark);
+          // Shown in a task of its own, as a product shows a panel (a click's), not in the frame callback the wait
+          // above ended in: that frame would be the first drawn, before any callback asked for below.
+          await new Promise<void>((resolve) => setTimeout(resolve));
+          const hide = stage.querySelector('#hide') as HTMLElement;
+          if (show === 'ancestor') hide.style.removeProperty('display');
+          else if (show === 'host') el.style.removeProperty('display');
+          else (hide as HTMLDetailsElement).open = true;
+          // In each of the next four frames, whether it settles as the frame is drawn: read by a resize observer, which
+          // is told after every frame callback of the frame (where settling ends), of a probe the frame callback resizes.
+          const drawn: boolean[] = [];
+          const probe = document.body.appendChild(document.createElement('div'));
+          // At no width until the first frame resizes it: the observer's first report, of the probe as it is, reads nothing.
+          probe.style.width = '0px';
+          const reader = new ResizeObserver(() => {
+            if (probe.offsetWidth > 0) drawn.push(el.hasAttribute('data-tanrei-settling'));
+          });
+          reader.observe(probe);
+          for (let i = 1; i <= 4; i++) {
+            requestAnimationFrame(() => (probe.style.width = `${i}px`));
+            await nextFrame();
+          }
+          await nextFrame();
+          reader.disconnect();
+          probe.remove();
+          watch.disconnect();
+          return { whileHidden, written, drawn, runs: [...el.runs], color: getComputedStyle(mark).backgroundColor };
+        },
+        { markup, show },
+      );
+      expect(seen.whileHidden, `${name}: settling while not drawn`).toBe(true);
+      expect(seen.written, `${name}: the state was written as it was first drawn`).toBe(true);
+      // The frame it is first drawn in settles, and the next (where what it measured there is written); the third is
+      // drawn without it.
+      expect(seen.drawn, `${name}: settling, frame by frame from the first frame drawn`).toEqual([true, true, false, false]);
+      expect(seen.runs, `${name}: no transition started`).toEqual([]);
+      expect(seen.color, name).toBe('rgb(255, 0, 0)');
+    }
+    // Settled, a change moves again.
+    const host = page.locator('x-settle');
+    await rewrite(host, (el) => el.shadowRoot!.querySelector('.mark')!.setAttribute('data-on', ''));
+    await expect.poll(() => runs(host)).toEqual(['mark:background-color']);
+  });
+
+  test('MOT-3: a host taken out of the page while it waits to be drawn waits no more, and settles as always where it is connected again', async ({ page }) => {
+    await open(page, '<div id="stage"><div id="hide" style="display: none"><x-settle id="s"></x-settle></div></div><div id="elsewhere"></div>');
+    await painted(page);
+    const host = page.locator('#s');
+    await frames(page);
+    await expect(host).toHaveAttribute('data-tanrei-settling');
+    expect(await rewrite(host, (el) => {
+      document.querySelector('#elsewhere')!.append(el);
+      return el.hasAttribute('data-tanrei-settling');
+    })).toBe(true);
+    await expect(host).not.toHaveAttribute('data-tanrei-settling');
+    // Shown, the container it left lets nothing go that is no longer its.
+    await restyle(page.locator('#hide'), { display: '' });
+    await frames(page);
+    await expect(host).not.toHaveAttribute('data-tanrei-settling');
   });
 
   test('connected again, the host settles again', async ({ page }) => {
