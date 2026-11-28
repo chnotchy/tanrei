@@ -1,7 +1,7 @@
 import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, report } from '../../primitives/index.js';
 import type { TanreiPageHeaderSizeRegistry } from '../../registry.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn, writeValues } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -23,7 +23,6 @@ const HEADER_CSS: string = (() => {
   }
 })();
 
-const TAG = 'tanrei-page-header';
 const PREFIX = '--tanrei-comp-page-header';
 const CORE_SIZES: readonly string[] = ['small', 'medium', 'large'];
 const DEFAULT_SIZE = 'medium';
@@ -37,7 +36,6 @@ const EYEBROW = ':scope > [data-part="eyebrow"]';
 /** The mark of a part the element wrote from an attribute: the product's own part takes its place. */
 const WRITTEN = 'data-written';
 
-type Root = Document | ShadowRoot;
 type Part = 'eyebrow' | 'title' | 'description';
 
 const sheets = new Map<string, CSSStyleSheet>();
@@ -58,30 +56,23 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 }
 
 /**
- * PGH-23: a size a design system added — the default's rules, read from that size's tokens. As the large
- * size does, it is drawn whole at every width: only the core's large size steps down in a narrow head (PGH-12).
+ * PGH-23: what a size a design system added draws — the default's members, read from that size's tokens, each falling
+ * back to the default's. As the large size does, it is drawn whole at every width: only the core's large size steps
+ * down in a narrow head (PGH-12). Written in the element's own style (`writeValues`), never as a rule added to the
+ * page: a rule added to the page has the engine build every rule of the page again.
  */
-const sizeRules = (size: string) => {
+const sizeValues = (size: string): [`--${string}`, string][] => {
   const token = (name: string) => `var(${PREFIX}-${name.replace('*', size)}, var(${PREFIX}-${name.replace('*', DEFAULT_SIZE)}))`;
-  return `:where(${TAG}[size='${size}']) { ${TYPE_LONGHANDS.map((longhand) => `--_pgh-title-${longhand}: ${token(`title-typescale-*-${longhand}`)};`).join(' ')} --_pgh-title-tracking: ${token('title-typescale-*-letter-spacing')}; --_pgh-title-line: calc(${token('title-typescale-*-font-size')} * ${token('title-typescale-*-line-height')}); ${TYPE_LONGHANDS.map((longhand) => `--_pgh-description-${longhand}: ${token(`description-typescale-*-${longhand}`)};`).join(' ')} --_pgh-description-tracking: ${token('description-typescale-*-letter-spacing')}; --_pgh-description-gap: ${token('description-gap-*')}; --_pgh-end: ${token('container-padding-block-end-*')}; }`;
+  return [
+    ...TYPE_LONGHANDS.map((longhand): [`--${string}`, string] => [`--_pgh-title-${longhand}`, token(`title-typescale-*-${longhand}`)]),
+    ['--_pgh-title-tracking', token('title-typescale-*-letter-spacing')],
+    ['--_pgh-title-line', `calc(${token('title-typescale-*-font-size')} * ${token('title-typescale-*-line-height')})`],
+    ...TYPE_LONGHANDS.map((longhand): [`--${string}`, string] => [`--_pgh-description-${longhand}`, token(`description-typescale-*-${longhand}`)]),
+    ['--_pgh-description-tracking', token('description-typescale-*-letter-spacing')],
+    ['--_pgh-description-gap', token('description-gap-*')],
+    ['--_pgh-end', token('container-padding-block-end-*')],
+  ];
 };
-
-/**
- * The sheet of the rules the element writes: one per page, grown as heads need a rule it does not have yet. Its rules
- * are in no cascade layer, so they also win over a copy of page-header.css that a page loads into a layer of its own.
- */
-const written = new Set<string>();
-function writtenSheet(id: string, rule: () => string): CSSStyleSheet | null {
-  const made = sheet('written', () => '');
-  if (!made || written.has(id)) return made;
-  try {
-    made.insertRule(rule(), made.cssRules.length);
-    written.add(id);
-  } catch {
-    // A browser that cannot read the rule draws the head as a page without the script does.
-  }
-  return made;
-}
 
 /**
  * The head of a page's content: the page's title as its heading, with a sentence that says what the page is, a line of
@@ -163,6 +154,8 @@ export class TanreiPageHeader extends TanreiLightElement {
   private readonly actionsSize$ = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.readWrap());
   private observedActions: Element | null = null;
   private awaitingParse = false;
+  /** PGH-23: the names written in the element's style for a size a design system added (`readSize`). */
+  private sizeWritten: string[] = [];
 
   /** No shadow root: the heading is the document's. */
   protected override createRenderRoot() {
@@ -171,7 +164,9 @@ export class TanreiPageHeader extends TanreiLightElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('head', () => HEADER_CSS), '--_pgh-title-font-size');
+    // The mark is a name page-header.css sets on every head and the element never writes: a size a design system added
+    // is written in the element's own style (`readSize`), which would answer for a root without the rules.
+    adoptUnlessDrawn(this, sheet('head', () => HEADER_CSS), '--_pgh-dot-color');
     this.mutations?.observe(this, { childList: true });
     if (this.hasUpdated) this.read();
   }
@@ -206,14 +201,16 @@ export class TanreiPageHeader extends TanreiLightElement {
   }
 
   /**
-   * PGH-23: a size the core does not have was added by a design system — its rules are added to the root, falling back
-   * to the default's tokens — or is unknown to the active one, which a debug build says.
+   * PGH-23: a size the core does not have was added by a design system — what it draws is written in the element's
+   * style, falling back to the default's tokens, and taken off again for a size of the core — or is unknown to the
+   * active one, which a debug build says.
    */
   private readSize() {
     const size = String(this.size ?? '');
-    if (CORE_SIZES.includes(size)) return;
     const known = KEY.test(size);
-    if (known) adopt(this.getRootNode() as Root, writtenSheet(`size:${size}`, () => sizeRules(size)));
+    const added = known && !CORE_SIZES.includes(size);
+    if (added || this.sizeWritten.length) this.sizeWritten = writeValues(this, this.sizeWritten, added ? sizeValues(size) : []);
+    if (CORE_SIZES.includes(size)) return;
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(`${PREFIX}-title-typescale-${size}-font-size`).trim() === '')) {
       report(this, 'PGH-23', `size "${size}" is not a value of the active design system; it is drawn as "${DEFAULT_SIZE}"`);
     }

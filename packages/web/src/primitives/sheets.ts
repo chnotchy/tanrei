@@ -71,18 +71,18 @@ function drawn(element: Element, mark: string): boolean {
  * `test/light-dom.ts`).
  */
 export const DRAWN_MARKS: Readonly<Record<string, `--${string}`>> = {
-  'tanrei-accordion': '--_acc-container',
+  'tanrei-accordion': '--_acc-edge-color',
   'tanrei-app-shell': '--_aps-breakpoint-medium',
   'tanrei-breadcrumbs': '--_brc-start',
   'tanrei-code-block': '--_code-block-light',
   'tanrei-description-list': '--_dl-fact-gap',
-  'tanrei-figure': '--_figure-fill',
-  'tanrei-link-card': '--_lc-container',
-  'tanrei-page-header': '--_pgh-title-font-size',
+  'tanrei-figure': '--_figure-edge-color',
+  'tanrei-link-card': '--_lc-media-fill',
+  'tanrei-page-header': '--_pgh-dot-color',
   'tanrei-skeleton': '--_skl-gap',
   'tanrei-table': '--_table-start',
-  'tanrei-table-of-contents': '--_toc-row-height',
-  'tanrei-tree-view': '--_trv-gap',
+  'tanrei-table-of-contents': '--_toc-row-floor',
+  'tanrei-tree-view': '--_trv-target',
 };
 
 /**
@@ -175,4 +175,22 @@ function drawnIn(root: Root, element: Element, mark: `--${string}`): boolean {
     }
   }
   return drawnHere;
+}
+
+/**
+ * Writes `values` — custom properties — in `element`'s own style, and takes off each name of `before` (what the last
+ * call wrote) that it no longer writes; returns the names it wrote, for the next call. Each is written only when it
+ * differs, so a caller that observes its element's `style` settles.
+ *
+ * What a light-DOM element draws for a value its stylesheet cannot name (a size or a variant a design system added, a
+ * count beyond the ones the sheet holds) is written here, and never as a rule added to its root: a rule inserted into
+ * a sheet of the document, or a sheet added to it, has the engine build every rule of the page again — WebKit takes a
+ * quarter of a second for one on a long page — where a value written on an element costs that element's style alone.
+ */
+export function writeValues(element: HTMLElement, before: readonly string[], values: readonly (readonly [name: `--${string}`, value: string])[]): string[] {
+  const style = element.style;
+  const names = values.map(([name]) => name);
+  for (const name of before) if (!names.includes(name as `--${string}`) && style.getPropertyValue(name) !== '') style.removeProperty(name);
+  for (const [name, value] of values) if (style.getPropertyValue(name) !== value) style.setProperty(name, value);
+  return names;
 }

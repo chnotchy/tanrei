@@ -9713,7 +9713,8 @@ Good to know:
 - **A browser without style container queries** draws the separation the tokens name when the element reads the
   figure (`data-separation` on the `<figure>`); the attribute is exact everywhere.
 - **A variant a design system adds** gets its fill from the element (`comp.figure.<variant>.container.color`),
-  with the outlined look's edge; without script it is drawn as `outlined`.
+  with the outlined look's edge, written in the element's own style — and the ground a pattern is drawn on in the
+  stage's — never as a rule added to the page; without script it is drawn as `outlined`.
 - **In prose** the element is an island: prose spaces it as a block at its full width, and keeps its caption — and a
   bare `<figure>`'s — to the measure (PRS-18).
 - Corner smoothing follows `sys.shape.corner-smoothing` through the shared rule; the stage's focus ring takes the
@@ -9774,7 +9775,7 @@ How it is built, and what follows from it:
 - **A heading in a summary** keeps its role and its level in the document. What a screen reader does with a heading inside a button differs; see the docs page.
 - **A label of bare text takes the layout direction.** A stylesheet cannot give a text node a direction of its own: wrap a label that may be written in the other direction in a `<span>`.
 - **A size taken from a container** (ACC-37) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which the stylesheet matches beside the `size` attribute. Without script an accordion is drawn at the size it sets, or at medium.
-- **A size or a variant a design system adds** gets its rules from the element, read from that value's tokens with the default's as fallbacks.
+- **A size or a variant a design system adds** is written by the element in its own style, as the value's private custom properties read from that value's tokens with the default's as fallbacks, and taken off again for a value of the core — never as a rule added to the page, which would have the browser build every rule of the page again.
 - **Without `::details-content`** an item opens and closes at once, inset by the item's own padding.
 
 ## `<tanrei-table-of-contents>` (`table-of-contents.css`)
@@ -9835,7 +9836,7 @@ How it is built, and what follows from it:
 - **The compact form's height** is its layout's: give the element a `max-block-size` (or hold it in a flex or grid track) and the list scrolls inside while the row stays.
 - **`select` and focus in the compact form.** The list closes after the browser has taken the navigation, and nothing is focused: the next Tab continues from the chosen heading, as after any link to a place on the page.
 - **A size taken from a container** (TOC-42) is drawn once the element is defined: it carries the size it draws as the custom state `size-<name>`, which table-of-contents.css matches beside the `size` attribute.
-- **A size a design system adds** gets its rules from the element, read from that size's tokens with the default's as fallbacks.
+- **A size a design system adds** is written by the element in its own style, as the size's private custom properties read from that size's tokens with the default's as fallbacks, and taken off again for a size of the core — never as a rule added to the page.
 - **Inside a shadow root** the element adds the stylesheet to that root. Targets are looked up in the document.
 
 ## `<tanrei-app-shell>` (`app-shell.css`)
@@ -10074,7 +10075,9 @@ Good to know:
 - **No tracking in scripts a tracked word falls apart in** (PGH-4): the title and the eyebrow take `letter-spacing: 0`
   under `:lang()` of Japanese, Chinese, Korean, Arabic, Persian, Urdu, Hindi and the like — set `lang`.
 - **An empty head** (no element child) is `display: none`; one built by script appears when its parts are written.
-- **A size a design system adds** gets its rules from the element, falling back to `medium`'s tokens.
+- **A size a design system adds** is written by the element in its own style, as the size's private custom properties
+  read from its tokens, each falling back to `medium`'s, and taken off again for a size of the core — never as a rule
+  added to the page.
 - **In prose** the element is an island (PRS-16): prose's heading and paragraph rules do not reach its `h1` and `p`.
 - `text-wrap: balance`: Chromium 114, Firefox 121, Safari 17.5 (lines break as usual before). Container queries:
   Chromium 105, Firefox 110, Safari 16.
@@ -10448,7 +10451,7 @@ the whole hierarchy as the nested list it is, every level shown and no chevron d
 | `selection` | `none` \| `single` \| `multiple` | `none` | whether items are chosen |
 | `value` | text \| `null` | `null` | the chosen item's `data-value` (single); set by the tree at a choice, with `change` |
 | `values` | a JSON array (attribute), `string[]` (property) | `[]` | the chosen items' values (multiple) |
-| `size` | `small` \| `medium` (a design system may add values) | the size its nearest container sets, else `medium` | 48 rows with the body text, or 36 rows (the minimum target) with the small one; without script a tree is drawn at the size it sets, or at medium |
+| `size` | `small` \| `medium` (a design system may add values) | the size its nearest container sets, else `medium` | 48 rows with the body text, or 36 rows (the minimum target) with the small one; without script a tree is drawn at the size it sets, or at medium; a size a design system adds is written by the element in its own style, as the size's private custom properties (never a rule added to the page) |
 | `guides` | boolean | off | a hairline down from each open parent beside the rows it holds |
 | `loading-label` / `loadingLabel` | text | `''` | the words of a loading row |
 
@@ -10544,7 +10547,7 @@ at the element's name or at the class. The element carries the same text and add
 | `decorative` | the `decorative` attribute. |
 | `showDelay` | the `show-delay` attribute, in milliseconds. `show-delay="0"` is read by the stylesheet; any other number is the element's (before it is defined the token's delay runs, and what is left of the number is counted on from there). |
 | a placeholder's `shape` | `data-shape="text"` (the default, and what a missing or unknown value draws), `block` or `circle`. |
-| `lines` | `data-lines`. The stylesheet reads 1 to 24; the element writes the rule of any other value (more lines, or a value that is not a whole number of at least 1). |
+| `lines` | `data-lines`. The stylesheet reads 1 to 24; for any other value (more lines, or a value that is not a whole number of at least 1) the element writes the lines in the placeholder's own style (`--_skl-lines`, and past 24 the list of shadows, `--_skl-shadows`) — never a rule added to the page, which would have the browser build every rule of the page again. |
 | `inlineSize`, `blockSize` | the CSS properties `inline-size` and `block-size`, in the element's `style` or by a rule of yours: a number of the spec is that many CSS pixels; any other length, a percentage, a share of a row or an `aspect-ratio` is a size your layout gives. |
 
 **The box (SKL-1, SKL-6).** The skeleton is a plain block with no padding, edge or fill: what stands in it is laid out
