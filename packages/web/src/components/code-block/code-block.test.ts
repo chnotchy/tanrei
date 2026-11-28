@@ -13,6 +13,8 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, roleFont, tab, tabTo, rootTokens, warnings } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { contrastChecked } from '../../../test/contrast-checked.js';
+import { askForFrame, rewrite } from '../../../test/frame-asked.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkg = path.resolve(here, '../../..');
@@ -928,6 +930,52 @@ test.describe('syntax', () => {
     await expect.poll(() => css(operator, 'color')).toBe('rgb(4, 5, 6)');
     expect(Number(await css(operator, 'font-weight'))).toBe(Number(await css(lineCode(page, 'added-role', 1), 'font-weight')) + 200);
     expect(seen.filter((w) => w.includes('COD-19'))).toEqual([]);
+  });
+
+  test('COD-18, COD-19, COD-29: a role a design system added is drawn from its two tokens on a page that loads code.css too — whether the product gave the run or the block’s highlighter found it — with no rule added to the page: the run carries its color and weight in its own style, taken off again when it names a role of the core', async ({ page }) => {
+    // The added role's two tokens, as a design system's stylesheet would give them, in the page from its start.
+    const added = `<style>:root { ${T('syntax-color-operator')}: rgb(4, 5, 6); ${T('syntax-emphasis-operator')}: 200; }</style>`;
+    const given = fx('given', {}, { content: '<pre><code>a <span data-syntax="operator">=</span> 1</code></pre>' });
+    // Each in a page of its own: the count is installed in the window, which a second document written into it keeps.
+    const load = async (p: P, stylesheet: boolean) => {
+      const markup = (await fixturesDocument(spec, { fixtures: [given] })).replace('</head>', () => `${stylesheet ? `<style>${read('dist/code.css')}</style>` : ''}${added}</head>`);
+      await p.setContent(countingRules(markup, TAG));
+      await p.waitForFunction((tag) => !!customElements.get(tag) && [...document.querySelectorAll(tag)].every((el) => el.matches(':defined')), TAG);
+      // A highlighter of the product's that names the added role, for a block put in after the page is drawn.
+      await p.evaluate(() => {
+        (customElements.get('tanrei-code-block') as unknown as { highlighter: unknown }).highlighter = (code: string) =>
+          code
+            .split(/(=)/)
+            .filter(Boolean)
+            .map((text) => (text === '=' ? { text, syntax: 'operator' } : { text }));
+      });
+      await insert(p, 'found', { language: 'mine', label: 'x' }, 'a = 1');
+      await askForFrame(p);
+    };
+    const operator = (p: P, id: string) => host(p, id).locator('[data-syntax="operator"]');
+    const drawnAsAdded = async (p: P, id: string) => {
+      await expect.poll(() => css(operator(p, id), 'color'), `${id}: the added role's color`).toBe('rgb(4, 5, 6)');
+      expect(Number(await css(operator(p, id), 'font-weight')), `${id}: the code's weight plus the added role's emphasis`).toBe(Number(await css(lineCode(p, id, 1), 'font-weight')) + 200);
+    };
+    // With code.css the element adopts no sheet of its own; the added role is drawn all the same.
+    await load(page, true);
+    expect(await page.evaluate(() => document.adoptedStyleSheets.length)).toBe(0);
+    for (const id of ['given', 'found']) await drawnAsAdded(page, id);
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // The product names a role of the core for its run: what the element wrote for the added one is taken off.
+    await rewrite(operator(page, 'given'), (el) => {
+      el.setAttribute('data-syntax', 'keyword');
+      el.textContent = '=';
+    });
+    const keyword = host(page, 'given').locator('[data-syntax="keyword"]');
+    await expect.poll(() => keyword.evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    expect(await css(keyword, 'color')).toBe(await resolveColor(page, T('syntax-color-keyword')));
+    // Without code.css the element adopts its rules once, and adds none for the added role.
+    const bare = await page.context().newPage();
+    await load(bare, false);
+    for (const id of ['given', 'found']) await drawnAsAdded(bare, id);
+    expect(await ruleWrites(bare)).toEqual({ inserted: 0, adopted: 1 });
+    await bare.close();
   });
 
   test('COD-19: with highlight true, no runs of the product’s, a language the highlighter knows and code within the limit, the block highlights the code by itself — every language fixture, in the light and the dark scheme, holds a run of every role its language has — and changes nothing but colors and weights: the characters, the lines and what the copy button copies are the code as given; in every other case all of the code is code.color; a role the design system does not have is drawn plain and reported', async ({ page }) => {

@@ -11140,10 +11140,14 @@ Events: `copied` (`detail.text`) and `copyfailed` (`detail.reason`). Parts: `con
   - *Roles* are the values of the token axis `comp.code-block.syntax`: `SYNTAX_ROLES` in `code-block.light.ts` is
     held to the roles `src/generated/tokens.css` names by the build (it refuses to write `code.css` while they
     differ), and each is one rule from `--tanrei-comp-code-block-syntax-color-<role>` and `…-emphasis-<role>`. A role
-    a design system **adds** to the axis is recognized by its color token in the cascade and gets the
-    same rule in the adopted sheet the first time a run names it; a role no token carries is drawn plain and
-    reported (COD-19). Where constructed stylesheets are missing, an added role needs its rule in the product's own
-    stylesheet.
+    a design system **adds** to the axis has no rule of its own: each run of it carries its color and its weight in
+    its own style (`--_code-block-run-color: var(--tanrei-comp-code-block-syntax-color-<role>)` and
+    `--_code-block-run-weight`, the code's weight plus `…-emphasis-<role>`), written by the element on the runs it
+    writes and on the runs the document gives, and taken off a run that names a role of the core again; one rule of
+    the light-DOM rules (`code.css` and the adopted sheet alike) reads them — never a rule added to the page, which
+    would have the browser build every rule of the page again, and which a page that loads `code.css` (whose block
+    adopts no sheet) would never see. A role no token carries is drawn plain, and reported in a debug build (COD-19).
+    Without script a run of an added role is drawn plain.
   - *The seam.* `TanreiCodeBlock.highlighter` is undefined by default (Tanrei's module). A function
     `(code, language, signal) => runs | null | Promise<…>` set there is asked instead and the module is never
     loaded; `null` turns every block's own highlighting off. Set it in the task that defines the element. `signal`
