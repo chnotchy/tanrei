@@ -775,6 +775,75 @@ test.describe('the cloak holds a field’s help and its error text at the lines 
   }
 });
 
+test.describe('the cloak holds a row of tabs at the height its content gives it, in every system', () => {
+  // TAB-16, TAB-18: a row is the container height of its size, or taller where its labels need more: the label's line
+  // inside the indicator's paddings, with the track's padding or the variant's underline above and below. In
+  // cupertino a small row is 33.98 px drawn and its container height 32: held at the token, a docs figure of tonal
+  // tabs grew by 1.98 px when it was defined. Each fixture of the Tabs and the Tab view, under each preset, is held as
+  // the default system's test holds it (above).
+  for (const tag of ['tanrei-tabs', 'tanrei-tab-view']) {
+    const name = tag.replace(/^tanrei-/, '');
+    for (const system of PRESETS) {
+      test(`${system}, ${name}: with the cloak and no script, each fixture is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+        const { spec, page, before, after } = await mountedLate(first, tag, browserName, { system });
+        const fixtures = new Map(spec.fixtures.map((fixture) => [fixture.id, fixture]));
+        const wrong = before.flatMap((stage, i) => {
+          const drawn = after[i]!;
+          if (!stage.held) return [];
+          const fixture = fixtures.get(stage.id)!;
+          const why = GROWS[name]?.find((reason) => reason.grows((fixture.props ?? {}) as Record<string, unknown>, fixture))?.why ?? (drawn.wraps ? WRAPS : undefined);
+          if (why ? stage.height <= drawn.height + 0.5 : Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+          return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px${why ? ` (it grows: ${why})` : ''}`];
+        });
+        expect(wrong).toEqual([]);
+        expect(before.filter((stage) => stage.held).length, 'the cloak holds some of the fixtures').toBeGreaterThan(0);
+        await page.close();
+      });
+    }
+  }
+});
+
+test.describe('the cloak holds a file item’s second line at the lines it wraps onto, in every system', () => {
+  // FIT-4: the second line joins the format, the size and the status in words (the error in its place while it
+  // failed), a dot between each two, the status's mark before the status; it wraps and is never cut. The cloak held it
+  // at one line where a format or a size stood before the status, so a row whose line wrapped grew when it was defined:
+  // on the docs' File item page, a column of six rows 22.5rem wide was 412 px high before and 432 px drawn at a phone's
+  // width, and in cupertino, whose face is wider where the system has no San Francisco, 388 px and 406 px at a
+  // desktop's. Held here in rows and tiles narrow enough that the line wraps, its actions still beside the texts
+  // (FIT-24), in each status, with and without a format and a size, under the default system and each preset.
+  const style = 'inline-size: 16rem';
+  const labels = { removeLabel: 'Remove {name}', retryLabel: 'Retry {name}' };
+  const FIXTURES: Fixture[] = [
+    { id: 'format-size-status', props: { ...labels, style, name: 'brief.pdf', formatText: 'PDF', sizeText: '820 KB', statusText: 'Waiting for the files before it to be sent' } },
+    { id: 'size-uploading', props: { ...labels, style, name: 'floor-plan.png', sizeText: '3.4 MB', status: 'uploading', statusText: 'Uploading, about a minute left', progress: 0.4 } },
+    { id: 'format-done', props: { ...labels, style, name: 'contract.pdf', formatText: 'PDF', status: 'done', statusText: 'Uploaded on 4 December by the review team' } },
+    { id: 'size-error-retryable', props: { ...labels, style: 'inline-size: 20rem', name: 'site-photo.png', sizeText: '6.8 MB', status: 'error', errorText: 'The connection was lost. Try again once you are online.', retryable: true } },
+    { id: 'error', props: { ...labels, style, name: 'scan-archive.zip', status: 'error', errorText: 'Larger than 10 MB. Choose a smaller file, or split it in two.' } },
+    { id: 'format-size-done-readonly', props: { style: 'inline-size: 12rem', name: 'invoice-0412.pdf', formatText: 'PDF', sizeText: '96 KB', status: 'done', statusText: 'Sent on 4 December', readonly: true } },
+    { id: 'tile-format-size-error', props: { ...labels, name: 'floor-plan.png', form: 'tile', formatText: 'PNG', sizeText: '3.4 MB', status: 'error', errorText: 'Larger than 10 MB.' } },
+    { id: 'tile-size-done', props: { ...labels, name: 'survey.pdf', form: 'tile', sizeText: '1.1 MB', status: 'done', statusText: 'Uploaded just now' } },
+  ];
+  for (const system of [undefined, ...PRESETS]) {
+    test(`${system ?? 'the default system'}, file-item: with the cloak and no script, each file item whose second line wraps is as high as once it is defined, and so is its stage`, async ({ page: first, browserName }) => {
+      const { page, before, after } = await mountedLate(first, 'tanrei-file-item', browserName, { ...(system ? { system } : {}), fixtures: FIXTURES });
+      // The second lines are drawn on more lines than one, and the rows' actions beside their texts: what this holds.
+      expect(after.filter((stage) => !stage.wraps).map((stage) => stage.id)).toEqual([]);
+      expect(await page.evaluate(() => [...document.querySelectorAll('tanrei-file-item')].filter((item) => item.shadowRoot?.querySelector('[data-stacked]')).map((item) => item.closest('[data-fixture]')!.getAttribute('data-fixture')))).toEqual([]);
+      const wrong = before.flatMap((stage, i) => {
+        const drawn = after[i]!;
+        if (Math.abs(stage.height - drawn.height) <= 0.5 && Math.abs(stage.stage - drawn.stage) <= 0.5) return [];
+        return [`${stage.id}: held ${stage.height}px in a stage of ${stage.stage}px, drawn ${drawn.height}px in ${drawn.stage}px`];
+      });
+      expect(wrong).toEqual([]);
+      if (browserName === 'chromium') {
+        const { sum, moved } = await shifts(page);
+        expect(sum, moved).toBeLessThanOrEqual(SHIFT_BUDGET);
+      }
+      await page.close();
+    });
+  }
+});
+
 /**
  * A page of a product's: a heading and a paragraph, then a form and a toolbar of the controls a page is most often
  * made of, then text below them. The controls that stand side by side are in rows of their own, as a product lays out

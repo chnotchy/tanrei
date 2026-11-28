@@ -1503,33 +1503,54 @@
     min-block-size: var(--tanrei-comp-search-trigger-container-height);
   }
 
-  /* Bars of destinations and pages. Tabs: a horizontal row; a primary row of the default size taller where a tab
-     shows a glyph over its label. */
-  :where(tanrei-tabs:not([orientation='vertical']):not(:defined)) {
-    min-block-size: var(--tanrei-comp-tabs-container-height-medium);
+  /* Bars of destinations and pages. Tabs: a horizontal row (TAB-16, TAB-18), the container height of its size, or,
+     where a tab draws its label, as tall as the label's line inside the indicator's paddings and the track's padding
+     or the variant's underline above and below it, where that is taller (the row grows to hold its content: a small
+     row in cupertino); a primary row of the default size taller where a tab shows a glyph over its label. A tab view
+     draws such a row of its panels' labels. */
+  :where(tanrei-tabs:not(:defined), tanrei-tab-view:not([tabs]):not(:defined)) {
+    --_cloak-tabs-height: var(--tanrei-comp-tabs-container-height-medium);
+    --_cloak-tabs-padding: var(--tanrei-comp-tabs-active-indicator-padding-block-medium);
+    --_cloak-tabs-underline: var(--tanrei-comp-tabs-primary-underline-thickness);
+    --_cloak-tabs-labelled: max(var(--_cloak-tabs-height), 2 * max(var(--tanrei-comp-tabs-track-padding), var(--_cloak-tabs-underline)) + 2 * var(--_cloak-tabs-padding) + var(--tanrei-comp-tabs-label-typescale-line-height) * var(--tanrei-comp-tabs-label-typescale-font-size));
+    --_cloak-tabs-row: var(--_cloak-tabs-height);
   }
-  :where(tanrei-tabs[size='small']:not([orientation='vertical']):not(:defined)) {
-    min-block-size: var(--tanrei-comp-tabs-container-height-small);
+  :where(tanrei-tabs[size='small']:not(:defined), tanrei-tab-view[size='small']:not([tabs]):not(:defined)) {
+    --_cloak-tabs-height: var(--tanrei-comp-tabs-container-height-small);
+    --_cloak-tabs-padding: var(--tanrei-comp-tabs-active-indicator-padding-block-small);
+  }
+  :where(tanrei-tabs[variant='secondary']:not(:defined), tanrei-tab-view[variant='secondary']:not([tabs]):not(:defined)) {
+    --_cloak-tabs-underline: var(--tanrei-comp-tabs-secondary-underline-thickness);
+  }
+  :where(tanrei-tabs[variant='tonal']:not(:defined), tanrei-tab-view[variant='tonal']:not([tabs]):not(:defined)) {
+    --_cloak-tabs-underline: var(--tanrei-comp-tabs-tonal-underline-thickness);
+  }
+  :where(tanrei-tabs:not(:defined):has(> tanrei-tab[label]:not([label=''], [label-hidden])), tanrei-tab-view:not([tabs]):not(:defined):has(> tanrei-tab-panel[label]:not([label=''], [label-hidden]))) {
+    --_cloak-tabs-row: var(--_cloak-tabs-labelled);
+  }
+  :where(tanrei-tabs:not([orientation='vertical']):not(:defined)) {
+    min-block-size: var(--_cloak-tabs-row);
   }
   :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden]))) {
     min-block-size: var(--tanrei-comp-tabs-container-height-with-icon);
   }
-  /* Vertical tabs: a column of its tabs, each the container height of the row's size, and at least the pointer target
-     tall: in a column the tabs touch above and below (TAB-51). (A coarse pointer's larger target is not held: above.) */
+  /* Vertical tabs: a column of its tabs, each the row's height of its size — a tab that draws its label as tall as
+     that label needs, as in a row — and at least the pointer target tall: in a column the tabs touch above and below
+     (TAB-51). (A coarse pointer's larger target is not held: above.) */
   :where(tanrei-tabs[orientation='vertical']):where(:not(:defined):not([hidden])) {
     display: flex;
     flex-direction: column;
   }
   :where(tanrei-tabs[orientation='vertical']:not(:defined)) {
-    --_cloak-tab: max(var(--tanrei-comp-tabs-container-height-medium), var(--tanrei-sys-target-pointer));
+    --_cloak-tab: max(var(--_cloak-tabs-height), var(--tanrei-sys-target-pointer));
     min-block-size: var(--_cloak-tab);
-  }
-  :where(tanrei-tabs[orientation='vertical'][size='small']:not(:defined)) {
-    --_cloak-tab: max(var(--tanrei-comp-tabs-container-height-small), var(--tanrei-sys-target-pointer));
   }
   :where(tanrei-tab):where(:not(:defined):not([hidden])) {
     display: block;
     min-block-size: var(--_cloak-tab);
+  }
+  :where(tanrei-tabs[orientation='vertical']:not(:defined) > tanrei-tab[label]:not([label=''], [label-hidden]):not(:defined)) {
+    min-block-size: max(var(--_cloak-tabs-labelled), var(--tanrei-sys-target-pointer));
   }
   /* The panels a row of tabs or a tab view holds (TAB-13, TBV-1, TBV-9): one is shown, under the row — beside the
      column of vertical tabs — and the others take no room. The panel shown is the selected tab's, which CSS cannot
@@ -1544,10 +1565,7 @@
     display: none;
   }
   :where(tanrei-tabs:not([orientation='vertical']):not(:defined):has(> tanrei-tab-panel)) {
-    padding-block-start: var(--tanrei-comp-tabs-container-height-medium);
-  }
-  :where(tanrei-tabs[size='small']:not([orientation='vertical']):not(:defined):has(> tanrei-tab-panel)) {
-    padding-block-start: var(--tanrei-comp-tabs-container-height-small);
+    padding-block-start: var(--_cloak-tabs-row);
   }
   :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden])):has(> tanrei-tab-panel)) {
     padding-block-start: var(--tanrei-comp-tabs-container-height-with-icon);
@@ -1572,10 +1590,7 @@
     box-sizing: border-box;
   }
   :where(tanrei-tab-view:not([tabs]):not(:defined)) {
-    padding-block-start: var(--tanrei-comp-tabs-container-height-medium);
-  }
-  :where(tanrei-tab-view[size='small']:not([tabs]):not(:defined)) {
-    padding-block-start: var(--tanrei-comp-tabs-container-height-small);
+    padding-block-start: var(--_cloak-tabs-row);
   }
   :where(tanrei-tab-view:is(:not([variant]), [variant='primary']):not([size='small'], [tabs]):not(:defined):has(> tanrei-tab-panel[icon]:not([icon=''], [label-hidden]))) {
     padding-block-start: var(--tanrei-comp-tabs-container-height-with-icon);
@@ -1773,11 +1788,10 @@
      read-only, row.container.gap and its actions (the remove action, and the retry action before it while it failed
      and can be retried), each action.size wide, the actions' gap apart. The texts are its name in the headline's text
      role, laid out unpainted (the `::before`), which wraps as the item wraps it, and the second line under it (the
-     `::after`), held at one line of the supporting text, or at the error text's lines where they are its only words
-     (below); the row is never lower than those two lines, on which its lead and its actions are centred. While it
-     uploads, its bar stands progress.gap under the texts. Not held: the further lines of a second line that joins a
-     format or a size to its status, the actions on a line of their own where the texts would have less than half the
-     row (FIT-24), and the mark of a new context. */
+     `::after`), its words written as the item joins them (below), which wrap as the item wraps them; the row is never
+     lower than those two lines, on which its lead and its actions are centred. While it uploads, its bar stands
+     progress.gap under the texts. Not held: the actions on a line of their own where the texts would have less than
+     half the row (FIT-24), and the mark of a new context. */
   :where(tanrei-file-item):where(:not(:defined):not([hidden])) {
     --_cloak-target: var(--tanrei-sys-target-pointer);
     --_cloak-action-gap: max(var(--tanrei-comp-file-item-action-gap), (var(--_cloak-target) - var(--tanrei-comp-file-item-action-size)) * 2);
@@ -1821,24 +1835,28 @@
     unicode-bidi: plaintext;
   }
   :where(tanrei-file-item:not([form='tile']):not(:defined):not([hidden]))::after {
-    content: '';
+    content: var(--_cloak-format) var(--_cloak-size) var(--_cloak-dot) var(--_cloak-said);
     display: block;
     min-block-size: 1lh;
     font: var(--tanrei-comp-file-item-supporting-text-typescale-font-weight) var(--tanrei-comp-file-item-supporting-text-typescale-font-size)/var(--tanrei-comp-file-item-supporting-text-typescale-line-height) var(--tanrei-comp-file-item-supporting-text-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
+    text-indent: var(--_cloak-mark);
+    overflow-wrap: anywhere;
+    line-break: strict;
+    unicode-bidi: plaintext;
   }
   /* A tile (FIT-3, FIT-4, FIT-8): an inline block on the top of its line, exactly as wide as its box, never narrower
      than its actions and their insets need nor wider than its place, the box at least as high as an action and its
      insets — the box of tile.media.height, a square, where its attributes give no size; `width` and `height` where
      the browser reads an attribute as a length, the box then in their proportion, and a square of the one given where
      only one is — then, where it draws a text beneath, tile.container.gap and its texts: the name on one line, but a
-     name hidden over a picture (FIT-8), and the second line, where it has words or a status's mark (FIT-4), held at
-     one line. Not held: a width or a height given as attributes where the browser cannot read them so (the box is
-     held at the token's square), and a second line that wraps. */
+     name hidden over a picture (FIT-8), and the second line, where it has words or a status's mark (FIT-4), written
+     as a row's is. Not held: a width or a height given as attributes where the browser cannot read them so (the box
+     is held at the token's square). */
   :where(tanrei-file-item[form='tile']):where(:not(:defined):not([hidden])) {
     --_cloak-box: var(--tanrei-comp-file-item-tile-media-height);
     --_cloak-ratio: 1;
     --_cloak-name: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size));
-    --_cloak-second: calc(var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size));
     display: inline-block;
     vertical-align: top;
     max-inline-size: 100%;
@@ -1862,7 +1880,8 @@
     aspect-ratio: var(--_cloak-ratio);
     min-block-size: calc(var(--tanrei-comp-file-item-action-size) + 2 * var(--tanrei-comp-file-item-tile-action-inset));
   }
-  /* Beneath the box: the name's line, with the second line's under it where the tile has words for it or a mark. */
+  /* Beneath the box: the name's line, with the second line under it where the tile has words for it or a mark — its
+     words written as the row's are (below), wrapping as they are drawn. */
   :where(tanrei-file-item[form='tile']:not(:defined):not([hidden]))::after {
     content: '';
     display: block;
@@ -1870,36 +1889,59 @@
     block-size: var(--_cloak-name);
   }
   :where(tanrei-file-item[form='tile']:not(:defined):is([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']))::after {
-    block-size: calc(var(--_cloak-name) + var(--_cloak-second));
+    content: var(--_cloak-format) var(--_cloak-size) var(--_cloak-dot) var(--_cloak-said);
+    block-size: auto;
+    min-block-size: 1lh;
+    padding-block-start: var(--_cloak-name);
+    font: var(--tanrei-comp-file-item-supporting-text-typescale-font-weight) var(--tanrei-comp-file-item-supporting-text-typescale-font-size)/var(--tanrei-comp-file-item-supporting-text-typescale-line-height) var(--tanrei-comp-file-item-supporting-text-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
+    text-indent: var(--_cloak-mark);
+    overflow-wrap: anywhere;
+    line-break: strict;
+    unicode-bidi: plaintext;
   }
   :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src='']):not(:defined))::after {
     display: none;
   }
   :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src='']):not(:defined):not([hidden]):is([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']))::after {
     display: block;
-    block-size: var(--_cloak-second);
-  }
-  /* A row or a tile that failed and says why, with no format or size before it: its second line is the error text
-     after the status's mark, which wraps as it is drawn (a tile's under its name's line, where it draws it). */
-  :where(tanrei-file-item[status='error'][error-text]:not([error-text='']):not([format-text]:not([format-text='']), [size-text]:not([size-text=''])):not([form='tile']):not(:defined))::after {
-    content: attr(error-text);
-    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
-    text-indent: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
-    overflow-wrap: anywhere;
-    unicode-bidi: plaintext;
-  }
-  :where(tanrei-file-item[form='tile'][status='error'][error-text]:not([error-text='']):not([format-text]:not([format-text='']), [size-text]:not([size-text=''])):not(:defined))::after {
-    content: attr(error-text);
-    block-size: auto;
-    padding-block-start: var(--_cloak-name);
-    font: var(--tanrei-comp-file-item-supporting-text-typescale-font-weight) var(--tanrei-comp-file-item-supporting-text-typescale-font-size)/var(--tanrei-comp-file-item-supporting-text-typescale-line-height) var(--tanrei-comp-file-item-supporting-text-typescale-font-family);
-    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
-    text-indent: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
-    overflow-wrap: anywhere;
-    unicode-bidi: plaintext;
-  }
-  :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src=''])[status='error'][error-text]:not([error-text='']):not([format-text]:not([format-text='']), [size-text]:not([size-text=''])):not(:defined))::after {
     padding-block-start: 0;
+  }
+  /* The second line's words, in a row and in a tile, as the item joins them (FIT-4): the format, the size, then the
+     status in words — the error in its place while it failed — a dot between each two, and the status's mark before
+     the status where it is done or failed, status.icon.size wide and status.icon.gap from words after it. CSS writes no
+     box between two words, so the mark's room is the line's indent: the line is as wide as it is drawn, and breaks
+     where it is drawn but beside the mark, where it may break one word sooner or later. */
+  :where(tanrei-file-item:not(:defined):not([hidden]))::after {
+    --_cloak-format: '';
+    --_cloak-size: '';
+    --_cloak-dot: '';
+    --_cloak-said: '';
+    --_cloak-mark: 0;
+  }
+  :where(tanrei-file-item[format-text]:not([format-text='']):not(:defined))::after {
+    --_cloak-format: attr(format-text);
+  }
+  :where(tanrei-file-item[size-text]:not([size-text='']):not(:defined))::after {
+    --_cloak-size: attr(size-text);
+  }
+  :where(tanrei-file-item[format-text]:not([format-text=''])[size-text]:not([size-text='']):not(:defined))::after {
+    --_cloak-size: ' ' '\b7' ' ' attr(size-text);
+  }
+  :where(tanrei-file-item[status-text]:not([status-text='']):not([status='error']):not(:defined))::after {
+    --_cloak-said: attr(status-text);
+  }
+  :where(tanrei-file-item[status='error'][error-text]:not([error-text='']):not(:defined))::after {
+    --_cloak-said: attr(error-text);
+  }
+  :where(tanrei-file-item:is([format-text]:not([format-text='']), [size-text]:not([size-text=''])):is([status-text]:not([status-text='']):not([status='error']), [status='done'], [status='error']):not(:defined))::after {
+    --_cloak-dot: ' ' '\b7' ' ';
+  }
+  :where(tanrei-file-item:is([status='done'], [status='error']):not(:defined))::after {
+    --_cloak-mark: var(--tanrei-comp-file-item-status-icon-size);
+  }
+  :where(tanrei-file-item:is([status='done'][status-text]:not([status-text='']), [status='error'][error-text]:not([error-text=''])):not(:defined))::after {
+    --_cloak-mark: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
   }
 
   /* A swatch (SWC-1, SWC-7): inline, centred on the line, as wide as it is drawn — its sample, the gap and its
