@@ -75,6 +75,13 @@ const SLACK = 0.5;
  * time between two `scroll` events of one glide is a frame, and this is several.
  */
 const STILL_MS = 150;
+/**
+ * TOC-12: what the person moves the view by their own hand with. Heard while the element is connected, and read only
+ * while a hold has arrived: WebKit keeps in every element's style whether the page listens for the wheel, so a `wheel`
+ * listener added to the window or taken off it has the next read of a style restyle the whole document (40–47 ms on a page
+ * of 3,000 rows and 200 buttons) — once when the view stopped at the chosen target, and again at the person's scrolling.
+ */
+const OWN_SCROLLING = ['wheel', 'touchmove', 'keydown', 'pointerdown', 'mousedown'] as const;
 /** The keys that scroll a view (TOC-12: "a key"). */
 const SCROLL_KEYS: readonly string[] = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '];
 
@@ -341,6 +348,7 @@ export class TanreiTableOfContents extends TanreiElement {
     this.addEventListener('click', this.onClick);
     this.addEventListener('keydown', this.onKeyDown);
     for (const [type, listener] of this.pressListeners) this.addEventListener(type, listener, true);
+    for (const type of OWN_SCROLLING) window.addEventListener(type, this.onOwnScrolling, { capture: true, passive: true });
     this.mutations?.observe(this, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['href'] });
     this.itemsStale = true;
     if (this.hasUpdated) this.requestUpdate();
@@ -351,6 +359,7 @@ export class TanreiTableOfContents extends TanreiElement {
     this.removeEventListener('click', this.onClick);
     this.removeEventListener('keydown', this.onKeyDown);
     for (const [type, listener] of this.pressListeners) this.removeEventListener(type, listener, true);
+    for (const type of OWN_SCROLLING) window.removeEventListener(type, this.onOwnScrolling, { capture: true });
     this.mutations?.disconnect();
     this.unwatch();
     this.release({ decide: false });
@@ -673,7 +682,7 @@ export class TanreiTableOfContents extends TanreiElement {
 
   /** TOC-12: `href` stays current while the view moves to its target and after, until the person next scrolls. */
   private hold(href: string) {
-    this.unlistenForScrolling();
+    clearTimeout(this.stillTimer);
     this.held = href;
     this.arrived = false;
     this.stillSoon();
@@ -688,16 +697,10 @@ export class TanreiTableOfContents extends TanreiElement {
   private readonly still = () => {
     if (this.held === null || this.arrived) return;
     this.arrived = true;
-    for (const type of ['wheel', 'touchmove', 'keydown', 'pointerdown', 'mousedown']) window.addEventListener(type, this.onOwnScrolling, { capture: true, passive: true });
   };
 
-  private unlistenForScrolling() {
-    clearTimeout(this.stillTimer);
-    for (const type of ['wheel', 'touchmove', 'keydown', 'pointerdown', 'mousedown']) window.removeEventListener(type, this.onOwnScrolling, { capture: true });
-  }
-
   private release({ decide = true } = {}) {
-    this.unlistenForScrolling();
+    clearTimeout(this.stillTimer);
     this.held = null;
     this.arrived = false;
     if (decide) this.schedule();
@@ -705,6 +708,8 @@ export class TanreiTableOfContents extends TanreiElement {
 
   /** A wheel, a drag, a scrolling key or a press on the scroll bar: the person moves the view by their own hand (TOC-12). */
   private readonly onOwnScrolling = (event: Event) => {
+    // Before the view has stopped at the chosen target, the move is still the element's (or no item is held).
+    if (this.held === null || !this.arrived) return;
     if (event instanceof KeyboardEvent) {
       const on = event.target instanceof Element ? event.target : null;
       // Space on a control is that control's; a key in a field is the field's.
