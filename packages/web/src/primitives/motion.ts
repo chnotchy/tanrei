@@ -1111,14 +1111,28 @@ const markIfHeld = (host: HTMLElement) => {
 // The marks come off in the next frame callback, before that frame is styled — with the hover the act changes, so it
 // moves — and not in the act's own task: what the act starts there (a drawer that closes on Escape, its focus and its
 // width drawn together in the next frame) is styled with what it writes in that frame, as it would be without them.
+// Heard with nothing held, an act changes nothing.
 const letGo = () => {
-  for (const act of ACTS) window.removeEventListener(act, letGo, true);
+  if (!stillSurfaces.size) return;
   const marked = [...stillHosts];
   stillHosts.clear();
   stillSurfaces.clear();
   requestAnimationFrame(() => {
     for (const host of marked) if (!stillHosts.has(host)) host.removeAttribute(STILL_POINTER);
   });
+};
+
+// The acts are heard from the first surface that holds a still pointer, for as long as the page lives, and not from
+// each surface that opens to the act that lets it go. WebKit keeps in every element's style whether the page listens for
+// the wheel, so a `wheel` listener added to the window or taken off it has its next read of a style restyle the whole
+// document: on a page of 3,000 rows and 200 buttons with the package's stylesheets, 40–47 ms in WebKit, against nothing
+// in Chromium and Firefox — paid by the read of every popover, menu or dialog opening, and again by the press that let
+// it go (the pressed feedback that press reads). Only the page's first opening pays it. (Heard from the first
+// element's connection instead, which is styled with the page anyway, every element's module would carry the hold's
+// code: an app shell's bundle grew 89 bytes gzip past its budget.) Heard once, it stands in for itself with nothing to do.
+let hearActs = () => {
+  hearActs = () => {};
+  for (const act of ACTS) window.addEventListener(act, letGo, { capture: true, passive: true });
 };
 
 /**
@@ -1131,7 +1145,7 @@ const letGo = () => {
  */
 export function holdStillPointer(surface: Element): void {
   if (typeof window === 'undefined') return;
-  if (!stillSurfaces.size) for (const act of ACTS) window.addEventListener(act, letGo, { capture: true, passive: true });
+  hearActs();
   stillSurfaces.add(surface);
   if (surface instanceof HTMLElement) mark(surface);
   const walk: Element[] = [surface];
