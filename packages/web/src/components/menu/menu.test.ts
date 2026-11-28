@@ -5275,7 +5275,7 @@ test.describe('accessibility', () => {
 test.describe('before definition', () => {
   const dist = (file: string) => fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../dist', file), 'utf8');
 
-  test('MNU-19: a menu drawn in place holds, before its elements are defined, the block size its surface will have — every in-place fixture, by menu.css alone: the surface’s padding, each row’s height (MNU-20: a line of supporting text more), a group’s title (MNU-28) and what parts a group from what is next to it (MNU-23, MNU-36) — so nothing under it moves when the script arrives', async ({ page }) => {
+  test('MNU-19: a menu drawn in place holds, before its elements are defined, the box its surface will have — every in-place fixture, by menu.css alone: the surface’s padding and width (MNU-3: as wide as its widest row, its columns and its words), each row’s height (MNU-20: a line of supporting text more), a group’s title (MNU-28) and what parts a group from what is next to it (MNU-23, MNU-36) — so nothing under it moves when the script arrives', async ({ page }) => {
     // The fixtures' own markup, as a page writes it: what the elements wrote on themselves is taken off again.
     await mountFixtures(page, spec);
     const WRITTEN = ['role', 'aria-label', 'aria-labelledby', 'aria-checked', 'aria-disabled', 'aria-haspopup', 'aria-expanded', 'aria-setsize', 'aria-posinset', 'tabindex', 'id', 'style'];
@@ -5302,12 +5302,30 @@ test.describe('before definition', () => {
       expect(await page.evaluate(() => !!customElements.get('tanrei-menu'))).toBe(false);
       const measure = () =>
         page.evaluate(() => ({
-          menus: [...document.querySelectorAll<HTMLElement>('section')].map((section) => ({ id: section.dataset.id!, height: section.querySelector('tanrei-menu')!.getBoundingClientRect().height })),
+          menus: [...document.querySelectorAll<HTMLElement>('section')].map((section) => {
+            const menu = section.querySelector('tanrei-menu')!;
+            return {
+              id: section.dataset.id!,
+              height: menu.getBoundingClientRect().height,
+              // MNU-3: the surface's width, which is the host's before the menu is defined.
+              width: (menu.shadowRoot?.querySelector('.surface') ?? menu).getBoundingClientRect().width,
+              // MNU-31: the width of a shortcut and of a trailing text is the element's to draw (keycaps, the words it is given).
+              trailing: !!menu.querySelector(':is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu):is([shortcut]:not([shortcut=""]), [trailing-text]:not([trailing-text=""]))'),
+            };
+          }),
           after: [...document.querySelectorAll('p.after')].map((p) => p.getBoundingClientRect().top),
         }));
       const before = await measure();
-      // It holds a size and draws nothing: a menu of one row is at least a row tall.
+      // It holds a size and draws nothing: a menu of one row is at least a row tall, and the words that hold its width
+      // are laid out unpainted.
       for (const menu of before.menus) expect(menu.height, `${separation} ${menu.id} before`).toBeGreaterThanOrEqual(await resolveToken(page, T('container-height-medium')));
+      expect(
+        await page.evaluate(() =>
+          [...document.querySelectorAll('tanrei-menu :is(tanrei-menu-item, tanrei-menu-checkbox-item, tanrei-menu-radio-item, tanrei-submenu)')]
+            .flatMap((row) => ['::before', '::after'].map((pseudo) => getComputedStyle(row, pseudo)))
+            .filter((style) => !['none', 'normal'].includes(style.content) && style.visibility !== 'hidden').length,
+        ),
+      ).toBe(0);
       await page.addScriptTag({ type: 'module', content: dist('tanrei.bundle.js') });
       await page.waitForFunction(() => !!customElements.get('tanrei-menu'));
       await page.evaluate(async () => {
@@ -5317,6 +5335,13 @@ test.describe('before definition', () => {
       });
       const after = await measure();
       after.menus.forEach((menu, i) => expect(Math.abs(menu.height - before.menus[i].height), `${separation} ${menu.id}: ${before.menus[i].height} → ${menu.height}`).toBeLessThanOrEqual(0.5));
+      // MNU-3, MNU-19: as wide as it will be drawn — but a menu whose rows end in a shortcut or a trailing text, which
+      // the element draws from what CSS cannot measure, and which is then held narrower, never wider.
+      after.menus.forEach((menu, i) => {
+        const said = `${separation} ${menu.id}: ${before.menus[i].width} → ${menu.width} px wide`;
+        if (menu.trailing) expect(before.menus[i].width, said).toBeLessThanOrEqual(menu.width + 0.5);
+        else expect(Math.abs(menu.width - before.menus[i].width), said).toBeLessThanOrEqual(0.5);
+      });
       after.after.forEach((top, i) => expect(Math.abs(top - before.after[i]), `${separation}: what is under menu ${i} moved from ${before.after[i]} to ${top}`).toBeLessThanOrEqual(0.5));
       // The gap is drawn where it was held.
       expect(await page.locator('tanrei-menu').first().evaluate((el) => getComputedStyle(el).getPropertyValue('--_separation').trim())).toBe(separation === 'divider' ? 'divider' : 'gap');

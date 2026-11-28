@@ -35,26 +35,32 @@
  *   - a multi-line input by its fewest rows (`min-rows`); an open date and time picker drawn in place by its header,
  *     its calendar and its time section, and its actions; a calendar by its navigation row, its weekday row and its six
  *     rows of days, seven cells wide;
- *   - a list row by its number of lines; a stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
+ *   - a list row by its number of lines; a list's items, laid out as it lays them out (a column, a line or lines that
+ *     wrap, its gap apart), each with its handle's room and an action's, a link's or an option's paddings and least
+ *     height where it draws them; a file item's row (its name's lines, its second line and its bar) or its tile; a
+ *     stepper's steps; a snackbar's lines; a swatch's sample and text; an embedded
  *     text input's line or rows; a chat composer laid out inline; a carousel's row and controls; a toolbar along a line;
- *     vertical tabs; a progress indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
+ *     vertical tabs; the row of a tab view and the first panel under a row of tabs or in a tab view; a progress
+ *     indicator's and a meter's bar or ring; a divider's thickness, or a wave's;
  *   - an element the page sizes (a scroll area, a split view) is laid out as the box the size applies to;
  *   - a card's content between its paddings; a badge as the box of its anchor;
  *   - a tag group's lines, and a text input's entries (chips in its `entries` slot) and its typing part.
- *   A text is held at one line: a label, a help or an error longer than its line wraps when the element is defined,
- *   and the page below it moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws
- *   beside its control, which is written (its `label`) in the label's text style and wraps where it will. The width is
- *   held where the element draws its words from an attribute — a tag's label, a chip's, a selection control's, a main action
- *   button's, a button with menu's, a segment's — and where it draws the words written between its tags — a button's
+ *   A text is held at one line: a label longer than its line wraps when the element is defined, and the page below it
+ *   moves down by the lines it adds — but the label a checkbox, a radio button or a switch draws beside its control,
+ *   which is written (its `label`) in the label's text style and wraps where it will, and a field's help or error
+ *   text, written in the supporting text's style where the field draws it (a help beside a count, whose width CSS
+ *   cannot measure, may still take a line more). The width is held where the element draws its words from an
+ *   attribute — a tag's label, a chip's, a selection control's, a main action button's, a button with menu's, a
+ *   segment's, a swatch's, a number ticker's (its `value` written plainly), and a rating's marks — and
+ *   where it draws the words written between its tags — a button's
  *   label, in the label's text style — with the glyph's box in place of its name, so that a row of them wraps where it
  *   will and the words that follow one on a line of text stay where they are; a button group and a segmented button
  *   lay their items out as they will. Elsewhere it is the width of the words and glyphs written inside the element, so
  *   words that follow a control on the same line of text move sideways when it is defined. Controls that stand side by
  *   side in a row of their own (a flex or grid row with a gap, as a toolbar is) move nothing that was painted.
  *
- * What it does not hold: a height that depends on what the element draws beyond its tokens (a list's items, a
- * composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
- * resizable frame's size, which its attributes give, a tab view's content, a multiline input's lines
+ * What it does not hold: a height that depends on what the element draws beyond its tokens (a composer's attachments or a stacked composer's row, the file picker, the file upload and their rows, a drop zone, a
+ * resizable frame's size, which its attributes give, the panel a row's `value` names where it is not the first, a multiline input's lines
  * beyond its fewest rows (the lines of a value it already holds), a combobox's chips and a chip field's (drawn from its
  * `value`, which CSS cannot read as a list), a docked search's results, vertical sliders), a size or a variant a design system added (held at the default's), a size an element takes from its
  * container rather than its own `size` (but a Button's and a Button with Menu's from a Button Group or a Toolbar that
@@ -82,7 +88,9 @@
  * segments; a Button defined before its connected group is held at what the group will give it) — never a child of
  * the product's: a glyph written in a Button is given its box by the Button's own grid; an element that is `hidden`
  * keeps the browser's `display: none`; and nothing matches once an element is defined, but a Button's room while the
- * connected group it stands in is not.
+ * connected group it stands in is not. A rule written here for several elements at once (`:where(tanrei-checkbox,
+ * tanrei-switch)`) is built as one selector for each (scripts/filed-selectors.js), so that an engine files it under
+ * each element's name rather than trying it on every element of the page.
  */
 @layer tanrei.components {
   /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
@@ -1077,14 +1085,65 @@
   :where(tanrei-slider[size='large']:not([orientation='vertical']):not(:defined)) {
     min-block-size: max(var(--tanrei-comp-slider-container-size), var(--tanrei-comp-slider-handle-height-large));
   }
+  /* A rating (RAT-1, RAT-14): its marks' containers in a row, touching — `max` of them, the whole number below it and
+     at least 1, 5 where it names none — each its size's container size across, never wider than its place. `max` is
+     read as a number where the browser can, and as one of the counts 1 to 10 otherwise; another is held at 5. */
   :where(tanrei-rating:not(:defined)) {
-    min-block-size: var(--tanrei-comp-rating-container-size-medium);
+    --_cloak-mark: var(--tanrei-comp-rating-container-size-medium);
+    --_cloak-marks: 5;
+    min-block-size: var(--_cloak-mark);
+    inline-size: calc(var(--_cloak-marks) * var(--_cloak-mark));
+    max-inline-size: 100%;
   }
   :where(tanrei-rating[size='small']:not(:defined)) {
-    min-block-size: var(--tanrei-comp-rating-container-size-small);
+    --_cloak-mark: var(--tanrei-comp-rating-container-size-small);
   }
   :where(tanrei-rating[size='large']:not(:defined)) {
-    min-block-size: var(--tanrei-comp-rating-container-size-large);
+    --_cloak-mark: var(--tanrei-comp-rating-container-size-large);
+  }
+  :where(tanrei-rating[max='1']:not(:defined)) {
+    --_cloak-marks: 1;
+  }
+  :where(tanrei-rating[max='2']:not(:defined)) {
+    --_cloak-marks: 2;
+  }
+  :where(tanrei-rating[max='3']:not(:defined)) {
+    --_cloak-marks: 3;
+  }
+  :where(tanrei-rating[max='4']:not(:defined)) {
+    --_cloak-marks: 4;
+  }
+  :where(tanrei-rating[max='6']:not(:defined)) {
+    --_cloak-marks: 6;
+  }
+  :where(tanrei-rating[max='7']:not(:defined)) {
+    --_cloak-marks: 7;
+  }
+  :where(tanrei-rating[max='8']:not(:defined)) {
+    --_cloak-marks: 8;
+  }
+  :where(tanrei-rating[max='9']:not(:defined)) {
+    --_cloak-marks: 9;
+  }
+  :where(tanrei-rating[max='10']:not(:defined)) {
+    --_cloak-marks: 10;
+  }
+  @supports (x: attr(x type(*))) {
+    :where(tanrei-rating[max]:not(:defined)) {
+      --_cloak-marks: max(1, round(down, attr(max type(<number>), 1), 1));
+    }
+  }
+  /* A number ticker (NTK-1, NTK-5): inline, one line of the text around it in that text's style, in tabular figures,
+     as wide as its `value` written plainly (the `::before`). The element writes the number in its locale's form —
+     grouped, with a currency's sign or a percent, from its start value — which can be wider or narrower. */
+  :where(tanrei-number-ticker):where(:not(:defined):not([hidden])) {
+    display: inline-block;
+    white-space: nowrap;
+    unicode-bidi: isolate;
+    font-variant-numeric: tabular-nums;
+  }
+  :where(tanrei-number-ticker:not(:defined))::before {
+    content: attr(value);
   }
   :where(tanrei-loading-indicator:not(:defined)) {
     min-block-size: var(--tanrei-comp-loading-indicator-indicator-size-medium);
@@ -1293,10 +1352,10 @@
        float it in its own box (a stacked one) — one line of the label's text role, and the label's gap below it. A
        glyph before the label, a requirement tag after it and a value text at its end are drawn within that line.
      - The supporting row, where it is drawn: a help, an error text while the field is in error, or a count — the
-       supporting text's gap, then one line of its text role. Under the `replace` placement (the first value) the
-       error text stands in the help's place; under `append` it is drawn below the help, the error text's gap
+       supporting text's gap, then the text in its text role (below). Under the `replace` placement (the first value)
+       the error text stands in the help's place; under `append` it is drawn below the help, the error text's gap
        between.
-     A label or a text longer than its line wraps when the field is defined, and is held at one line. */
+     A label longer than its line wraps when the field is defined, and is held at one line. */
   :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden], [variant='outlined'], [variant='filled'])) {
     padding-block-start: calc(var(--tanrei-comp-field-label-typescale-line-height) * var(--tanrei-comp-field-label-typescale-font-size) + var(--tanrei-comp-field-label-gap));
   }
@@ -1321,13 +1380,91 @@
   :where(tanrei-field):where(:not(:defined)):where([label]:not([label=''], [label-hidden])):where(:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input)[variant='filled']:not([label]:not([label=''])))) {
     padding-block-start: calc(max(var(--_cloak-box), var(--_cloak-labelled)) - var(--_cloak-box));
   }
+  /* The supporting row: the supporting text's gap below the control (the element's padding), and the row's text laid
+     out in its text role, unpainted, as the field will draw it (the element's `::after`): the help, or the error text
+     in the help's place while the field is in error — or, where it draws a count alone, one empty line — so that a text
+     that wraps holds its lines. It starts and ends where the control's content does (FLD-26): the input box's
+     padding, or its leading glyph's room; at its end the narrower of the box's two paddings (its padding beside a
+     trailing glyph, which a clear button, a chevron or a password's toggle may draw), so that the text is never held
+     narrower than it is drawn. A Field takes them from an input box between its tags, at the default size; the other
+     controls say no inset. A composed field keeps its control's box above the text (the `::before`, as high as the
+     element's least height, on the line of what is written between its tags). */
   :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text=''])) {
-    padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size));
+    padding-block-end: var(--tanrei-comp-field-supporting-text-gap);
   }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined):not([hidden])):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::before {
+    content: '';
+    display: inline-block;
+    vertical-align: top;
+    min-block-size: inherit;
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined):not([hidden])):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::after {
+    content: '';
+    display: block;
+    flex: none;
+    min-block-size: 1lh;
+    font: var(--tanrei-comp-field-supporting-text-typescale-font-weight) var(--tanrei-comp-field-supporting-text-typescale-font-size)/var(--tanrei-comp-field-supporting-text-typescale-line-height) var(--tanrei-comp-field-supporting-text-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-field-supporting-text-typescale-letter-spacing);
+    overflow-wrap: break-word;
+    unicode-bidi: plaintext;
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']))::after {
+    content: attr(supporting-text);
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([error][error-text]:not([error-text='']))::after {
+    content: attr(error-text);
+  }
+  /* Under `append` the error text is drawn below the help, the error text's gap between, and is held at one line. */
   @container style(--tanrei-comp-field-error-text-placement: append) {
-    :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([error][error-text]:not([error-text=''])) {
-      padding-block-end: calc(var(--tanrei-comp-field-supporting-text-gap) + 2 * var(--tanrei-comp-field-supporting-text-typescale-line-height) * var(--tanrei-comp-field-supporting-text-typescale-font-size) + var(--tanrei-comp-field-error-text-gap));
+    :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([error][error-text]:not([error-text='']))::after {
+      content: attr(supporting-text);
+      padding-block-end: calc(var(--tanrei-comp-field-error-text-gap) + 1lh);
     }
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field, tanrei-field:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input))):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::after {
+    padding-inline: var(--_cloak-inset-start) var(--_cloak-inset-end);
+  }
+  :where(tanrei-field:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input))):where(:not(:defined)) {
+    --_cloak-inset-start: min(var(--tanrei-comp-input-box-container-padding-inline-medium), var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium));
+    --_cloak-inset-end: var(--_cloak-inset-start);
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-medium);
+    --_cloak-inset-end: min(var(--tanrei-comp-input-box-container-padding-inline-medium), var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium));
+    --_cloak-inset-lead: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium) + var(--tanrei-comp-input-box-icon-size-medium) + var(--tanrei-comp-input-box-container-gap-medium));
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='small']):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-small);
+    --_cloak-inset-end: min(var(--tanrei-comp-input-box-container-padding-inline-small), var(--tanrei-comp-input-box-container-padding-inline-with-icon-small));
+    --_cloak-inset-lead: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-small) + var(--tanrei-comp-input-box-icon-size-small) + var(--tanrei-comp-input-box-container-gap-small));
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field):where([size='large']):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-large);
+    --_cloak-inset-end: min(var(--tanrei-comp-input-box-container-padding-inline-large), var(--tanrei-comp-input-box-container-padding-inline-with-icon-large));
+    --_cloak-inset-lead: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-large) + var(--tanrei-comp-input-box-icon-size-large) + var(--tanrei-comp-input-box-container-gap-large));
+  }
+  :where(tanrei-combobox-field, tanrei-select-field, tanrei-text-field):where([leading-icon]:not([leading-icon='']), :has(> [slot='leading-icon'])):where(:not(:defined)),
+  :where(tanrei-color-field:not(:defined)) {
+    --_cloak-inset-start: var(--_cloak-inset-lead);
+  }
+  /* A color box keeps its padding at its end, and a number box at both. */
+  :where(tanrei-color-field, tanrei-number-field):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-medium);
+  }
+  :where(tanrei-color-field, tanrei-number-field):where([size='small']):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-small);
+  }
+  :where(tanrei-color-field, tanrei-number-field):where([size='large']):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-large);
+  }
+  :where(tanrei-field:has(> tanrei-color-input:not([size]), > :is(tanrei-combobox, tanrei-select, tanrei-text-input):not([size])[leading-icon]:not([leading-icon='']))):where(:not(:defined)) {
+    --_cloak-inset-start: calc(var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium) + var(--tanrei-comp-input-box-icon-size-medium) + var(--tanrei-comp-input-box-container-gap-medium));
+  }
+  :where(tanrei-field:has(> :is(tanrei-color-input, tanrei-number-input):not([size]))):where(:not(:defined)) {
+    --_cloak-inset-end: var(--tanrei-comp-input-box-container-padding-inline-medium);
+  }
+  :where(tanrei-field:has(> tanrei-number-input:not([size]))):where(:not(:defined)) {
+    --_cloak-inset-start: var(--tanrei-comp-input-box-container-padding-inline-medium);
   }
 
   /* A group of fields or of choices: its controls between its rows, from the group's tokens — the label row (a label
@@ -1368,33 +1505,97 @@
     min-block-size: var(--tanrei-comp-search-trigger-container-height);
   }
 
-  /* Bars of destinations and pages. Tabs: a horizontal row; a primary row of the default size taller where a tab
-     shows a glyph over its label. */
-  :where(tanrei-tabs:not([orientation='vertical']):not(:defined)) {
-    min-block-size: var(--tanrei-comp-tabs-container-height-medium);
+  /* Bars of destinations and pages. Tabs: a horizontal row (TAB-16, TAB-18), the container height of its size, or,
+     where a tab draws its label, as tall as the label's line inside the indicator's paddings and the track's padding
+     or the variant's underline above and below it, where that is taller (the row grows to hold its content: a small
+     row in cupertino); a primary row of the default size taller where a tab shows a glyph over its label. A tab view
+     draws such a row of its panels' labels. */
+  :where(tanrei-tabs:not(:defined), tanrei-tab-view:not([tabs]):not(:defined)) {
+    --_cloak-tabs-height: var(--tanrei-comp-tabs-container-height-medium);
+    --_cloak-tabs-padding: var(--tanrei-comp-tabs-active-indicator-padding-block-medium);
+    --_cloak-tabs-underline: var(--tanrei-comp-tabs-primary-underline-thickness);
+    --_cloak-tabs-labelled: max(var(--_cloak-tabs-height), 2 * max(var(--tanrei-comp-tabs-track-padding), var(--_cloak-tabs-underline)) + 2 * var(--_cloak-tabs-padding) + var(--tanrei-comp-tabs-label-typescale-line-height) * var(--tanrei-comp-tabs-label-typescale-font-size));
+    --_cloak-tabs-row: var(--_cloak-tabs-height);
   }
-  :where(tanrei-tabs[size='small']:not([orientation='vertical']):not(:defined)) {
-    min-block-size: var(--tanrei-comp-tabs-container-height-small);
+  :where(tanrei-tabs[size='small']:not(:defined), tanrei-tab-view[size='small']:not([tabs]):not(:defined)) {
+    --_cloak-tabs-height: var(--tanrei-comp-tabs-container-height-small);
+    --_cloak-tabs-padding: var(--tanrei-comp-tabs-active-indicator-padding-block-small);
+  }
+  :where(tanrei-tabs[variant='secondary']:not(:defined), tanrei-tab-view[variant='secondary']:not([tabs]):not(:defined)) {
+    --_cloak-tabs-underline: var(--tanrei-comp-tabs-secondary-underline-thickness);
+  }
+  :where(tanrei-tabs[variant='tonal']:not(:defined), tanrei-tab-view[variant='tonal']:not([tabs]):not(:defined)) {
+    --_cloak-tabs-underline: var(--tanrei-comp-tabs-tonal-underline-thickness);
+  }
+  :where(tanrei-tabs:not(:defined):has(> tanrei-tab[label]:not([label=''], [label-hidden])), tanrei-tab-view:not([tabs]):not(:defined):has(> tanrei-tab-panel[label]:not([label=''], [label-hidden]))) {
+    --_cloak-tabs-row: var(--_cloak-tabs-labelled);
+  }
+  :where(tanrei-tabs:not([orientation='vertical']):not(:defined)) {
+    min-block-size: var(--_cloak-tabs-row);
   }
   :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden]))) {
     min-block-size: var(--tanrei-comp-tabs-container-height-with-icon);
   }
-  /* Vertical tabs: a column of its tabs, each the container height of the row's size, and at least the pointer target
-     tall: in a column the tabs touch above and below (TAB-51). (A coarse pointer's larger target is not held: above.) */
+  /* Vertical tabs: a column of its tabs, each the row's height of its size — a tab that draws its label as tall as
+     that label needs, as in a row — and at least the pointer target tall: in a column the tabs touch above and below
+     (TAB-51). (A coarse pointer's larger target is not held: above.) */
   :where(tanrei-tabs[orientation='vertical']):where(:not(:defined):not([hidden])) {
     display: flex;
     flex-direction: column;
   }
   :where(tanrei-tabs[orientation='vertical']:not(:defined)) {
-    --_cloak-tab: max(var(--tanrei-comp-tabs-container-height-medium), var(--tanrei-sys-target-pointer));
+    --_cloak-tab: max(var(--_cloak-tabs-height), var(--tanrei-sys-target-pointer));
     min-block-size: var(--_cloak-tab);
-  }
-  :where(tanrei-tabs[orientation='vertical'][size='small']:not(:defined)) {
-    --_cloak-tab: max(var(--tanrei-comp-tabs-container-height-small), var(--tanrei-sys-target-pointer));
   }
   :where(tanrei-tab):where(:not(:defined):not([hidden])) {
     display: block;
     min-block-size: var(--_cloak-tab);
+  }
+  :where(tanrei-tabs[orientation='vertical']:not(:defined) > tanrei-tab[label]:not([label=''], [label-hidden]):not(:defined)) {
+    min-block-size: max(var(--_cloak-tabs-labelled), var(--tanrei-sys-target-pointer));
+  }
+  /* The panels a row of tabs or a tab view holds (TAB-13, TBV-1, TBV-9): one is shown, under the row — beside the
+     column of vertical tabs — and the others take no room. The panel shown is the selected tab's, which CSS cannot
+     tell from the row's `value`: the first panel is held, as it is where the row names no value or names its first.
+     A row with panels keeps its own row's height above them; a tab view draws its row (a primary one of the default
+     size taller where a panel shows a glyph over its label), but a view linked to a row elsewhere (`tabs`), which draws
+     none. Each panel lays its content out in a box of its own, as it is drawn. */
+  :where(tanrei-tabs:not(:defined) > tanrei-tab-panel:not([hidden]), tanrei-tab-view:not(:defined) > tanrei-tab-panel:not([hidden])) {
+    display: flow-root;
+  }
+  :where(tanrei-tabs:not(:defined) > tanrei-tab-panel:not(:first-of-type), tanrei-tab-view:not(:defined) > tanrei-tab-panel:not(:first-of-type)) {
+    display: none;
+  }
+  :where(tanrei-tabs:not([orientation='vertical']):not(:defined):has(> tanrei-tab-panel)) {
+    padding-block-start: var(--_cloak-tabs-row);
+  }
+  :where(tanrei-tabs:is(:not([variant]), [variant='primary']):not([size='small'], [orientation='vertical']):not(:defined):has(> tanrei-tab[icon]:not([icon=''], [label-hidden])):has(> tanrei-tab-panel)) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-with-icon);
+  }
+  /* Vertical tabs with panels: the column of tabs at the start, the panel beside it, as tall as the taller of the
+     two (the panel spans more rows than a column of tabs holds; those it spans and no tab fills are empty). */
+  :where(tanrei-tabs[orientation='vertical']:not(:defined):not([hidden]):has(> tanrei-tab-panel)) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-auto-flow: dense;
+    align-content: start;
+  }
+  :where(tanrei-tabs[orientation='vertical']:not(:defined) > tanrei-tab) {
+    grid-column: 1;
+  }
+  :where(tanrei-tabs[orientation='vertical']:not(:defined) > tanrei-tab-panel) {
+    grid-column: 2;
+    grid-row: 1 / span 100;
+  }
+  :where(tanrei-tab-view):where(:not(:defined):not([hidden])) {
+    display: block;
+    box-sizing: border-box;
+  }
+  :where(tanrei-tab-view:not([tabs]):not(:defined)) {
+    padding-block-start: var(--_cloak-tabs-row);
+  }
+  :where(tanrei-tab-view:is(:not([variant]), [variant='primary']):not([size='small'], [tabs]):not(:defined):has(> tanrei-tab-panel[icon]:not([icon=''], [label-hidden]))) {
+    padding-block-start: var(--tanrei-comp-tabs-container-height-with-icon);
   }
   :where(tanrei-pagination:not(:defined)) {
     min-block-size: var(--tanrei-comp-pagination-container-height-medium);
@@ -1407,12 +1608,15 @@
   }
 
   /* A list row: the least height of its number of lines, for its own size — one (a headline), two (an overline or a
-     supporting text with it), three (a supporting text with an overline, or a supporting text of two lines). */
+     supporting text with it), three (a supporting text with an overline, or a supporting text of two lines). In an
+     action, a link or an option of a list that is defined (its module can arrive before the row's), the item draws
+     the paddings of its list's size and the row keeps that height less them (LRW-8), as it will once it is defined. */
   :where(tanrei-list-row:not(:defined)) {
     --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-medium);
     --_cloak-two: var(--tanrei-comp-list-row-container-height-two-line-medium);
     --_cloak-three: var(--tanrei-comp-list-row-container-height-three-line-medium);
-    min-block-size: var(--_cloak-one);
+    --_cloak-row: var(--_cloak-one);
+    min-block-size: var(--_cloak-row);
   }
   :where(tanrei-list-row[size='small']:not(:defined)) {
     --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-small);
@@ -1420,10 +1624,104 @@
     --_cloak-three: var(--tanrei-comp-list-row-container-height-three-line-small);
   }
   :where(tanrei-list-row:not(:defined)):where([overline]:not([overline='']), [supporting-text]:not([supporting-text=''])) {
-    min-block-size: var(--_cloak-two);
+    --_cloak-row: var(--_cloak-two);
   }
   :where(tanrei-list-row:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([overline]:not([overline='']), [supporting-lines='2']) {
-    min-block-size: var(--_cloak-three);
+    --_cloak-row: var(--_cloak-three);
+  }
+  :where(tanrei-list:not([reorderable]) > tanrei-list-item:is([interactive], [href]:not([href=''])):defined > tanrei-list-row:not(:defined)),
+  :where(tanrei-list:is([selection='single'], [selection='multiple']) > tanrei-list-item:defined > tanrei-list-row:not(:defined)) {
+    min-block-size: calc(var(--_cloak-row) - 2 * var(--tanrei-comp-list-container-padding-block-medium));
+  }
+  :where(tanrei-list[size='small']:not([reorderable]) > tanrei-list-item:is([interactive], [href]:not([href=''])):defined > tanrei-list-row:not(:defined)),
+  :where(tanrei-list[size='small']:is([selection='single'], [selection='multiple']) > tanrei-list-item:defined > tanrei-list-row:not(:defined)) {
+    min-block-size: calc(var(--_cloak-row) - 2 * var(--tanrei-comp-list-container-padding-block-small));
+  }
+
+  /* A list lays its items out as it will: a column (LST-1), a line along `orientation="horizontal"` (each item as wide
+     as its content), or lines that wrap (`wrap`, LST-2: each item never wider than the list), the gap its `gap` names
+     apart, none where it names none (LST-6). The list and its items are defined together, and what an item is depends
+     on its list:
+     - in a reorderable list, an item draws its handle before its content (LST-32, LST-48): the room of a small
+       icon-only Button and the item's gap, and at least the handle's height;
+     - an action, a link or an option — an `interactive` item or one with an `href` in a list that is not
+       reorderable, or any item of a list with a `selection` — is padded by its list's size and at least its container
+       height and the target tall (LST-8, LST-11, LST-51), what is written in it in the content's text style; an option
+       keeps the check's room at its end (LST-21), and a row is at least as tall as its handle and its check between
+       its paddings. One that holds a List row is the row's height (LRW-8: the row draws the item's paddings as its
+       own), which the row's own rule holds.
+     The list hands its measures to its items as inherited values, set on every list, so that a list inside an item of
+     another takes nothing of the outer one's. */
+  :where(tanrei-list):where(:not(:defined):not([hidden])) {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  :where(tanrei-list:not(:defined)) {
+    --_cloak-list-height: var(--tanrei-comp-list-container-height-medium);
+    --_cloak-list-padding: var(--tanrei-comp-list-container-padding-block-medium);
+    --_cloak-list-target: var(--tanrei-sys-target-pointer);
+    --_cloak-list-handle: var(--tanrei-comp-button-container-height-small);
+    --_cloak-list-mark: var(--tanrei-comp-list-mark-size);
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-list:not(:defined)) {
+      --_cloak-list-target: var(--tanrei-sys-target-touch);
+    }
+  }
+  :where(tanrei-list[size='small']:not(:defined)) {
+    --_cloak-list-height: var(--tanrei-comp-list-container-height-small);
+    --_cloak-list-padding: var(--tanrei-comp-list-container-padding-block-small);
+  }
+  :where(tanrei-list[gap='small']:not(:defined)) {
+    gap: var(--tanrei-comp-list-gap-small);
+  }
+  :where(tanrei-list[gap='medium']:not(:defined)) {
+    gap: var(--tanrei-comp-list-gap-medium);
+  }
+  :where(tanrei-list[gap='large']:not(:defined)) {
+    gap: var(--tanrei-comp-list-gap-large);
+  }
+  :where(tanrei-list[orientation='horizontal']:not(:defined)) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  :where(tanrei-list[wrap]:not(:defined)) {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+  :where(tanrei-list-item):where(:not(:defined):not([hidden])) {
+    display: block;
+    flex: none;
+    box-sizing: border-box;
+  }
+  :where(tanrei-list[wrap]:not(:defined) > tanrei-list-item) {
+    max-inline-size: 100%;
+  }
+  /* A static item of a reorderable list: the handle's room and height. */
+  :where(tanrei-list[reorderable]:not([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item) {
+    min-block-size: var(--_cloak-list-handle);
+    padding-inline-start: calc(var(--_cloak-list-handle) + var(--tanrei-comp-list-container-gap));
+  }
+  /* An action or a link, and an option: padded, at least the container's height and the target tall. */
+  :where(tanrei-list:not([reorderable]):not(:defined) > tanrei-list-item:is([interactive], [href]:not([href=''])):not(:has(> tanrei-list-row))),
+  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item:not(:has(> tanrei-list-row))) {
+    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target));
+    padding-block: var(--_cloak-list-padding);
+    padding-inline: var(--tanrei-comp-list-container-padding-inline-start) var(--tanrei-comp-list-container-padding-inline-end);
+    font: var(--tanrei-comp-list-content-typescale-font-weight) var(--tanrei-comp-list-content-typescale-font-size)/var(--tanrei-comp-list-content-typescale-line-height) var(--tanrei-comp-list-content-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-list-content-typescale-letter-spacing);
+  }
+  /* An option: the check's room at its end, and the check's height. */
+  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item:not(:has(> tanrei-list-row))) {
+    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target), 2 * var(--_cloak-list-padding) + var(--_cloak-list-mark));
+    padding-inline-end: calc(var(--tanrei-comp-list-container-padding-inline-end) + var(--tanrei-comp-list-container-gap) + var(--_cloak-list-mark));
+  }
+  /* An option of a reorderable list: the handle before its content, the item's gap after it, and the handle's height. */
+  :where(tanrei-list[reorderable]:is([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item:not(:has(> tanrei-list-row))) {
+    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target), 2 * var(--_cloak-list-padding) + max(var(--_cloak-list-handle), var(--_cloak-list-mark)));
+    padding-inline-start: calc(var(--tanrei-comp-list-container-padding-inline-start) + var(--_cloak-list-handle) + var(--tanrei-comp-list-container-gap));
   }
 
   /* A stepper: its steps side by side (horizontal, the default) or one under another (vertical), each step held by the
@@ -1487,39 +1785,239 @@
     min-block-size: max(var(--tanrei-comp-snackbar-container-min-height), max(var(--tanrei-comp-snackbar-container-padding-block), (var(--tanrei-comp-snackbar-container-min-height) - var(--_cloak-title)) / 2) + var(--_cloak-title) + var(--tanrei-comp-snackbar-title-gap) + var(--_cloak-message) + var(--tanrei-comp-snackbar-container-padding-block));
   }
 
-  /* A swatch: inline, centred on the line, as high as its sample or as its text beside it where that is higher — the
-     label's line, the supporting text's line under it — for its size. A swatch whose label is hidden, or that is
-     decorative, draws its sample alone. */
-  :where(tanrei-swatch):where(:not(:defined):not([hidden])) {
+  /* A file item in a row (FIT-2, FIT-4, FIT-10, FIT-11): a block of its texts between its lead and its actions —
+     the glyph's box, or a preview's square, and row.container.gap before the texts; after them, where it is not
+     read-only, row.container.gap and its actions (the remove action, and the retry action before it while it failed
+     and can be retried), each action.size wide, the actions' gap apart. The texts are its name in the headline's text
+     role, laid out unpainted (the `::before`), which wraps as the item wraps it, and the second line under it (the
+     `::after`), its words written as the item joins them (below), which wrap as the item wraps them; the row is never
+     lower than those two lines, on which its lead and its actions are centred. While it uploads, its bar stands
+     progress.gap under the texts. Not held: the actions on a line of their own where the texts would have less than
+     half the row (FIT-24), and the mark of a new context. */
+  :where(tanrei-file-item):where(:not(:defined):not([hidden])) {
+    --_cloak-target: var(--tanrei-sys-target-pointer);
+    --_cloak-action-gap: max(var(--tanrei-comp-file-item-action-gap), (var(--_cloak-target) - var(--tanrei-comp-file-item-action-size)) * 2);
+    --_cloak-lead: var(--tanrei-comp-file-item-row-icon-size);
+    --_cloak-actions: calc(var(--tanrei-comp-file-item-row-container-gap) + var(--tanrei-comp-file-item-action-size));
+    --_cloak-lines: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size) + var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size));
+    display: block;
+    box-sizing: border-box;
+    min-inline-size: 0;
+    line-height: 0;
+  }
+  @media (pointer: coarse) {
+    :where(tanrei-file-item):where(:not(:defined):not([hidden])) {
+      --_cloak-target: var(--tanrei-sys-target-touch);
+    }
+  }
+  :where(tanrei-file-item[preview]:not(:defined)) {
+    --_cloak-lead: var(--tanrei-comp-file-item-row-media-height);
+  }
+  :where(tanrei-file-item[status='error'][retryable]:not(:defined)) {
+    --_cloak-actions: calc(var(--tanrei-comp-file-item-row-container-gap) + 2 * var(--tanrei-comp-file-item-action-size) + var(--_cloak-action-gap));
+  }
+  :where(tanrei-file-item:not([form='tile']):not(:defined)) {
+    min-block-size: var(--_cloak-lines);
+    padding-inline: calc(var(--_cloak-lead) + var(--tanrei-comp-file-item-row-container-gap)) var(--_cloak-actions);
+  }
+  :where(tanrei-file-item[readonly]:not([form='tile']):not(:defined)) {
+    padding-inline-end: 0;
+  }
+  :where(tanrei-file-item[status='uploading']:not([form='tile']):not(:defined)) {
+    min-block-size: calc(var(--_cloak-lines) + var(--tanrei-comp-file-item-progress-gap) + var(--tanrei-comp-file-item-progress-thickness));
+    padding-block-end: calc(var(--tanrei-comp-file-item-progress-gap) + var(--tanrei-comp-file-item-progress-thickness));
+  }
+  :where(tanrei-file-item:not([form='tile']):not(:defined):not([hidden]))::before {
+    content: attr(name);
+    display: block;
+    min-block-size: 1lh;
+    font: var(--tanrei-comp-file-item-headline-typescale-font-weight) var(--tanrei-comp-file-item-headline-typescale-font-size)/var(--tanrei-comp-file-item-headline-typescale-line-height) var(--tanrei-comp-file-item-headline-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-file-item-headline-typescale-letter-spacing);
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+  }
+  :where(tanrei-file-item:not([form='tile']):not(:defined):not([hidden]))::after {
+    content: var(--_cloak-format) var(--_cloak-size) var(--_cloak-dot) var(--_cloak-said);
+    display: block;
+    min-block-size: 1lh;
+    font: var(--tanrei-comp-file-item-supporting-text-typescale-font-weight) var(--tanrei-comp-file-item-supporting-text-typescale-font-size)/var(--tanrei-comp-file-item-supporting-text-typescale-line-height) var(--tanrei-comp-file-item-supporting-text-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
+    text-indent: var(--_cloak-mark);
+    overflow-wrap: anywhere;
+    line-break: strict;
+    unicode-bidi: plaintext;
+  }
+  /* A tile (FIT-3, FIT-4, FIT-8): an inline block on the top of its line, exactly as wide as its box, never narrower
+     than its actions and their insets need nor wider than its place, the box at least as high as an action and its
+     insets — the box of tile.media.height, a square, where its attributes give no size; `width` and `height` where
+     the browser reads an attribute as a length, the box then in their proportion, and a square of the one given where
+     only one is — then, where it draws a text beneath, tile.container.gap and its texts: the name on one line, but a
+     name hidden over a picture (FIT-8), and the second line, where it has words or a status's mark (FIT-4), written
+     as a row's is. Not held: a width or a height given as attributes where the browser cannot read them so (the box
+     is held at the token's square). */
+  :where(tanrei-file-item[form='tile']):where(:not(:defined):not([hidden])) {
+    --_cloak-box: var(--tanrei-comp-file-item-tile-media-height);
+    --_cloak-ratio: 1;
+    --_cloak-name: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size));
     display: inline-block;
+    vertical-align: top;
+    max-inline-size: 100%;
+    inline-size: max(calc(2 * var(--tanrei-comp-file-item-action-size) + var(--_cloak-action-gap) + 2 * var(--tanrei-comp-file-item-tile-action-inset)), var(--_cloak-box));
+    min-block-size: calc(var(--tanrei-comp-file-item-action-size) + 2 * var(--tanrei-comp-file-item-tile-action-inset));
+  }
+  @supports (x: attr(x px)) {
+    :where(tanrei-file-item[form='tile'][height]:not(:defined)) {
+      --_cloak-box: attr(height px, var(--tanrei-comp-file-item-tile-media-height));
+    }
+    :where(tanrei-file-item[form='tile'][width]:not(:defined)) {
+      --_cloak-box: attr(width px, var(--tanrei-comp-file-item-tile-media-height));
+    }
+    :where(tanrei-file-item[form='tile'][width][height]:not(:defined)) {
+      --_cloak-ratio: attr(width type(<number>), 1) / attr(height type(<number>), 1);
+    }
+  }
+  :where(tanrei-file-item[form='tile']:not(:defined):not([hidden]))::before {
+    content: '';
+    display: block;
+    aspect-ratio: var(--_cloak-ratio);
+    min-block-size: calc(var(--tanrei-comp-file-item-action-size) + 2 * var(--tanrei-comp-file-item-tile-action-inset));
+  }
+  /* Beneath the box: the name's line, with the second line under it where the tile has words for it or a mark — its
+     words written as the row's are (below), wrapping as they are drawn. */
+  :where(tanrei-file-item[form='tile']:not(:defined):not([hidden]))::after {
+    content: '';
+    display: block;
+    margin-block-start: var(--tanrei-comp-file-item-tile-container-gap);
+    block-size: var(--_cloak-name);
+  }
+  :where(tanrei-file-item[form='tile']:not(:defined):is([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']))::after {
+    content: var(--_cloak-format) var(--_cloak-size) var(--_cloak-dot) var(--_cloak-said);
+    block-size: auto;
+    min-block-size: 1lh;
+    padding-block-start: var(--_cloak-name);
+    font: var(--tanrei-comp-file-item-supporting-text-typescale-font-weight) var(--tanrei-comp-file-item-supporting-text-typescale-font-size)/var(--tanrei-comp-file-item-supporting-text-typescale-line-height) var(--tanrei-comp-file-item-supporting-text-typescale-font-family);
+    letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
+    text-indent: var(--_cloak-mark);
+    overflow-wrap: anywhere;
+    line-break: strict;
+    unicode-bidi: plaintext;
+  }
+  :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src='']):not(:defined))::after {
+    display: none;
+  }
+  :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src='']):not(:defined):not([hidden]):is([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']))::after {
+    display: block;
+    padding-block-start: 0;
+  }
+  /* The second line's words, in a row and in a tile, as the item joins them (FIT-4): the format, the size, then the
+     status in words — the error in its place while it failed — a dot between each two, and the status's mark before
+     the status where it is done or failed, status.icon.size wide and status.icon.gap from words after it. CSS writes no
+     box between two words, so the mark's room is the line's indent: the line is as wide as it is drawn, and breaks
+     where it is drawn but beside the mark, where it may break one word sooner or later. */
+  :where(tanrei-file-item:not(:defined):not([hidden]))::after {
+    --_cloak-format: '';
+    --_cloak-size: '';
+    --_cloak-dot: '';
+    --_cloak-said: '';
+    --_cloak-mark: 0;
+  }
+  :where(tanrei-file-item[format-text]:not([format-text='']):not(:defined))::after {
+    --_cloak-format: attr(format-text);
+  }
+  :where(tanrei-file-item[size-text]:not([size-text='']):not(:defined))::after {
+    --_cloak-size: attr(size-text);
+  }
+  :where(tanrei-file-item[format-text]:not([format-text=''])[size-text]:not([size-text='']):not(:defined))::after {
+    --_cloak-size: ' ' '\b7' ' ' attr(size-text);
+  }
+  :where(tanrei-file-item[status-text]:not([status-text='']):not([status='error']):not(:defined))::after {
+    --_cloak-said: attr(status-text);
+  }
+  :where(tanrei-file-item[status='error'][error-text]:not([error-text='']):not(:defined))::after {
+    --_cloak-said: attr(error-text);
+  }
+  :where(tanrei-file-item:is([format-text]:not([format-text='']), [size-text]:not([size-text=''])):is([status-text]:not([status-text='']):not([status='error']), [status='done'], [status='error']):not(:defined))::after {
+    --_cloak-dot: ' ' '\b7' ' ';
+  }
+  :where(tanrei-file-item:is([status='done'], [status='error']):not(:defined))::after {
+    --_cloak-mark: var(--tanrei-comp-file-item-status-icon-size);
+  }
+  :where(tanrei-file-item:is([status='done'][status-text]:not([status-text='']), [status='error'][error-text]:not([error-text=''])):not(:defined))::after {
+    --_cloak-mark: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
+  }
+
+  /* A swatch (SWC-1, SWC-7): inline, centred on the line, as wide as it is drawn — its sample, the gap and its
+     column of text — and as high as its sample or as that column where it is higher, for its size. The column is the
+     label over the supporting text, each laid out unpainted in its text role (the `::before` and the `::after`),
+     wrapping as they wrap. A swatch whose label is hidden, or that is decorative, draws its sample alone. */
+  :where(tanrei-swatch):where(:not(:defined):not([hidden])) {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
     box-sizing: border-box;
     vertical-align: middle;
+    max-inline-size: 100%;
     line-height: 0;
+    overflow-wrap: break-word;
   }
   :where(tanrei-swatch:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-medium);
-    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-medium-line-height) * var(--tanrei-comp-swatch-label-typescale-medium-font-size));
-    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size));
+    --_cloak-gap: var(--tanrei-comp-swatch-gap-medium);
+    --_cloak-label-font-weight: var(--tanrei-comp-swatch-label-typescale-medium-font-weight);
+    --_cloak-label-font-size: var(--tanrei-comp-swatch-label-typescale-medium-font-size);
+    --_cloak-label-line-height: var(--tanrei-comp-swatch-label-typescale-medium-line-height);
+    --_cloak-label-font-family: var(--tanrei-comp-swatch-label-typescale-medium-font-family);
+    --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-medium-letter-spacing);
+    --_cloak-supporting-font-weight: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-weight);
+    --_cloak-supporting-font-size: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size);
+    --_cloak-supporting-line-height: var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height);
+    --_cloak-supporting-font-family: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-family);
+    --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-medium-letter-spacing);
     min-block-size: var(--_cloak-side);
+    padding-inline-start: var(--_cloak-side);
   }
   :where(tanrei-swatch[size='small']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-small);
-    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-small-line-height) * var(--tanrei-comp-swatch-label-typescale-small-font-size));
-    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size));
+    --_cloak-gap: var(--tanrei-comp-swatch-gap-small);
+    --_cloak-label-font-weight: var(--tanrei-comp-swatch-label-typescale-small-font-weight);
+    --_cloak-label-font-size: var(--tanrei-comp-swatch-label-typescale-small-font-size);
+    --_cloak-label-line-height: var(--tanrei-comp-swatch-label-typescale-small-line-height);
+    --_cloak-label-font-family: var(--tanrei-comp-swatch-label-typescale-small-font-family);
+    --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-small-letter-spacing);
+    --_cloak-supporting-font-weight: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-weight);
+    --_cloak-supporting-font-size: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size);
+    --_cloak-supporting-line-height: var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height);
+    --_cloak-supporting-font-family: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-family);
+    --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-small-letter-spacing);
   }
   :where(tanrei-swatch[size='large']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-large);
-    --_cloak-label: calc(var(--tanrei-comp-swatch-label-typescale-large-line-height) * var(--tanrei-comp-swatch-label-typescale-large-font-size));
-    --_cloak-supporting: calc(var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height) * var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size));
+    --_cloak-gap: var(--tanrei-comp-swatch-gap-large);
+    --_cloak-label-font-weight: var(--tanrei-comp-swatch-label-typescale-large-font-weight);
+    --_cloak-label-font-size: var(--tanrei-comp-swatch-label-typescale-large-font-size);
+    --_cloak-label-line-height: var(--tanrei-comp-swatch-label-typescale-large-line-height);
+    --_cloak-label-font-family: var(--tanrei-comp-swatch-label-typescale-large-font-family);
+    --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-large-letter-spacing);
+    --_cloak-supporting-font-weight: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-weight);
+    --_cloak-supporting-font-size: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size);
+    --_cloak-supporting-line-height: var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height);
+    --_cloak-supporting-font-family: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-family);
+    --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-large-letter-spacing);
   }
-  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label=''])) {
-    min-block-size: max(var(--_cloak-side), var(--_cloak-label));
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label='']), [supporting-text]:not([supporting-text=''])) {
+    padding-inline-start: calc(var(--_cloak-side) + var(--_cloak-gap));
   }
-  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([supporting-text]:not([supporting-text=''])) {
-    min-block-size: max(var(--_cloak-side), var(--_cloak-supporting));
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label='']))::before {
+    content: attr(label);
+    font: var(--_cloak-label-font-weight) var(--_cloak-label-font-size)/var(--_cloak-label-line-height) var(--_cloak-label-font-family);
+    letter-spacing: var(--_cloak-label-tracking);
+    unicode-bidi: plaintext;
   }
-  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label=''])):where([supporting-text]:not([supporting-text=''])) {
-    min-block-size: max(var(--_cloak-side), var(--_cloak-label) + var(--_cloak-supporting));
+  :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([supporting-text]:not([supporting-text='']))::after {
+    content: attr(supporting-text);
+    font: var(--_cloak-supporting-font-weight) var(--_cloak-supporting-font-size)/var(--_cloak-supporting-line-height) var(--_cloak-supporting-font-family);
+    letter-spacing: var(--_cloak-supporting-tracking);
+    unicode-bidi: plaintext;
   }
 
   /* An embedded text input: one line of its input's text role; a multi-line one `min-rows` whole lines of it, 1 by

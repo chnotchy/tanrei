@@ -14,12 +14,12 @@
  * - each anchor in a title's text style, color, height and paddings, with no underline; it is followed by the browser
  *   and takes focus with Tab, as any link: there is no menubar, no menu item and no roving focus until the bar runs;
  * - the current link item (`aria-current`) is filled from the selected condition, as the bar draws it (MBR-38);
- * - a disabled link item — an anchor without `href` under `disabled` — is text in the disabled color.
+ * - a disabled link item — an anchor without `href` under `disabled` — is text in the disabled color;
+ * - the bar is at least as tall as it will be drawn: one row of titles, container.height, between its paddings — the bar
+ *   draws one row and folds into its overflow item what that row does not hold (MBR-21), so nothing under it moves
+ *   when it runs.
  *
- * What it cannot give: the titles and the actions, so the row holds fewer things than it will, and where it holds no
- * link item it is as tall as its paddings alone. A page that must not move reserves the bar's block size:
- *
- *   tanrei-menubar:not(:defined) { min-block-size: calc(var(--tanrei-comp-menubar-container-height) + 2 * var(--tanrei-comp-menubar-bar-padding-block)); }
+ * What it cannot give: the titles and the actions, so the row holds fewer things than it will.
  *
  * Every value is a `--tanrei-comp-menubar-*` token. Every selector has no specificity (`:where()`), and none matches
  * once the element is defined: the bar then takes the same anchors, where they stand, as its link items.
@@ -33,6 +33,7 @@
     gap: var(--tanrei-comp-menubar-bar-gap);
     padding-block: var(--tanrei-comp-menubar-bar-padding-block);
     padding-inline: var(--tanrei-comp-menubar-bar-padding-inline);
+    min-block-size: calc(var(--tanrei-comp-menubar-container-height) + 2 * var(--tanrei-comp-menubar-bar-padding-block));
     background: var(--tanrei-comp-menubar-bar-color);
   }
   :where(tanrei-menubar:not(:defined)) > :where(tanrei-menubar-menu) {
