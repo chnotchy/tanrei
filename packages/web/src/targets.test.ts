@@ -137,6 +137,7 @@ async function overreaching(): Promise<Reach> {
   let atRest = new Set<HTMLElement>();
   const settle = async (stage: HTMLElement, after: HTMLElement[]) => {
     stage.scrollIntoView({ block: 'start' });
+    clipFar(stage);
     const watched = [stage, ...after.filter((other) => {
       const r = other.getBoundingClientRect();
       return r.bottom > 0 && r.top < innerHeight;
@@ -307,6 +308,27 @@ async function overreaching(): Promise<Reach> {
   };
 
   const stages = [...document.querySelectorAll<HTMLElement>('.stage[data-fixture]')];
+  // A press is hit-tested through every stage drawn after the one it lands in, inert ones too, part by positioned part:
+  // in a field's 368 stages a press in the 100th cost 0.9 ms, one in the 360th 0.04 ms, and the walk's 4,800 presses
+  // took 2.2 s of its 5. Chromium passes over a stage that its `clip-path` clips away whole without looking inside. So
+  // while a stage is pressed, every stage more than a window away from the window is clipped: it is inert then, so no
+  // press goes to it anyway, a clip lays nothing out, and an element of it in the top layer (an open popover, a modal
+  // dialog) is not clipped and still lets presses through as an inert one does. The stages within a window of it are
+  // not clipped, so that what watches whether it is seen, with a margin around the window (a file item fetches its
+  // picture within half a window), is told what it is told unclipped. The clips are set after each scroll, before the
+  // frames a stage settles in; nothing moves the stages between a scroll and the next one but a stage taken out of the
+  // page, and a stage pressed after that settles (it was not at rest with the others).
+  const clipped = new Set<HTMLElement>();
+  const clipFar = (stage: HTMLElement) => {
+    for (const other of stages) {
+      const r = other.getBoundingClientRect();
+      const far = other !== stage && (r.bottom < -innerHeight || r.top > 2 * innerHeight);
+      if (far === clipped.has(other)) continue;
+      other.style.clipPath = far ? 'inset(50%)' : '';
+      if (far) clipped.add(other);
+      else clipped.delete(other);
+    }
+  };
   const stageOf = (el: Element | null) => {
     for (let at = el; at; at = flatParent(at)) if (at instanceof HTMLElement && stages.includes(at)) return at;
     return null;
@@ -346,6 +368,7 @@ async function overreaching(): Promise<Reach> {
   }
   for (const [at, stage] of stages.entries()) await alone(stage, stages.slice(at + 1));
   for (const stage of stages) stage.inert = false;
+  for (const stage of clipped) stage.style.clipPath = '';
   return { found: [...new Set(out)], reached };
 }
 
