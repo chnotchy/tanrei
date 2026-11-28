@@ -28,6 +28,10 @@ const SAMPLES = {
   'nothing tells people who cannot see the arc': "src/components/button/button.ts (BTN-37, a missing word's effect)",
   'the more button is drawn and opens its menu, and has no accessible name': "src/components/app-bar/app-bar.ts (APB-33, a missing word's effect)",
   'the clear button has no accessible name; give it one': 'src/components/combobox/combobox.ts (CMB-20, a word recorded as lacking in every build)',
+  // A message builder that only reports: left out because the controller reaches the reading through a module of its
+  // own that the `browser` field maps (availability-debug.ts), not by a guard on the constant of another module.
+  "does not extend: its stylesheet has none of the component's tokens":'src/primitives/availability-read.ts (AVL-1, a message builder only the reading uses)',
+  'is left out of ': 'src/primitives/availability-read.ts (AVL-3, a message builder only the reading uses)',
 };
 
 const bundle = async (mode) => {
@@ -48,7 +52,10 @@ const bundle = async (mode) => {
 const [production, development] = await Promise.all([bundle('production'), bundle('development')]);
 
 test('a browser bundler takes the module whose constant it can replace', () => {
-  assert.deepEqual(pkg.browser, { './dist/primitives/debug.js': './dist/primitives/debug.bundled.js' });
+  assert.deepEqual(pkg.browser, {
+    './dist/primitives/debug.js': './dist/primitives/debug.bundled.js',
+    './dist/primitives/availability-debug.js': './dist/primitives/availability-debug.bundled.js',
+  });
   for (const file of Object.values(pkg.browser)) assert.ok(fs.existsSync(path.join(root, file)), `${file} is built`);
   // The run-time reading of `process` is not in a browser bundle: the constant was replaced.
   assert.ok(!/\bprocess\./.test(production), 'the production bundle reads process');

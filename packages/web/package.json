@@ -160,7 +160,8 @@
   },
   "customElements": "custom-elements.json",
   "browser": {
-    "./dist/primitives/debug.js": "./dist/primitives/debug.bundled.js"
+    "./dist/primitives/debug.js": "./dist/primitives/debug.bundled.js",
+    "./dist/primitives/availability-debug.js": "./dist/primitives/availability-debug.bundled.js"
   },
   "bin": {
     "tanrei-links": "./dist/links/node/cli.js"

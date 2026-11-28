@@ -9012,8 +9012,13 @@ and Node's), so there it is a value at run time — true where there is no `proc
 browser takes that module and replaces it (a tool that reads the `browser` field and defines nothing would leave
 `process` unguarded there; esbuild, webpack, Vite and Parcel all define it). A bundler that does not read the `browser` field (Rollup without `@rollup/plugin-node-resolve`'s
 `browser: true`) keeps `debug.ts`: every report stays in the bundle, and in production makes none. What a production bundle still carries: a function or method that only reports (a `check()`, a message
-builder such as `unavailableMessage()`) — a bundler decides that it is used before it replaces the constant, so it stays
-though nothing calls it — and the code before a guard that only makes its message. `test/debug-code.test.mjs` bundles
+builder) — a bundler decides that it is used before it replaces the constant, so it stays though nothing calls it — and
+the code before a guard that only makes its message. Where that is much, the code is reached through a module of its
+own that the `browser` field maps as it maps `debug.ts`: availability's reading (`availability-read.ts`, with its
+message builders such as `unavailableMessage()`) is reached by `AvailabilityController` only through
+`availabilityRead`, from `availability-debug.ts` — the value of `DEBUG` there, the bare `process.env.NODE_ENV` in
+`availability-debug.bundled.ts` — so a production bundle uses none of it and leaves it out (about 2.4 kB minified, 0.8
+kB gzip of every component's bundle). `test/debug-code.test.mjs` bundles
 `@tanrei/web/all` both ways and looks for a sample of reports in each.
 
 ## Icons
