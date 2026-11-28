@@ -4380,14 +4380,16 @@ test.describe('link items', () => {
     expect(await anchorOf(labelled(page, 'links-trailing', 'English'))).toMatchObject({ tag: 'a', href: '/en/', role: 'menuitem' });
   });
 
-  test('MNU-30: a check that was marked drawable in the turn of a render is taken back when its font is gone again before a frame was drawn', async ({ page }) => {
+  test('MNU-30: a check whose font arrives and is gone again before a frame was drawn, while its item renders, is not drawn', async ({ page }) => {
     // The mark is written by two readers: the shared
     // ResizeObserver, which hears the ink's width change, and the read a host makes in the turn of its render or when
     // a face has loaded. The observer compares with the width it last reported — so a glyph the second reader marked
     // (narrow: the ligature) while the observer had last reported the name spelled out (wide) was never read again
     // when it went back to wide before a frame: the same width as the observer knew, and no report. Here the face
     // arrives, the item renders and the family is taken away again in one task, which is what a busy machine made of
-    // «the faces are ready» followed by `withoutIconFont()`.
+    // «the faces are ready» followed by `withoutIconFont()`. A render that keeps the glyph's name reads nothing of it
+    // in its turn: whether the family changed is read in the frame's read phase (src/primitives/glyph.ts), by when it
+    // is gone again, so the check is never marked at all.
     await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => f.id === 'checkbox-check-mark') });
     const check = row(page, 'checkbox-check-mark', 0).locator('.check');
     await expect(check).toHaveAttribute('data-drawn', '');
@@ -4407,7 +4409,7 @@ test.describe('link items', () => {
       for (const each of families) root.style.setProperty(each, `"${name}"`);
       return was;
     }, family);
-    expect(marked, 'the render read the ligature and marked it').toBe(true);
+    expect(marked, 'the render read nothing of the glyph in its turn, and marked nothing').toBe(false);
     await expect(check).not.toHaveAttribute('data-drawn');
     await expect(check).toHaveCSS('visibility', 'hidden');
     // And the other way: the face is back, and the glyph with it.
