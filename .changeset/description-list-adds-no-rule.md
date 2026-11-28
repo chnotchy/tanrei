@@ -16,7 +16,10 @@ a rule added to a page's sheets, or a sheet added to them, rebuilds every rule o
 - DSL-23: a size added by a design system is written as the size's own names, read from its tokens.
 
 What is drawn does not change. The wrapper's line height is 0 until the list is measured, and stays 0 without script
-and in the stacked and stat layouts.
+and in the stacked and stat layouts. The container query is asked of every list in every state, also while it is
+measured, by a second rule that sets a name nothing reads: Chromium answers a container query again when the
+container's line height changes only if it asked that query before, so a list inserted after the page was painted,
+and first styled while it was measured, would otherwise stay in two columns however narrow it was.
 
 Measured on the docs' Arabic Button page: the list's write there cost WebKit 0.79 s and now costs 2 ms. Fifty lists
 appended to that page at once reach their next frame in 0.17 s instead of 1.2 s, and one list appended alone in 67 ms

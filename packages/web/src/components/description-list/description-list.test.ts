@@ -274,6 +274,23 @@ test.describe('layouts', () => {
     await expect.poll(async () => [await drawn(page, 'own', 1), await drawn(page, 'own', 2)]).toEqual(['inline', 'inline']);
   });
 
+  test('DSL-4: a list inserted after the page is painted, with nothing reading its layout before it is measured, is drawn stacked under the width it measured, and in two columns again when given the room — its list is first styled while it is measured, and the width written after it is compared all the same', async ({ page }) => {
+    const id = 'own';
+    await mountFixtures(page, spec, { fixtures: [fx(id, {}, [f1(wide(96), 'A value'), f1('Short', 'Another value')])] });
+    await size(page, id, 255);
+    // Inserted as a product draws a view: markup alone, as it was written, in one task, nothing read before the element
+    // measures it.
+    await stage(page, id).evaluate((el, term) => {
+      el.replaceChildren();
+      el.insertAdjacentHTML('beforeend', `<tanrei-description-list><dl><div><dt>${term}</dt><dd>A value</dd></div><div><dt>Short</dt><dd>Another value</dd></div></dl></tanrei-description-list>`);
+    }, wide(96));
+    await frame(page);
+    expect(await host(page, id).getAttribute('data-stacks-below')).toBe('256');
+    expect([await drawn(page, id, 1), await drawn(page, id, 2)]).toEqual(['stacked', 'stacked']);
+    await size(page, id, 256);
+    expect([await drawn(page, id, 1), await drawn(page, id, 2)]).toEqual(['inline', 'inline']);
+  });
+
   test('DSL-4: a list that is not rendered (an ancestor `display: none`) keeps the width under which it stacks, and is drawn stacked from the frame it is shown again in — a list with no box does not read as one that never stacks', async ({ page }) => {
     const id = 'inline-falls-back';
     await mountFixtures(page, spec, { fixtures: spec.fixtures.filter((f) => f.id === id) });

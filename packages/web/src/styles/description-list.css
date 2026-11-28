@@ -282,9 +282,17 @@
     --_dl-stacks-below: 0px;
     line-height: var(--_dl-stacks-below);
   }
-  /* The query is asked of every list, not only of one that has a width yet: Chromium answers a query again when the
-     container's line height changes only where it has asked that query of the container before. */
+  /* The query is asked of every list, not only of one that has a width yet, and in every state, also while it is
+     measured: Chromium answers a query again when the container's line height changes only where it has asked that
+     query of the container before. A list inserted after the page was painted is first styled while it is measured,
+     where the rule that stacks it does not match; asked nothing then, it never compared the width written after the
+     measure, and stayed in two columns however narrow it was. So a second rule of the query matches the list in every
+     state and sets a name nothing reads. (Making the rule that stacks match while measured, its width taken away
+     then, costs Chromium two style passes more for each list.) */
   @container (inline-size < 1lh) {
+    :where(tanrei-description-list) > :where(dl) {
+      --_dl-asked: 1;
+    }
     :where(tanrei-description-list:not([data-measuring])) > :where(dl) {
       grid-template-columns: minmax(0, 1fr);
 
