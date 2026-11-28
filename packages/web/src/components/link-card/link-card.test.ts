@@ -15,6 +15,7 @@ import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { type Frame, type Frames, type Probe, expectAnimated, expectFirstFrameAtRest, expectNoFlicker, freezeFirstFrame, sampleFrames } from '../../../test/frames.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { pictureDrawn } from '../../../test/picture-drawn.js';
+import { rewrite } from '../../../test/frame-asked.js';
 import { resolveEasing } from '../../../test/appear.js';
 import { expectPressShownAndHeld, watchPress } from '../../../test/watched-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
@@ -758,9 +759,9 @@ const expectEveryFrameNoStep = (way: number[], label: string) => {
  * A page of the site holding one card (`#card`, the build step's markup, its media `/pictures/<picture>`) and a line
  * below it, in a column `width` wide. Every picture's response is held until `release(<picture>)` (by default the
  * card's own): `/pictures/card.png` then answers with the picture, any other address with 404 — a picture that cannot
- * be loaded.
+ * be loaded. With `marked`, the markup brings the mark of a drawn picture (LKC-37) that the card did not write.
  */
-const heldPicture = async (page: P, picture: string, { width = 720, alt = '' }: { width?: number; alt?: string } = {}) => {
+const heldPicture = async (page: P, picture: string, { width = 720, alt = '', marked = false }: { width?: number; alt?: string; marked?: boolean } = {}) => {
   const holds = new Map<string, { held: Promise<void>; release: () => void }>();
   const holdOf = (pathname: string) => {
     let hold = holds.get(pathname);
@@ -773,7 +774,9 @@ const heldPicture = async (page: P, picture: string, { width = 720, alt = '' }: 
     return hold;
   };
   const pathname = `/pictures/${picture}`;
-  const markup = siteCard('card', HREF, { media: pathname, extra: 'data-external="false"' }).replace('</span><span data-part="site">', `</span>${alt ? `<span data-part="image-alt">${alt}</span>` : ''}<span data-part="site">`);
+  const markup = siteCard('card', HREF, { media: pathname, extra: 'data-external="false"' })
+    .replace('</span><span data-part="site">', `</span>${alt ? `<span data-part="image-alt">${alt}</span>` : ''}<span data-part="site">`)
+    .replace('<img data-part="media"', marked ? '<img data-part="media" data-drawn' : '<img data-part="media"');
   await served(page, `<div id="root" style="inline-size: ${width}px">${markup}<p class="after" style="margin: 0">Below.</p></div>`, { hold: (asked) => (asked.startsWith('/pictures/') ? holdOf(asked).held : undefined) });
   const release = (name = picture) => holdOf(`/pictures/${name}`).release();
   const host = page.locator('#card');
@@ -982,6 +985,158 @@ test.describe('the picture’s motion', () => {
     await motionEnded(failing.host);
     await expect(failing.link).toHaveAccessibleName('Card card');
     await expect(failing.link).toHaveAccessibleDescription('example.com');
+  });
+});
+
+// ── The mark of a drawn picture (LKC-37): `data-drawn` on the product's own media `<img>` ────────────────────────────
+type Watched = Window & { drawnWith?: { arriving: boolean }[]; kept?: HTMLImageElement; away?: HTMLElement };
+/** Records, at the moment the card writes the mark on `media`, whether the picture's fade (LKC-13) has already begun. */
+const watchMark = (media: Locator) =>
+  media.evaluate((el) => {
+    const seen: { arriving: boolean }[] = [];
+    (window as Watched).drawnWith = seen;
+    const set = el.setAttribute.bind(el);
+    el.setAttribute = (name: string, value: string) => {
+      if (name === 'data-drawn') seen.push({ arriving: !!el.closest('tanrei-link-card')?.hasAttribute('data-tanrei-arriving') });
+      set(name, value);
+    };
+  });
+const markWrites = (page: P) => page.evaluate(() => (window as Watched).drawnWith ?? []);
+/** Keeps the card's media `<img>` in the page's hands, whatever the card or the test then does with it. */
+const keepMedia = (host: Locator) => host.evaluate((el) => void ((window as Watched).kept = el.querySelector<HTMLImageElement>('img[data-part="media"]')!));
+const keptMarked = (page: P) => page.evaluate(() => (window as Watched).kept!.hasAttribute('data-drawn'));
+
+test.describe('the mark of a drawn picture', () => {
+  test('LKC-37 a picture whose response is held carries no mark until it is released, and carries it once the card has begun its fade, never before; a mark the markup brought is taken off', async ({ page }) => {
+    const { host, media, release } = await heldPicture(page, 'card.png', { marked: true });
+    // The markup's mark is not the card's: the picture has not loaded.
+    await expect(media).not.toHaveAttribute('data-drawn');
+    await watchMark(media);
+    await frames(page);
+    await expect(media).not.toHaveAttribute('data-drawn');
+    release();
+    await pictureDrawn(host, { atRest: false });
+    // Written once, when the fade had already begun: a wait for the mark never reads a frame before the fade.
+    expect(await markWrites(page)).toEqual([{ arriving: true }]);
+    await motionEnded(host);
+    await expect(media).toHaveAttribute('data-drawn', '');
+    await expect(host).not.toHaveAttribute('data-tanrei-arriving');
+    expect(await css(media, 'opacity')).toBe('1');
+  });
+
+  test('LKC-37 a picture the browser already holds carries the mark as the card first draws it, with no fade; one that arrives while the card is out of the page carries it once the card is back, with no fade', async ({ page }) => {
+    await mountSpec(page, ['full']);
+    await pictureDrawn(card(page, 'full'));
+    // A picture whole before the card was in the page: its `load` was dispatched before the card could hear it.
+    const marked = await stage(page, 'full').evaluate(async (el, [href, src]) => {
+      const picture = document.createElement('img');
+      picture.setAttribute('data-part', 'media');
+      for (const [name, value] of [['alt', ''], ['width', '600'], ['height', '315'], ['decoding', 'async'], ['referrerpolicy', 'no-referrer'], ['src', src]]) picture.setAttribute(name, value);
+      await picture.decode();
+      const host = document.createElement('tanrei-link-card');
+      host.id = 'whole';
+      host.innerHTML = `<a href="${href}" data-external="false"><span data-part="body"><span data-part="title">Whole</span></span></a>`;
+      host.querySelector('a')!.append(picture);
+      el.append(host);
+      await (host as HTMLElement & { updateComplete: Promise<unknown> }).updateComplete;
+      return { drawn: picture.hasAttribute('data-drawn'), arriving: host.hasAttribute('data-tanrei-arriving') };
+    }, [HREF, PICTURE] as const);
+    expect(marked).toEqual({ drawn: true, arriving: false });
+    // Out of the page while its picture arrives, and back: whole, and marked as the card reads it again.
+    const { host, media, release } = await heldPicture(page, 'card.png');
+    await host.evaluate((el) => {
+      (window as Watched).away = el as HTMLElement;
+      el.remove();
+    });
+    release();
+    const away = await page.evaluate(async () => {
+      const picture = (window as Watched).away!.querySelector<HTMLImageElement>('img[data-part="media"]')!;
+      await picture.decode();
+      return picture.hasAttribute('data-drawn');
+    });
+    expect(away, 'no mark while the card is away').toBe(false);
+    await rewrite(page.locator('#root'), (el) => el.prepend((window as Watched).away!));
+    await expect(media).toHaveAttribute('data-drawn', '');
+    await expect(host).not.toHaveAttribute('data-tanrei-arriving');
+    expect(await css(media, 'opacity')).toBe('1');
+  });
+
+  test('LKC-37 a picture given another address loses the mark until the picture at that address has loaded — by the property and by the product’s own markup', async ({ page }) => {
+    // By the property: the new address is a new picture element, and the one drawn before keeps no mark.
+    await mount(page, `<tanrei-link-card href="${HREF}" headline="T" image="${PICTURE}" external="off"></tanrei-link-card>`);
+    await pictureDrawn(card(page, 't'));
+    await keepMedia(card(page, 't'));
+    await rewrite(card(page, 't'), (el, src) => el.setAttribute('image', `${src}#again`), PICTURE);
+    await expect.poll(() => keptMarked(page), 'the picture drawn before').toBe(false);
+    await pictureDrawn(card(page, 't'));
+    await expect(part(page, 't', 'media')).toHaveAttribute('src', `${PICTURE}#again`);
+    // By the product's own markup: the same element, given a picture whose response is held.
+    let release: () => void = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    const png = fs.readFileSync(path.join(pkg, 'test/fixtures/link-card.png'));
+    await served(page, siteCard('own', HREF, { media: '/pictures/card.png', extra: 'data-external="false"' }), {
+      hold: (pathname) => (pathname === '/pictures/second.png' ? held : undefined),
+      files: { '/pictures/second.png': { contentType: 'image/png', body: png } },
+    });
+    const host = page.locator('#own');
+    const media = host.locator('img[data-part="media"]');
+    await media.scrollIntoViewIfNeeded();
+    await pictureDrawn(host);
+    await rewrite(media, (el) => el.setAttribute('src', '/pictures/second.png'));
+    await expect(media).not.toHaveAttribute('data-drawn');
+    await frames(page);
+    await expect(media, 'still on its way').not.toHaveAttribute('data-drawn');
+    release();
+    await pictureDrawn(host);
+    await expect(media).toHaveAttribute('src', '/pictures/second.png');
+  });
+
+  test('LKC-37 a picture taken away keeps no mark — by the product, or by a card that is no longer a link — and a picture that fails carries none', async ({ page }) => {
+    const drawnCard = async () => {
+      await mount(page, built(`href="${HREF}" data-external="false"`, '<span data-part="title">T</span>', mediaImg()));
+      await pictureDrawn(card(page, 't'));
+      await keepMedia(card(page, 't'));
+      expect(await keptMarked(page)).toBe(true);
+    };
+    // Taken out of the anchor by the product.
+    await drawnCard();
+    await rewrite(card(page, 't'), (el) => el.querySelector('img[data-part="media"]')!.remove());
+    await expect.poll(() => keptMarked(page), 'taken away by the product').toBe(false);
+    // Taken away by the card, which is no longer a link (LKC-27).
+    await drawnCard();
+    await rewrite(anchor(page, 't'), (el) => el.removeAttribute('href'));
+    await expect(part(page, 't', 'media')).toHaveCount(0);
+    expect(await keptMarked(page), 'taken away by the card').toBe(false);
+    // A picture drawn, given an address that fails: taken away (LKC-13), and no mark is left on it.
+    await drawnCard();
+    await rewrite(part(page, 't', 'media'), (el, src) => el.setAttribute('src', src), fixturePicture('fixtures/missing.png'));
+    await expect(part(page, 't', 'media')).toHaveCount(0);
+    expect(await keptMarked(page), 'a drawn picture that fails').toBe(false);
+    // A picture that fails as it first arrives is never marked.
+    const failing = await heldPicture(page, 'broken.png');
+    await watchMark(failing.media);
+    await keepMedia(failing.host);
+    failing.release();
+    await expect(failing.host.locator('img[data-part="media"]')).toHaveCount(0);
+    expect(await markWrites(page)).toEqual([]);
+    expect(await keptMarked(page)).toBe(false);
+  });
+
+  test('LKC-37 the mark changes nothing drawn and nothing exposed: the stylesheet does not read it, and the card’s look and its accessibility tree are the same without it', async ({ page }) => {
+    for (const file of ['src/styles/link-card.css', 'dist/link-card.css']) expect(read(file), file).not.toContain('data-drawn');
+    await mountSpec(page, ['full', 'image-alt']);
+    for (const id of ['full', 'image-alt']) {
+      await pictureDrawn(card(page, id));
+      await expect(part(page, id, 'media')).toHaveAttribute('data-drawn', '');
+      // What is drawn, pixel for pixel, and where each part stands: the same with the mark and without it.
+      const boxes = () => card(page, id).evaluate((el) => [el, ...el.querySelectorAll('a, [data-part]')].map((node) => JSON.stringify(node.getBoundingClientRect())));
+      const [drawnPixels, drawnBoxes, drawnTree] = [await card(page, id).screenshot(), await boxes(), await card(page, id).ariaSnapshot()];
+      await rewrite(part(page, id, 'media'), (el) => el.removeAttribute('data-drawn'));
+      expect((await card(page, id).screenshot()).equals(drawnPixels), `${id}: the same pixels`).toBe(true);
+      expect(await boxes(), id).toEqual(drawnBoxes);
+      expect(await card(page, id).ariaSnapshot(), id).toBe(drawnTree);
+      await expect(anchor(page, id)).toHaveAccessibleName('Designing with tokens');
+    }
   });
 });
 
