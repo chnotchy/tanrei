@@ -2984,7 +2984,16 @@ export class TanreiNavigationDrawer extends TanreiElement {
     // above and below it that NVD-6 makes part of its hit area (rows with no gap between them could not).
     let gap = 0;
     let top = 0;
-    if (this.stickyParents && !this.collapsed && scroller && scroller.clientHeight && scroller.scrollTop > 0) {
+    const pinning = this.stickyParents && !this.collapsed && !!scroller;
+    const height = pinning ? scroller.clientHeight : 0;
+    // A drawer that is not rendered (itself or an ancestor `display: none`) lays nothing out: its space reads no height,
+    // which would say that nothing scrolled under the top. It keeps the rows it pinned, and reckons them again when it
+    // is shown (its observer of the groups reports them laid out): unpinned while hidden, they were drawn in the list
+    // in the frame it was shown in, and pinned only in the next. Only a space that reads no height is asked whether it
+    // has a box: a rendered drawer reads nothing more. (A drawer that pins nothing — sticky parents off, or collapsed —
+    // has nothing to keep.)
+    if (pinning && !height && !scroller.getClientRects().length) return () => {};
+    if (pinning && height && scroller.scrollTop > 0) {
       gap = Number.parseFloat(getComputedStyle(scroller).rowGap) || 0;
       top = scroller.getBoundingClientRect().top + scroller.clientTop;
       // The open groups, outermost first, whose items run past the top of the space: each pins under those above it.

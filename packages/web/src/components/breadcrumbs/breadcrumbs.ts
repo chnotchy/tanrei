@@ -402,13 +402,23 @@ export class TanreiBreadcrumbs extends TanreiElement {
   };
 
   private static decideTogether(trails: TanreiBreadcrumbs[], observed: boolean) {
-    const live = trails.flatMap((trail) => {
+    // A trail that is not rendered (itself or an ancestor `display: none`) lays nothing out: every level reads 0 wide in
+    // no room, which would say that the whole trail fits and needs no width (BRC-8: the sizer let go, drawn at an SVG's
+    // own 300 px in the frame the trail was shown in again). It decides nothing and keeps what it had; its observer
+    // reports its boxes again when it is shown. Told by the read of its room (the list's rects: one box where it is
+    // rendered, none where it is not), so a rendered trail reads nothing more.
+    const connected = trails.flatMap((trail) => {
       const list = trail.renderRoot?.querySelector('ol');
       return list && trail.isConnected && trail.hasUpdated ? [{ trail, list }] : [];
     });
-    for (const { list } of live) list.classList.add('measure');
-    const read = live.map(({ list }) => ({ widths: [...list.querySelectorAll('li.level')].map(width), button: width(list.querySelector('li.more')), room: width(list) }));
-    for (const { list } of live) list.classList.remove('measure');
+    for (const { list } of connected) list.classList.add('measure');
+    const measured = connected.map(({ list }) => {
+      const [box] = list.getClientRects();
+      return box ? { widths: [...list.querySelectorAll('li.level')].map(width), button: width(list.querySelector('li.more')), room: box.width } : null;
+    });
+    for (const { list } of connected) list.classList.remove('measure');
+    const live = connected.filter((_, index) => measured[index]);
+    const read = measured.filter((each): each is NonNullable<typeof each> => !!each);
     // BRC-23: where each wrapped trail breaks into lines, read as it is drawn — after the widths, in one more layout.
     const lines = live.map(({ trail, list }) => (trail.wraps ? linesBeside([...list.querySelectorAll<HTMLElement>('li.level')]) : null));
     // After the layout the reads forced: a face the labels first asked for in it is loading now.

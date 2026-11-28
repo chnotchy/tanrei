@@ -23,6 +23,8 @@ import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { motionCount, motionEnded, settledCss } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { shownAgain } from '../../../test/shown-again.js';
 
 const spec = loadSpec('segmented-button');
 type P = Page;
@@ -554,6 +556,21 @@ test.describe('layout', () => {
     const [cb, cl] = [await bounds(btn(page, 'single', 1)), await bounds(seg(page, 'single', 1).locator('.label'))];
     expect(cl.x - cb.x).toBeCloseTo(cb.x + cb.width - (cl.x + cl.width), 0);
     expect(await shown('icons', 1, '.icon')).toBe(1);
+  });
+
+  test('SEG-16: a set that is not rendered (an ancestor `display: none`) keeps the check of its selected segments, and draws it from the frame it is shown again in — a probe of nothing does not read as a size that draws no check, to grow in from', async ({ page }) => {
+    const ids = ['single', 'multiple'];
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => ids.includes(f.id)) });
+    const opened = (id: string) => segs(page, id).evaluateAll((all) => all.map((segment) => !!segment.shadowRoot?.querySelector('.container.lead-open')));
+    for (const id of ids) {
+      const before = await opened(id);
+      expect(before, id).toContain(true);
+      const seen = await shownAgain(page.locator(`[data-fixture="${id}"]`), {
+        whileHidden: async () => expect(await opened(id), `${id}: the checks while the set is not rendered`).toEqual(before),
+      });
+      expect(seen.motions.map((motion) => `${motion.name} on ${motion.on}`), `${id}: what moves once the set is shown again`).toEqual([]);
+      expectFirstFrameAtRest(seen);
+    }
   });
 
   test('SEG-16: the check is the icon set’s check, in the selected family and fill at comp.segmented-button.check.weight (heavier than sys.icon.weight in the default system), never mirrored — under acme in its selected family; no mark of its own', async ({ page }) => {

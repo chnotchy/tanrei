@@ -19,6 +19,7 @@ import { allSettled } from '../../../test/settled.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
 import { withoutFocusVisibleOption } from '../../../test/focus-visible-option.js';
 import { holdClock, releaseClock } from '../../../test/page-clock.js';
+import { shownAgain } from '../../../test/shown-again.js';
 import { STOPPED_AFTER, flingThenHold, strokes } from '../../../test/stopped-release.js';
 import { clickCentre, heldPress } from '../../../test/watched-press.js';
 import { middlePressAimed } from '../../../test/middle-press.js';
@@ -4580,6 +4581,19 @@ test.describe('the row model shared with the tree view', () => {
     await setProps(page, id, { stickyParents: false });
     await scroller.evaluate((el, to) => (el.scrollTop = to), over + 33);
     await expect.poll(pinned).toEqual([]);
+  });
+
+  test('NVD-77: a drawer that is not rendered (an ancestor `display: none`) keeps the rows it pinned, and draws them pinned from the frame it is shown again in — a space of no height does not read as one that nothing scrolled under', async ({ page }) => {
+    const id = 'sticky';
+    await mount(page, [F(id)]);
+    const pinned = () => drawer(page, id).evaluate((el) => [...el.querySelectorAll<HTMLElement & { isPinned: boolean; label: string }>('tanrei-navigation-drawer-group')].filter((g) => g.isPinned).map((g) => g.label));
+    await expect.poll(pinned).not.toEqual([]);
+    const before = await pinned();
+    const seen = await shownAgain(page.locator(`[data-fixture="${id}"]`), {
+      whileHidden: async () => expect(await pinned(), 'the rows pinned while the drawer is not rendered').toEqual(before),
+    });
+    expectFirstFrameAtRest(seen);
+    expect(await pinned()).toEqual(before);
   });
 
   test('NVD-39: the main action keeps its place under a page’s reset (* { margin: 0; padding: 0 }) in both forms: it is placed by the drawer’s own box, not by a margin on it', async ({ page }) => {
