@@ -1051,16 +1051,25 @@ export const afterTwoFrames = (done: () => void): void => settleAfterTwoFrames({
  * up its flat tree that has one is asked for it (a slot is of `display: contents` too), and only for a host found not
  * drawn is its display asked. The box is watched by a resize observer, which is told as the box is first laid out —
  * the first frame it is drawn in — and the settlers that wait on it count their two frames from there.
+ *
+ * Nothing is asked of the style of an element that has no box, and so draws nothing, before it is known to be in the
+ * flat tree: one that no slot takes (an option of a list not shown, held by its host's light DOM) has a style of its
+ * own nowhere, and asking for it has WebKit answer it from then on as no ancestor's (its `color` the initial black)
+ * where it answered it before from the tree it is written in — a change for whatever reads it, which a host it never
+ * draws in must not make. A box laid out is asked first, which the layout made before the batch is let go answers.
  */
 const waits = (settler: Settler, host: Element): boolean => {
-  if (host.checkVisibility()) return false;
   let box: Element | null = host;
-  while (box && getComputedStyle(box).display === 'contents') box = flatParent(box);
-  if (!box || (box !== host && box.checkVisibility())) return false;
+  if (host.getClientRects().length) {
+    if (host.checkVisibility()) return false;
+  } else if (!outsideFlatTree(host)) {
+    while (box && getComputedStyle(box).display === 'contents') box = flatParent(box);
+    if (!box || (box !== host && box.checkVisibility())) return false;
+  }
   undrawn.set(settler, box);
   (drawnWatch ??= new ResizeObserver((entries) => {
     for (const { target } of entries) {
-      if (!target.checkVisibility()) continue;
+      if (!target.getClientRects().length || !target.checkVisibility()) continue;
       drawnWatch!.unobserve(target);
       for (const [each, box] of undrawn) {
         if (box !== target) continue;
@@ -1070,6 +1079,12 @@ const waits = (settler: Settler, host: Element): boolean => {
     }
   })).observe(box);
   return true;
+};
+
+/** Whether `element` is outside the flat tree: it, or an element up its tree, is a child of a shadow host that no slot takes. */
+const outsideFlatTree = (element: Element): boolean => {
+  for (let at: Element | null = element; at; at = flatParent(at)) if (!at.assignedSlot && at.parentElement?.shadowRoot) return true;
+  return false;
 };
 
 /** The settler waits to be drawn no more: its host was taken out of the page. Its box is unwatched where no other waits on it. */
