@@ -578,6 +578,10 @@ test.describe('the picture', () => {
     await mountSpec(page, ['full', 'full-rtl', 'no-picture']);
     for (const id of ['full', 'full-rtl']) {
       const media = part(page, id, 'media');
+      // The picture as it rests. A picture that loads after the card has settled — a busy machine decodes the fixture's
+      // late — fades in (LKC-13), and its opacity read during the fade is a frame of that motion, not its look.
+      await expect.poll(() => media.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0)).toBe(true);
+      await motionEnded(card(page, id));
       expect(await drawn(media, 'background-color'), id).toEqual(await token(page, 'media-container-color'));
       expect(await css(media, 'object-fit')).toBe('cover');
       expect(await css(media, 'object-position')).toBe('50% 50%');
@@ -1806,6 +1810,10 @@ test.describe('changes, and what a card may hold', () => {
     await mount(page, `<tanrei-link-card href="${HREF}" headline="One" description="First." site-name="Journal" external="off"></tanrei-link-card>`);
     const link = anchor(page, 't');
     await tabTo(page, link);
+    // The focus fades the fill in over motion.state-duration (LKC-28). That transition is no part of the change below,
+    // and it is not over when Tab returns: WebKit may draw no frame before the next style flush, which creates it, and
+    // it announces it only in a frame after that — to the watch below, if it was not over first.
+    await motionEnded(card(page, 't'));
     const node = await link.elementHandle();
     // The card has keyboard focus: the colors are the focused ones of each look. Each one read below is a new color.
     const filled = { fill: await token(page, 'filled-focused-container-color'), edge: await token(page, 'filled-focused-outline-color') };
