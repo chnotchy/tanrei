@@ -1390,18 +1390,17 @@
   :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text=''])) {
     padding-block-end: var(--tanrei-comp-field-supporting-text-gap);
   }
-  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::before {
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined):not([hidden])):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::before {
     content: '';
     display: inline-block;
     vertical-align: top;
     min-block-size: inherit;
   }
-  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::after {
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-field, tanrei-number-field, tanrei-one-time-code-field, tanrei-select-field, tanrei-slider-field, tanrei-text-field):where(:not(:defined):not([hidden])):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::after {
     content: '';
     display: block;
     flex: none;
     min-block-size: 1lh;
-    padding-inline: var(--_cloak-inset-start, 0px) var(--_cloak-inset-end, 0px);
     font: var(--tanrei-comp-field-supporting-text-typescale-font-weight) var(--tanrei-comp-field-supporting-text-typescale-font-size)/var(--tanrei-comp-field-supporting-text-typescale-line-height) var(--tanrei-comp-field-supporting-text-typescale-font-family);
     letter-spacing: var(--tanrei-comp-field-supporting-text-typescale-letter-spacing);
     overflow-wrap: break-word;
@@ -1419,6 +1418,9 @@
       content: attr(supporting-text);
       padding-block-end: calc(var(--tanrei-comp-field-error-text-gap) + 1lh);
     }
+  }
+  :where(tanrei-chip-field, tanrei-color-field, tanrei-combobox-field, tanrei-number-field, tanrei-select-field, tanrei-text-field, tanrei-field:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input))):where(:not(:defined)):where([supporting-text]:not([supporting-text='']), [error][error-text]:not([error-text='']), [counter], [count-text]:not([count-text='']))::after {
+    padding-inline: var(--_cloak-inset-start) var(--_cloak-inset-end);
   }
   :where(tanrei-field:has(> :is(tanrei-color-input, tanrei-combobox, tanrei-number-input, tanrei-select, tanrei-text-input))):where(:not(:defined)) {
     --_cloak-inset-start: min(var(--tanrei-comp-input-box-container-padding-inline-medium), var(--tanrei-comp-input-box-container-padding-inline-with-icon-medium));
@@ -1535,10 +1537,10 @@
      A row with panels keeps its own row's height above them; a tab view draws its row (a primary one of the default
      size taller where a panel shows a glyph over its label), but a view linked to a row elsewhere (`tabs`), which draws
      none. Each panel lays its content out in a box of its own, as it is drawn. */
-  :where(tanrei-tabs, tanrei-tab-view):where(:not(:defined)) > :where(tanrei-tab-panel) {
+  :where(tanrei-tabs:not(:defined) > tanrei-tab-panel:not([hidden]), tanrei-tab-view:not(:defined) > tanrei-tab-panel:not([hidden])) {
     display: flow-root;
   }
-  :where(tanrei-tabs, tanrei-tab-view):where(:not(:defined)) > :where(tanrei-tab-panel:not(:first-of-type)) {
+  :where(tanrei-tabs:not(:defined) > tanrei-tab-panel:not(:first-of-type), tanrei-tab-view:not(:defined) > tanrei-tab-panel:not(:first-of-type)) {
     display: none;
   }
   :where(tanrei-tabs:not([orientation='vertical']):not(:defined):has(> tanrei-tab-panel)) {
@@ -1552,16 +1554,16 @@
   }
   /* Vertical tabs with panels: the column of tabs at the start, the panel beside it, as tall as the taller of the
      two (the panel spans more rows than a column of tabs holds; those it spans and no tab fills are empty). */
-  :where(tanrei-tabs[orientation='vertical']:not(:defined):has(> tanrei-tab-panel)) {
+  :where(tanrei-tabs[orientation='vertical']:not(:defined):not([hidden]):has(> tanrei-tab-panel)) {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     grid-auto-flow: dense;
     align-content: start;
   }
-  :where(tanrei-tabs[orientation='vertical']:not(:defined)) > :where(tanrei-tab) {
+  :where(tanrei-tabs[orientation='vertical']:not(:defined) > tanrei-tab) {
     grid-column: 1;
   }
-  :where(tanrei-tabs[orientation='vertical']:not(:defined)) > :where(tanrei-tab-panel) {
+  :where(tanrei-tabs[orientation='vertical']:not(:defined) > tanrei-tab-panel) {
     grid-column: 2;
     grid-row: 1 / span 100;
   }
@@ -1591,14 +1593,13 @@
   /* A list row: the least height of its number of lines, for its own size — one (a headline), two (an overline or a
      supporting text with it), three (a supporting text with an overline, or a supporting text of two lines). In an
      action, a link or an option of a list that is defined (its module can arrive before the row's), the item draws
-     the paddings and the row keeps that height less them (LRW-8), as it will once it is defined. */
+     the paddings of its list's size and the row keeps that height less them (LRW-8), as it will once it is defined. */
   :where(tanrei-list-row:not(:defined)) {
     --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-medium);
     --_cloak-two: var(--tanrei-comp-list-row-container-height-two-line-medium);
     --_cloak-three: var(--tanrei-comp-list-row-container-height-three-line-medium);
     --_cloak-row: var(--_cloak-one);
-    --_cloak-boxed: 0px;
-    min-block-size: calc(var(--_cloak-row) - 2 * var(--_cloak-boxed));
+    min-block-size: var(--_cloak-row);
   }
   :where(tanrei-list-row[size='small']:not(:defined)) {
     --_cloak-one: var(--tanrei-comp-list-row-container-height-one-line-small);
@@ -1611,23 +1612,29 @@
   :where(tanrei-list-row:not(:defined)):where([supporting-text]:not([supporting-text=''])):where([overline]:not([overline='']), [supporting-lines='2']) {
     --_cloak-row: var(--_cloak-three);
   }
-  :where(tanrei-list:not([reorderable])) > :where(tanrei-list-item:is([interactive], [href]:not([href=''])):defined) > :where(tanrei-list-row:not(:defined)),
-  :where(tanrei-list:is([selection='single'], [selection='multiple'])) > :where(tanrei-list-item:defined) > :where(tanrei-list-row:not(:defined)) {
-    --_cloak-boxed: var(--_lst-padding-block, var(--tanrei-comp-list-container-padding-block-medium));
+  :where(tanrei-list:not([reorderable]) > tanrei-list-item:is([interactive], [href]:not([href=''])):defined > tanrei-list-row:not(:defined)),
+  :where(tanrei-list:is([selection='single'], [selection='multiple']) > tanrei-list-item:defined > tanrei-list-row:not(:defined)) {
+    min-block-size: calc(var(--_cloak-row) - 2 * var(--tanrei-comp-list-container-padding-block-medium));
+  }
+  :where(tanrei-list[size='small']:not([reorderable]) > tanrei-list-item:is([interactive], [href]:not([href=''])):defined > tanrei-list-row:not(:defined)),
+  :where(tanrei-list[size='small']:is([selection='single'], [selection='multiple']) > tanrei-list-item:defined > tanrei-list-row:not(:defined)) {
+    min-block-size: calc(var(--_cloak-row) - 2 * var(--tanrei-comp-list-container-padding-block-small));
   }
 
   /* A list lays its items out as it will: a column (LST-1), a line along `orientation="horizontal"` (each item as wide
      as its content), or lines that wrap (`wrap`, LST-2: each item never wider than the list), the gap its `gap` names
      apart, none where it names none (LST-6). The list and its items are defined together, and what an item is depends
-     on its list, which hands its measures on as inherited values (set on every list, so that a list inside an item of
-     another takes nothing of the outer one's):
+     on its list:
      - in a reorderable list, an item draws its handle before its content (LST-32, LST-48): the room of a small
        icon-only Button and the item's gap, and at least the handle's height;
      - an action, a link or an option — an `interactive` item or one with an `href` in a list that is not
        reorderable, or any item of a list with a `selection` — is padded by its list's size and at least its container
        height and the target tall (LST-8, LST-11, LST-51), what is written in it in the content's text style; an option
        keeps the check's room at its end (LST-21), and a row is at least as tall as its handle and its check between
-       its paddings. One that holds a List row is the row's height (LRW-8: the row draws the item's paddings as its own), which the row's own rule holds. */
+       its paddings. One that holds a List row is the row's height (LRW-8: the row draws the item's paddings as its
+       own), which the row's own rule holds.
+     The list hands its measures to its items as inherited values, set on every list, so that a list inside an item of
+     another takes nothing of the outer one's. */
   :where(tanrei-list):where(:not(:defined):not([hidden])) {
     display: flex;
     flex-direction: column;
@@ -1637,8 +1644,8 @@
     --_cloak-list-height: var(--tanrei-comp-list-container-height-medium);
     --_cloak-list-padding: var(--tanrei-comp-list-container-padding-block-medium);
     --_cloak-list-target: var(--tanrei-sys-target-pointer);
-    --_cloak-list-handle: 0px;
-    --_cloak-list-mark: 0px;
+    --_cloak-list-handle: var(--tanrei-comp-button-container-height-small);
+    --_cloak-list-mark: var(--tanrei-comp-list-mark-size);
   }
   @media (pointer: coarse) {
     :where(tanrei-list:not(:defined)) {
@@ -1667,31 +1674,37 @@
     align-items: flex-start;
     align-content: flex-start;
   }
-  :where(tanrei-list[reorderable]:not(:defined)) {
-    --_cloak-list-handle: var(--tanrei-comp-button-container-height-small);
-  }
-  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined)) {
-    --_cloak-list-mark: var(--tanrei-comp-list-mark-size);
-  }
   :where(tanrei-list-item):where(:not(:defined):not([hidden])) {
     display: block;
     flex: none;
     box-sizing: border-box;
   }
-  :where(tanrei-list[wrap]:not(:defined)) > :where(tanrei-list-item) {
+  :where(tanrei-list[wrap]:not(:defined) > tanrei-list-item) {
     max-inline-size: 100%;
   }
-  :where(tanrei-list[reorderable]:not([selection='single'], [selection='multiple']):not(:defined)) > :where(tanrei-list-item) {
+  /* A static item of a reorderable list: the handle's room and height. */
+  :where(tanrei-list[reorderable]:not([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item) {
     min-block-size: var(--_cloak-list-handle);
     padding-inline-start: calc(var(--_cloak-list-handle) + var(--tanrei-comp-list-container-gap));
   }
-  :where(tanrei-list:not([reorderable]):not(:defined)) > :where(tanrei-list-item:is([interactive], [href]:not([href=''])):not(:has(> tanrei-list-row))),
-  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined)) > :where(tanrei-list-item:not(:has(> tanrei-list-row))) {
-    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target), 2 * var(--_cloak-list-padding) + max(var(--_cloak-list-handle), var(--_cloak-list-mark)));
+  /* An action or a link, and an option: padded, at least the container's height and the target tall. */
+  :where(tanrei-list:not([reorderable]):not(:defined) > tanrei-list-item:is([interactive], [href]:not([href=''])):not(:has(> tanrei-list-row))),
+  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item:not(:has(> tanrei-list-row))) {
+    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target));
     padding-block: var(--_cloak-list-padding);
-    padding-inline: calc(var(--tanrei-comp-list-container-padding-inline-start) + var(--_cloak-list-handle) + min(var(--_cloak-list-handle), var(--tanrei-comp-list-container-gap))) calc(var(--tanrei-comp-list-container-padding-inline-end) + var(--_cloak-list-mark) + min(var(--_cloak-list-mark), var(--tanrei-comp-list-container-gap)));
+    padding-inline: var(--tanrei-comp-list-container-padding-inline-start) var(--tanrei-comp-list-container-padding-inline-end);
     font: var(--tanrei-comp-list-content-typescale-font-weight) var(--tanrei-comp-list-content-typescale-font-size)/var(--tanrei-comp-list-content-typescale-line-height) var(--tanrei-comp-list-content-typescale-font-family);
     letter-spacing: var(--tanrei-comp-list-content-typescale-letter-spacing);
+  }
+  /* An option: the check's room at its end, and the check's height. */
+  :where(tanrei-list:is([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item:not(:has(> tanrei-list-row))) {
+    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target), 2 * var(--_cloak-list-padding) + var(--_cloak-list-mark));
+    padding-inline-end: calc(var(--tanrei-comp-list-container-padding-inline-end) + var(--tanrei-comp-list-container-gap) + var(--_cloak-list-mark));
+  }
+  /* An option of a reorderable list: the handle before its content, the item's gap after it, and the handle's height. */
+  :where(tanrei-list[reorderable]:is([selection='single'], [selection='multiple']):not(:defined) > tanrei-list-item:not(:has(> tanrei-list-row))) {
+    min-block-size: max(var(--_cloak-list-height), var(--_cloak-list-target), 2 * var(--_cloak-list-padding) + max(var(--_cloak-list-handle), var(--_cloak-list-mark)));
+    padding-inline-start: calc(var(--tanrei-comp-list-container-padding-inline-start) + var(--_cloak-list-handle) + var(--tanrei-comp-list-container-gap));
   }
 
   /* A stepper: its steps side by side (horizontal, the default) or one under another (vertical), each step held by the
@@ -1770,7 +1783,7 @@
     --_cloak-action-gap: max(var(--tanrei-comp-file-item-action-gap), (var(--_cloak-target) - var(--tanrei-comp-file-item-action-size)) * 2);
     --_cloak-lead: var(--tanrei-comp-file-item-row-icon-size);
     --_cloak-actions: calc(var(--tanrei-comp-file-item-row-container-gap) + var(--tanrei-comp-file-item-action-size));
-    --_cloak-bar: 0px;
+    --_cloak-lines: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size) + var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size));
     display: block;
     box-sizing: border-box;
     min-inline-size: 0;
@@ -1787,18 +1800,18 @@
   :where(tanrei-file-item[status='error'][retryable]:not(:defined)) {
     --_cloak-actions: calc(var(--tanrei-comp-file-item-row-container-gap) + 2 * var(--tanrei-comp-file-item-action-size) + var(--_cloak-action-gap));
   }
-  :where(tanrei-file-item[readonly]:not(:defined)) {
-    --_cloak-actions: 0px;
-  }
-  :where(tanrei-file-item[status='uploading']:not(:defined)) {
-    --_cloak-bar: calc(var(--tanrei-comp-file-item-progress-gap) + var(--tanrei-comp-file-item-progress-thickness));
-  }
   :where(tanrei-file-item:not([form='tile']):not(:defined)) {
-    min-block-size: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size) + var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size) + var(--_cloak-bar));
-    padding-block-end: var(--_cloak-bar);
+    min-block-size: var(--_cloak-lines);
     padding-inline: calc(var(--_cloak-lead) + var(--tanrei-comp-file-item-row-container-gap)) var(--_cloak-actions);
   }
-  :where(tanrei-file-item:not([form='tile']):not(:defined))::before {
+  :where(tanrei-file-item[readonly]:not([form='tile']):not(:defined)) {
+    padding-inline-end: 0;
+  }
+  :where(tanrei-file-item[status='uploading']:not([form='tile']):not(:defined)) {
+    min-block-size: calc(var(--_cloak-lines) + var(--tanrei-comp-file-item-progress-gap) + var(--tanrei-comp-file-item-progress-thickness));
+    padding-block-end: calc(var(--tanrei-comp-file-item-progress-gap) + var(--tanrei-comp-file-item-progress-thickness));
+  }
+  :where(tanrei-file-item:not([form='tile']):not(:defined):not([hidden]))::before {
     content: attr(name);
     display: block;
     min-block-size: 1lh;
@@ -1807,7 +1820,7 @@
     overflow-wrap: anywhere;
     unicode-bidi: plaintext;
   }
-  :where(tanrei-file-item:not([form='tile']):not(:defined))::after {
+  :where(tanrei-file-item:not([form='tile']):not(:defined):not([hidden]))::after {
     content: '';
     display: block;
     min-block-size: 1lh;
@@ -1825,22 +1838,12 @@
     --_cloak-box: var(--tanrei-comp-file-item-tile-media-height);
     --_cloak-ratio: 1;
     --_cloak-name: calc(var(--tanrei-comp-file-item-headline-typescale-line-height) * var(--tanrei-comp-file-item-headline-typescale-font-size));
-    --_cloak-second: 0px;
-    --_cloak-beneath: var(--tanrei-comp-file-item-tile-container-gap);
+    --_cloak-second: calc(var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size));
     display: inline-block;
     vertical-align: top;
     max-inline-size: 100%;
     inline-size: max(calc(2 * var(--tanrei-comp-file-item-action-size) + var(--_cloak-action-gap) + 2 * var(--tanrei-comp-file-item-tile-action-inset)), var(--_cloak-box));
     min-block-size: calc(var(--tanrei-comp-file-item-action-size) + 2 * var(--tanrei-comp-file-item-tile-action-inset));
-  }
-  :where(tanrei-file-item[form='tile']:not(:defined)):where([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']) {
-    --_cloak-second: calc(var(--tanrei-comp-file-item-supporting-text-typescale-line-height) * var(--tanrei-comp-file-item-supporting-text-typescale-font-size));
-  }
-  :where(tanrei-file-item[form='tile'][name-hidden][preview]:not(:defined)) {
-    --_cloak-name: 0px;
-  }
-  :where(tanrei-file-item[form='tile'][name-hidden][preview]:not(:defined)):not([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']) {
-    --_cloak-beneath: 0px;
   }
   @supports (x: attr(x px)) {
     :where(tanrei-file-item[form='tile'][height]:not(:defined)) {
@@ -1853,28 +1856,39 @@
       --_cloak-ratio: attr(width type(<number>), 1) / attr(height type(<number>), 1);
     }
   }
-  :where(tanrei-file-item[form='tile']:not(:defined))::before {
+  :where(tanrei-file-item[form='tile']:not(:defined):not([hidden]))::before {
     content: '';
     display: block;
     aspect-ratio: var(--_cloak-ratio);
     min-block-size: calc(var(--tanrei-comp-file-item-action-size) + 2 * var(--tanrei-comp-file-item-tile-action-inset));
   }
-  :where(tanrei-file-item[form='tile']:not(:defined))::after {
+  /* Beneath the box: the name's line, with the second line's under it where the tile has words for it or a mark. */
+  :where(tanrei-file-item[form='tile']:not(:defined):not([hidden]))::after {
     content: '';
     display: block;
-    margin-block-start: var(--_cloak-beneath);
+    margin-block-start: var(--tanrei-comp-file-item-tile-container-gap);
+    block-size: var(--_cloak-name);
+  }
+  :where(tanrei-file-item[form='tile']:not(:defined):is([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']))::after {
     block-size: calc(var(--_cloak-name) + var(--_cloak-second));
   }
+  :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src='']):not(:defined))::after {
+    display: none;
+  }
+  :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src='']):not(:defined):not([hidden]):is([format-text]:not([format-text='']), [size-text]:not([size-text='']), [status-text]:not([status-text='']), [status='done'], [status='error']))::after {
+    display: block;
+    block-size: var(--_cloak-second);
+  }
   /* A row or a tile that failed and says why, with no format or size before it: its second line is the error text
-     after the status's mark, which wraps as it is drawn (a tile's under its name's one line). */
-  :where(tanrei-file-item:not([form='tile'])[status='error'][error-text]:not([error-text='']):not(:defined)):not([format-text]:not([format-text='']), [size-text]:not([size-text='']))::after {
+     after the status's mark, which wraps as it is drawn (a tile's under its name's line, where it draws it). */
+  :where(tanrei-file-item[status='error'][error-text]:not([error-text='']):not([format-text]:not([format-text='']), [size-text]:not([size-text=''])):not([form='tile']):not(:defined))::after {
     content: attr(error-text);
     letter-spacing: var(--tanrei-comp-file-item-supporting-text-typescale-letter-spacing);
     text-indent: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
     overflow-wrap: anywhere;
     unicode-bidi: plaintext;
   }
-  :where(tanrei-file-item[form='tile'][status='error'][error-text]:not([error-text='']):not(:defined)):not([format-text]:not([format-text='']), [size-text]:not([size-text='']))::after {
+  :where(tanrei-file-item[form='tile'][status='error'][error-text]:not([error-text='']):not([format-text]:not([format-text='']), [size-text]:not([size-text=''])):not(:defined))::after {
     content: attr(error-text);
     block-size: auto;
     padding-block-start: var(--_cloak-name);
@@ -1883,6 +1897,9 @@
     text-indent: calc(var(--tanrei-comp-file-item-status-icon-size) + var(--tanrei-comp-file-item-status-icon-gap));
     overflow-wrap: anywhere;
     unicode-bidi: plaintext;
+  }
+  :where(tanrei-file-item[form='tile'][name-hidden][preview][preview-src]:not([preview-src=''])[status='error'][error-text]:not([error-text='']):not([format-text]:not([format-text='']), [size-text]:not([size-text=''])):not(:defined))::after {
+    padding-block-start: 0;
   }
 
   /* A swatch (SWC-1, SWC-7): inline, centred on the line, as wide as it is drawn — its sample, the gap and its
@@ -1902,9 +1919,15 @@
   :where(tanrei-swatch:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-medium);
     --_cloak-gap: var(--tanrei-comp-swatch-gap-medium);
-    --_cloak-label-font: var(--tanrei-comp-swatch-label-typescale-medium-font-weight) var(--tanrei-comp-swatch-label-typescale-medium-font-size)/var(--tanrei-comp-swatch-label-typescale-medium-line-height) var(--tanrei-comp-swatch-label-typescale-medium-font-family);
+    --_cloak-label-font-weight: var(--tanrei-comp-swatch-label-typescale-medium-font-weight);
+    --_cloak-label-font-size: var(--tanrei-comp-swatch-label-typescale-medium-font-size);
+    --_cloak-label-line-height: var(--tanrei-comp-swatch-label-typescale-medium-line-height);
+    --_cloak-label-font-family: var(--tanrei-comp-swatch-label-typescale-medium-font-family);
     --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-medium-letter-spacing);
-    --_cloak-supporting-font: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-weight) var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size)/var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height) var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-family);
+    --_cloak-supporting-font-weight: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-weight);
+    --_cloak-supporting-font-size: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-size);
+    --_cloak-supporting-line-height: var(--tanrei-comp-swatch-supporting-text-typescale-medium-line-height);
+    --_cloak-supporting-font-family: var(--tanrei-comp-swatch-supporting-text-typescale-medium-font-family);
     --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-medium-letter-spacing);
     min-block-size: var(--_cloak-side);
     padding-inline-start: var(--_cloak-side);
@@ -1912,17 +1935,29 @@
   :where(tanrei-swatch[size='small']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-small);
     --_cloak-gap: var(--tanrei-comp-swatch-gap-small);
-    --_cloak-label-font: var(--tanrei-comp-swatch-label-typescale-small-font-weight) var(--tanrei-comp-swatch-label-typescale-small-font-size)/var(--tanrei-comp-swatch-label-typescale-small-line-height) var(--tanrei-comp-swatch-label-typescale-small-font-family);
+    --_cloak-label-font-weight: var(--tanrei-comp-swatch-label-typescale-small-font-weight);
+    --_cloak-label-font-size: var(--tanrei-comp-swatch-label-typescale-small-font-size);
+    --_cloak-label-line-height: var(--tanrei-comp-swatch-label-typescale-small-line-height);
+    --_cloak-label-font-family: var(--tanrei-comp-swatch-label-typescale-small-font-family);
     --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-small-letter-spacing);
-    --_cloak-supporting-font: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-weight) var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size)/var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height) var(--tanrei-comp-swatch-supporting-text-typescale-small-font-family);
+    --_cloak-supporting-font-weight: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-weight);
+    --_cloak-supporting-font-size: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-size);
+    --_cloak-supporting-line-height: var(--tanrei-comp-swatch-supporting-text-typescale-small-line-height);
+    --_cloak-supporting-font-family: var(--tanrei-comp-swatch-supporting-text-typescale-small-font-family);
     --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-small-letter-spacing);
   }
   :where(tanrei-swatch[size='large']:not(:defined)) {
     --_cloak-side: var(--tanrei-comp-swatch-container-size-large);
     --_cloak-gap: var(--tanrei-comp-swatch-gap-large);
-    --_cloak-label-font: var(--tanrei-comp-swatch-label-typescale-large-font-weight) var(--tanrei-comp-swatch-label-typescale-large-font-size)/var(--tanrei-comp-swatch-label-typescale-large-line-height) var(--tanrei-comp-swatch-label-typescale-large-font-family);
+    --_cloak-label-font-weight: var(--tanrei-comp-swatch-label-typescale-large-font-weight);
+    --_cloak-label-font-size: var(--tanrei-comp-swatch-label-typescale-large-font-size);
+    --_cloak-label-line-height: var(--tanrei-comp-swatch-label-typescale-large-line-height);
+    --_cloak-label-font-family: var(--tanrei-comp-swatch-label-typescale-large-font-family);
     --_cloak-label-tracking: var(--tanrei-comp-swatch-label-typescale-large-letter-spacing);
-    --_cloak-supporting-font: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-weight) var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size)/var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height) var(--tanrei-comp-swatch-supporting-text-typescale-large-font-family);
+    --_cloak-supporting-font-weight: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-weight);
+    --_cloak-supporting-font-size: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-size);
+    --_cloak-supporting-line-height: var(--tanrei-comp-swatch-supporting-text-typescale-large-line-height);
+    --_cloak-supporting-font-family: var(--tanrei-comp-swatch-supporting-text-typescale-large-font-family);
     --_cloak-supporting-tracking: var(--tanrei-comp-swatch-supporting-text-typescale-large-letter-spacing);
   }
   :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label='']), [supporting-text]:not([supporting-text=''])) {
@@ -1930,13 +1965,13 @@
   }
   :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([label]:not([label='']))::before {
     content: attr(label);
-    font: var(--_cloak-label-font);
+    font: var(--_cloak-label-font-weight) var(--_cloak-label-font-size)/var(--_cloak-label-line-height) var(--_cloak-label-font-family);
     letter-spacing: var(--_cloak-label-tracking);
     unicode-bidi: plaintext;
   }
   :where(tanrei-swatch:not([label-hidden], [decorative]):not(:defined)):where([supporting-text]:not([supporting-text='']))::after {
     content: attr(supporting-text);
-    font: var(--_cloak-supporting-font);
+    font: var(--_cloak-supporting-font-weight) var(--_cloak-supporting-font-size)/var(--_cloak-supporting-line-height) var(--_cloak-supporting-font-family);
     letter-spacing: var(--_cloak-supporting-tracking);
     unicode-bidi: plaintext;
   }

@@ -34,7 +34,7 @@ function tagsWith(declaration: RegExp, { styled = false } = {}): string[] {
   const tags = new Set<string>();
   for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (!declaration.test(body!)) continue;
-    for (const one of styled ? topLevel(selector!, ',').map((each) => topLevel(each.trim(), ' ').at(-1)!) : [selector!]) {
+    for (const one of styled ? lastCompounds(selector!) : [selector!]) {
       for (const [tag] of one.matchAll(/tanrei-[a-z-]+/g)) tags.add(tag);
     }
   }
@@ -53,6 +53,31 @@ function topLevel(text: string, separator: string): string[] {
     else out[out.length - 1] += char;
   }
   return out.filter((part) => part.trim() !== '' && part.trim() !== '>');
+}
+
+/**
+ * The compounds a selector list styles: of each selector, its last compound — and where the selector is written in
+ * `:where()` (the cloak's are), the last compound of each selector inside it.
+ */
+function lastCompounds(list: string): string[] {
+  return topLevel(list, ',').flatMap((selector) => {
+    const last = topLevel(selector.trim(), ' ').at(-1)!.trim();
+    // A rule for a box the element generates (its `::before`, its `::after`) styles no element.
+    if (/::[\w-]+$/.test(last)) return [];
+    const inside = /^:where\((.*)\)(?::where\(.*\))*$/.exec(last);
+    if (!inside) return [last];
+    // The first `:where()` holds the element; the ones after it hold its conditions.
+    let depth = 0;
+    let end = 0;
+    for (let i = ':where('.length - 1; i < last.length; i++) {
+      if (last[i] === '(') depth += 1;
+      if (last[i] === ')' && --depth === 0) {
+        end = i;
+        break;
+      }
+    }
+    return topLevel(last.slice(':where('.length, end), ',').map((each) => topLevel(each.trim(), ' ').at(-1)!);
+  });
 }
 
 /**
