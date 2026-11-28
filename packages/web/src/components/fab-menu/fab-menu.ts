@@ -550,21 +550,30 @@ export class TanreiFabMenu extends TanreiElement {
    * FollowController when something can have moved, frame by frame only while something does.
    */
   private readonly follow = (): boolean => {
-    const box = this.toggleButton?.getBoundingClientRect();
-    // The list's width only decides which edge holds it (placeFabMenu); the viewport's height is where its bottom is.
-    const width = this.list?.getBoundingClientRect().width;
-    const root = document.documentElement;
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${root.clientWidth},${root.clientHeight},${width},${getComputedStyle(this).direction}`;
+    const layout = this.readLayout();
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();
     return true;
   };
 
+  /**
+   * What the placement was made for, as one comparable string, read and nothing written: FollowController reads it in
+   * the frame's read phase, after the frame's own style and layout (src/primitives/follow.ts says why).
+   */
+  private readLayout(): string {
+    const box = this.toggleButton?.getBoundingClientRect();
+    // The list's width only decides which edge holds it (placeFabMenu); the viewport's height is where its bottom is.
+    const width = this.list?.getBoundingClientRect().width;
+    const root = document.documentElement;
+    return `${box?.x},${box?.y},${box?.width},${box?.height},${root.clientWidth},${root.clientHeight},${width},${getComputedStyle(this).direction}`;
+  }
+
   private readonly following = new FollowController(this, {
     followed: () => [this.toggleButton],
     sized: () => [this.list],
     check: this.follow,
+    changed: () => this.readLayout() !== this.lastLayout,
   });
 
   private stopFollowing() {

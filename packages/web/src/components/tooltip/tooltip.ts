@@ -715,6 +715,18 @@ export class TanreiTooltip extends TanreiElement {
    * FollowController when something can have moved, frame by frame only while something does.
    */
   private readonly follow = (): boolean => {
+    const layout = this.readLayout();
+    if (layout === this.lastLayout) return false;
+    this.lastLayout = layout;
+    this.place();
+    return true;
+  };
+
+  /**
+   * What the placement was made for, as one comparable string, read and nothing written: FollowController reads it in
+   * the frame's read phase, after the frame's own style and layout (src/primitives/follow.ts says why).
+   */
+  private readLayout(): string {
     const box = (this.anchor ?? this).getBoundingClientRect();
     const surface = this.surface;
     // The surface's own size too, unrounded: its text reflowing (a web font arriving after it opened) moves the centre.
@@ -722,17 +734,14 @@ export class TanreiTooltip extends TanreiElement {
     // TIP-19: the layout direction too — `start` and `end` are sides of it (TIP-20), so a change of it places the container again.
     // In place, the box that stands for the window, which moves and changes size as the page lays out.
     const frame = surface && this.inline ? Object.values(this.frame(surface)).join(',') : '';
-    const layout = `${box.x},${box.y},${box.width},${box.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${size?.width},${size?.height},${frame},${this.drawnAs}`;
-    if (layout === this.lastLayout) return false;
-    this.lastLayout = layout;
-    this.place();
-    return true;
-  };
+    return `${box.x},${box.y},${box.width},${box.height},${document.documentElement.clientWidth},${document.documentElement.clientHeight},${size?.width},${size?.height},${frame},${this.drawnAs}`;
+  }
 
   private readonly following = new FollowController(this, {
     followed: () => [this.anchor ?? this],
     sized: () => [this.surface],
     check: this.follow,
+    changed: () => this.readLayout() !== this.lastLayout,
     // TIP-9: no longer drawn with its box where it was — Firefox keeps the last box of an anchor `content-visibility`
     // skips, so the check found nothing moved and the tooltip stayed open — it closes (`place()` finds it gone).
     anchor: () => this.anchor ?? this,

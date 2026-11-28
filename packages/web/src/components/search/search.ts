@@ -2206,19 +2206,28 @@ export class TanreiSearch extends TanreiElement {
 
   /** SRC-7: follows the bar while it moves (scrolling, layout, the viewport, the keyboard) — asked by FollowController, frame by frame only while something moves. */
   private readonly follow = (): boolean => {
-    const box = this.barElement?.getBoundingClientRect();
-    const scroll = this.view?.querySelector<HTMLElement>('.scroll');
-    const layout = `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${scroll?.scrollHeight}`;
+    const layout = this.readLayout();
     if (layout === this.lastLayout) return false;
     this.lastLayout = layout;
     this.place();
     return true;
   };
 
+  /**
+   * What the placement was made for, as one comparable string, read and nothing written: FollowController reads it in
+   * the frame's read phase, after the frame's own style and layout (src/primitives/follow.ts says why).
+   */
+  private readLayout(): string {
+    const box = this.barElement?.getBoundingClientRect();
+    const scroll = this.view?.querySelector<HTMLElement>('.scroll');
+    return `${box?.x},${box?.y},${box?.width},${box?.height},${viewportKey()},${scroll?.scrollHeight}`;
+  }
+
   private readonly following = new FollowController(this, {
     followed: () => [this.barElement],
     sized: () => [this.view, this.view?.querySelector('.scroll')],
     check: this.follow,
+    changed: () => this.readLayout() !== this.lastLayout,
   });
 
   private stopFollowing() {
