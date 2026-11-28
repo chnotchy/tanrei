@@ -4665,8 +4665,12 @@ test.describe('site search: reach and cost', () => {
         observers.mutation += 1;
         return observe.apply(this, rest);
       };
+      // The document's root is observed by the frame's read phase, once for each frame something reads in
+      // (src/primitives/read-phase.ts): counted apart, as it is the page's, not a row's.
+      let phases = 0;
       ResizeObserver.prototype.observe = function (this: ResizeObserver, ...rest: Parameters<typeof resize>) {
-        observers.resize += 1;
+        if (rest[0] === document.documentElement) phases += 1;
+        else observers.resize += 1;
         return resize.apply(this, rest);
       };
       const markup = Array.from(
@@ -4696,7 +4700,7 @@ test.describe('site search: reach and cost', () => {
       EventTarget.prototype.addEventListener = add;
       MutationObserver.prototype.observe = observe;
       ResizeObserver.prototype.observe = resize;
-      return { rows, links, listeners, observers, scripted: Math.round(scripted), laidOut: Math.round(laidOut), painted: Math.round(painted), nodes: after.nodes - before.nodes, elements: after.elements - before.elements };
+      return { rows, links, listeners, observers, phases, scripted: Math.round(scripted), laidOut: Math.round(laidOut), painted: Math.round(painted), nodes: after.nodes - before.nodes, elements: after.elements - before.elements };
     });
     // The numbers, for the report.
     testInfo.annotations.push({ type: 'measure', description: JSON.stringify(measured) });
@@ -4705,6 +4709,8 @@ test.describe('site search: reach and cost', () => {
     // No listener per row: what is added while a hundred rows arrive does not grow with them.
     expect(measured.listeners).toBeLessThan(10);
     expect(measured.observers).toEqual({ mutation: 0, resize: 0 });
+    // And the read phase observes the root once for the draw (the frame it reads in), not once for each row.
+    expect(measured.phases).toBeLessThanOrEqual(1);
     // And every row answers: the arrows reach the hundredth, and a press on it is one select.
     const s = host(page, 's');
     await wire(s);
