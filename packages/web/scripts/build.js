@@ -18,6 +18,7 @@ import { CONFIG } from '@tanrei/tokens-build/config';
 import { themeColors } from '@tanrei/tokens-build/emit/resolved';
 import { cssLiteralsPlugin, minifyCssLiterals } from './css-literals.js';
 import { sourceSideEffectsPlugin } from './source-side-effects.js';
+import { fileSelectors } from './filed-selectors.js';
 
 fs.mkdirSync('dist', { recursive: true });
 // Letter-spacing follows the script of the text (src/styles/script-tracking.ts): one source, shared with the
@@ -39,10 +40,12 @@ fs.writeFileSync('dist/callout.css', sheet('src/components/callout/callout.css')
 // The empty state before its element is defined (EMP-1, EMP-2): the place its server-rendered words keep.
 fs.writeFileSync('dist/empty-state.css', sheet('src/components/empty-state/empty-state.css'));
 // The menu drawn in place before its elements are defined (MNU-19's verify): the block size its surface will have.
-fs.copyFileSync('src/components/menu/menu.css', 'dist/menu.css');
+// It, the menubar's and the cloak are written with every selector filed under the element it styles
+// (scripts/filed-selectors.js): a page loads them whole, and a rule an engine cannot file is tried on every element.
+fs.writeFileSync('dist/menu.css', fileSelectors(fs.readFileSync('src/components/menu/menu.css', 'utf8'), 'menu.css'));
 fs.copyFileSync('src/components/keyboard-shortcut/keyboard-shortcut.css', 'dist/keyboard-shortcut.css');
 // The menubar before its elements are defined, and where script does not run (MBR-45): its link items, as links that work.
-fs.copyFileSync('src/components/menubar/menubar.css', 'dist/menubar.css');
+fs.writeFileSync('dist/menubar.css', fileSelectors(fs.readFileSync('src/components/menubar/menubar.css', 'utf8'), 'menubar.css'));
 // The app bar before its element is defined (APB-34): the block size it will have, so the page under it does not move.
 fs.copyFileSync('src/components/app-bar/app-bar.css', 'dist/app-bar.css');
 // Prose leaves alone what is inside a Tanrei element (PRS-16): the stylesheet's source names the opt-out class, and the
@@ -78,7 +81,7 @@ const counted = (source, file) => {
 // a group's overflow box is counted by its `max` and its `total`.
 fs.writeFileSync('dist/avatar.css', counted(fs.readFileSync('src/components/avatar/avatar.css', 'utf8'), 'avatar.css'));
 const cloakCounted = counted(cloakSource, 'cloak.css');
-fs.writeFileSync('dist/cloak.css', cloakCounted.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')));
+fs.writeFileSync('dist/cloak.css', fileSelectors(cloakCounted.replace(CLOAK_ELEMENTS, [...new Set(tags)].map((tag) => `:where(${tag}:not(:defined))`).join(',\n  ')), 'cloak.css'));
 // The corner-smoothing rule is one source (src/styles/shape.ts, shared by the components' shadow styles); for a
 // light-DOM box it is the same text as a stylesheet.
 const { SHAPE_CSS } = await import('../dist/styles/shape.js');

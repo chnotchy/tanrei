@@ -88,7 +88,9 @@
  * segments; a Button defined before its connected group is held at what the group will give it) — never a child of
  * the product's: a glyph written in a Button is given its box by the Button's own grid; an element that is `hidden`
  * keeps the browser's `display: none`; and nothing matches once an element is defined, but a Button's room while the
- * connected group it stands in is not.
+ * connected group it stands in is not. A rule written here for several elements at once (`:where(tanrei-checkbox,
+ * tanrei-switch)`) is built as one selector for each (scripts/filed-selectors.js), so that an engine files it under
+ * each element's name rather than trying it on every element of the page.
  */
 @layer tanrei.components {
   /* Every element of the package: the build writes their names in place of `tanrei-elements`. */
