@@ -797,10 +797,11 @@ jobs:
         # Five files each run in a job of their own (`$alone` in apps/docs/test/browser/durations.json): the fixture
         # gallery, the icon font's test and the two previews files each open four pages at a time in Chromium for their
         # whole run, and beside any of them the other files' pages loaded too slowly in WebKit and Firefox; the reader's
-        # own theme measures how soon a press is drawn, which beside other files WebKit missed. The other five share
-        # the rest by time.
-        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        shards: [10]
+        # own theme measures how soon a press is drawn, which beside other files WebKit missed. The other nine share
+        # the rest by time: with five, each shared job was planned at about 2,560 s of files run three at a time, and
+        # one ran past its 20 minutes when its heaviest file was slowed by its neighbours.
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+        shards: [14]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
