@@ -9,13 +9,13 @@
     "subfolder": "packages/mcp"
   },
   "websiteUrl": "https://tanrei.chnotchy.com/getting-started/your-design-system/",
-  "version": "0.1.0-next.0",
+  "version": "0.1.0-next.1",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@tanrei/mcp",
-      "version": "0.1.0-next.0",
+      "version": "0.1.0-next.1",
       "transport": {
         "type": "stdio"
       }
