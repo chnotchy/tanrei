@@ -18,6 +18,7 @@ import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 import { EVERY_ANIMATION, motionEnded } from '../../../test/motions.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { askForFrame, rewrite } from '../../../test/frame-asked.js';
+import { shownAgain } from '../../../test/shown-again.js';
 import { SHADOW_HOSTS, attachShadowRoot, declaredShadowRoot, glyphsIn } from '../../../test/shadow-mirror.js';
 
 const spec = loadSpec('tree-view');
@@ -2612,6 +2613,28 @@ test.describe('the row model', () => {
     await page.locator('[data-fixture="flat"]').evaluate((el) => (el.scrollTop = 400));
     await page.waitForTimeout(100);
     await expect(host(page, 'flat').locator('[data-tanrei-pinned]')).toHaveCount(0);
+  });
+
+  test('TRV-53: a scrolling box that is not rendered (an ancestor `display: none`) keeps the rows pinned at its top through a change of the tree made meanwhile, and they are drawn pinned from the frame it is shown again in — rows of no box do not read as rows nothing scrolled under', async ({ page }) => {
+    await mount(page, { fixtures: [raw('tall', { label: 'Tall' }, deepList(5, 'L'))] });
+    await page.addStyleTag({ content: `[data-fixture="tall"] { block-size: 200px; overflow: auto; }` });
+    const box = page.locator('[data-fixture="tall"]');
+    await box.evaluate((el) => {
+      const target = el.querySelector('li[data-t="L5-3"]')!;
+      el.scrollTop = target.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop;
+    });
+    const pinned = () => host(page, 'tall').evaluate((tree) => [...tree.querySelectorAll('[data-tanrei-pinned]')].map((row) => row.parentElement!.getAttribute('data-t')));
+    await expect.poll(pinned).toEqual(['L4', 'L5']);
+    const seen = await shownAgain(box, {
+      whileHidden: async () => {
+        // A label the product changes while the box is hidden: the tree reads its items again, and its pins.
+        await rewrite(host(page, 'tall').locator('li[data-t="L5-5"] bdi'), (el) => (el.textContent = 'L5-5 renamed'));
+        await askForFrame(page);
+        expect(await pinned(), 'the rows pinned while the box is not rendered').toEqual(['L4', 'L5']);
+      },
+    });
+    expectFirstFrameAtRest(seen);
+    expect(await pinned()).toEqual(['L4', 'L5']);
   });
 });
 

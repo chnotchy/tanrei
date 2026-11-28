@@ -223,7 +223,10 @@ export class TanreiDescriptionList extends TanreiLightElement {
     typeof ResizeObserver === 'undefined'
       ? null
       : new ResizeObserver((entries) => {
-          TanreiDescriptionList.resized(new Set(entries.map((entry) => TanreiDescriptionList.owners.get(entry.target)).filter((box): box is TanreiDescriptionList => !!box)));
+          // A list reported at no size is one that is not rendered (itself or an ancestor `display: none`): it is left
+          // out, and keeps what it had (see `readTogether`) — told by the report itself, so nothing is read for it.
+          const laidOut = entries.filter(({ contentRect }) => contentRect.width > 0 || contentRect.height > 0);
+          TanreiDescriptionList.resized(new Set(laidOut.map((entry) => TanreiDescriptionList.owners.get(entry.target)).filter((box): box is TanreiDescriptionList => !!box)));
         });
   /** The lists to read in this turn (`read`), and those to read in the next frame (`resized`) with the frame asked for. */
   private static readonly due = new Set<TanreiDescriptionList>();
@@ -382,7 +385,17 @@ export class TanreiDescriptionList extends TanreiLightElement {
         else box.check(list);
       }
       // DSL-13: where the browser answers style queries the stylesheet reads the choice itself, and nothing is written.
-      return { list, separation: styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS), width: box.measure(list), room: box.room() };
+      const separation = styleQueries() ? null : compChoice(box, '--_dl-separation', SEPARATIONS);
+      const width = box.measure(list);
+      const room = box.room();
+      // A list that is not rendered (itself or an ancestor `display: none`) lays nothing out: its terms have no column
+      // to read, which would say that the list is not drawn and stacks under no width (DSL-4: a list stacked by its
+      // width was drawn in two columns in the frame it was shown in again). It keeps the width it had; its observer
+      // reports it laid out when it is shown, and it is measured then. Its list is found, watched and marked all the
+      // same. Such a list has no room (its width reads 0): only then is it asked whether it has a box, so a rendered
+      // list reads nothing more. A layout no width stacks has nothing to keep.
+      const drawn = box.layout === 'stacked' || box.layout === 'stat' || room > 0 || box.getClientRects().length > 0;
+      return { list, separation, width: drawn ? width : undefined, room };
     });
     live.forEach((box, index) => box.release(held[index]));
     live.forEach((box, index) => {
@@ -392,7 +405,7 @@ export class TanreiDescriptionList extends TanreiLightElement {
         return;
       }
       mark(each.list, 'data-separation', each.separation);
-      box.write(each.width, each.room);
+      if (each.width !== undefined) box.write(each.width, each.room);
     });
   }
 

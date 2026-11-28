@@ -20,6 +20,8 @@ import { ZERO, canonical, clamp, decimalFromString, decimalOf, format, numberFor
 import { expectBaseline } from '../../../test/baseline.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
 import { askForFrame } from '../../../test/frame-asked.js';
+import { PROPERTIES, expectFirstFrameAtRest } from '../../../test/frames.js';
+import { shownAgain } from '../../../test/shown-again.js';
 
 const spec = loadSpec('number-input');
 type P = Page;
@@ -2089,6 +2091,31 @@ test.describe('behavior: exposure, forms, size and direction', () => {
       return { drawn, hidden, shown };
     });
     expect(seen).toEqual({ drawn: false, hidden: false, shown: false });
+  });
+
+  test('NMI-8: an input that is not rendered (an ancestor `display: none`) keeps the length its steppers take, and its floating label ends before them from the frame it is shown again in — steppers of nothing do not give the label their room, to move back from', async ({ page }) => {
+    await mountFixtures(page, spec, { fixtures: [] });
+    await page.evaluate(async () => {
+      const holder = document.createElement('div');
+      holder.id = 'shown-again';
+      holder.style.cssText = 'inline-size: 280px';
+      const input = Object.assign(document.createElement('tanrei-number-input'), { variant: 'outlined', label: 'Quantity', value: 3, incrementLabel: 'Increase', decrementLabel: 'Decrease' });
+      holder.append(input);
+      document.body.append(holder);
+      await input.updateComplete;
+    });
+    await askForFrame(page);
+    const holder = page.locator('#shown-again');
+    const steppers = () => holder.locator('tanrei-number-input .field').evaluate((el: HTMLElement) => el.style.getPropertyValue('--_steppers'));
+    await expect.poll(steppers).toMatch(/^[1-9][\d.]*px$/);
+    const drawn = await steppers();
+    // Shown again: the label's end (`max-inline-size`, which moves as the label floats) is where it rests from the first frame.
+    const seen = await shownAgain(holder, {
+      whileHidden: async () => expect(await steppers(), 'the steppers’ length while the input is not rendered').toBe(drawn),
+      sample: { properties: [...PROPERTIES, 'max-inline-size'] },
+    });
+    expect(seen.motions.map((motion) => `${motion.name} on ${motion.on}`), 'what moves once the input is shown again').toEqual([]);
+    expectFirstFrameAtRest(seen);
   });
 
   test('NMI-37: the container and the input’s line are watched for wrapping while the input is on the page and given back when it leaves — after it was drawn, after it came back, and when it left before its first update ended', async ({ page }) => {

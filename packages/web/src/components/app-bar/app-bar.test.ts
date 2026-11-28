@@ -11,6 +11,8 @@ import { motionCount, motionEnded } from '../../../test/motions.js';
 import { transitionsRun, watchTransitions } from '../../../test/transitions.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
+import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { shownAgain } from '../../../test/shown-again.js';
 
 const spec = loadSpec('app-bar');
 const dist = (file: string) => fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../dist', file), 'utf8');
@@ -1072,6 +1074,22 @@ test.describe('overflow', () => {
     }
     // Under menu the more button takes a place of its own: one action fewer than under hide, never the same count.
     expect((await shownLabels(page, 'small-overflow-menu')).length).toBeLessThan((await shownLabels(page, 'small-overflow-hide')).length);
+  });
+
+  test('APB-26, APB-32: a bar that is not rendered (an ancestor `display: none`) keeps the actions it draws, and draws them from the frame it is shown again in — boxes of nothing do not read as a row that holds no action', async ({ page }) => {
+    const ids = ['small', 'small-overflow-menu'];
+    await mountFixtures(page, spec, { icons: true, fixtures: spec.fixtures.filter((f) => ids.includes(f.id)) });
+    const outs = (id: string) => bar(page, id).evaluate((el) => [...el.querySelectorAll('[slot="actions"]')].map((item) => item.hasAttribute('app-bar-out')));
+    for (const id of ids) {
+      const before = await drawn(page, id);
+      expect(before.some((a) => a.shown), id).toBe(true);
+      // Shown again: the actions drawn as they were, from the first frame.
+      const seen = await shownAgain(stage(page, id), {
+        whileHidden: async () => expect(await outs(id), `${id}: the actions that are out while the bar is not rendered`).toEqual(before.map((a) => a.out)),
+      });
+      expectFirstFrameAtRest(seen);
+      expect(await drawn(page, id), id).toEqual(before);
+    }
   });
 
   test('APB-26: an action whose overflow is never stays and the one before it leaves; content that is not a Button never leaves; the title keeps its whole width first', async ({ page }) => {

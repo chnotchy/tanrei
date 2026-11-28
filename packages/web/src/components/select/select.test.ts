@@ -13,7 +13,8 @@ import { fileURLToPath } from 'node:url';
 import AxeBuilder from '@axe-core/playwright';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { appearProbe, bezierOf, expectAppearStart, expectExitEnd, resolveEasing } from '../../../test/appear.js';
-import { expectNoFlicker, sampleFrames } from '../../../test/frames.js';
+import { expectFirstFrameAtRest, expectNoFlicker, frameAtRest, sampleFrames } from '../../../test/frames.js';
+import { shownAgain } from '../../../test/shown-again.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { mirroring, mirroringAfterDirection } from '../../../test/mirror-word.js';
 import { entrances, loadOpen, mountOpenAgain, runsAtRest } from '../../../test/mounted-open.js';
@@ -582,6 +583,24 @@ test.describe('behavior: the trigger', () => {
     // The Field's label changes: the same text floats.
     await setField(page, 'framed', { label: 'Billing country' });
     await expect(part(page, 'framed', '.floating')).toHaveText('Billing country');
+  });
+
+  test('SEL-15: a select that is not rendered (an ancestor `display: none`) keeps the room its wrapped label takes, and draws the label wrapped from the frame it is shown again in — copies of the label laid out nowhere do not read as a label on one line', async ({ page }) => {
+    const ids = ['long', 'long-outlined'];
+    await mount(page, [fx('long', { variant: 'filled', label: 'The country your invoices are addressed to', value: 'jp' }), fx('long-outlined', { variant: 'outlined', label: 'The country your invoices are addressed to' })], { system: 'm3-like' });
+    const wraps = (id: string) => part(page, id, '.field').evaluate((el: HTMLElement) => [el.hasAttribute('data-label-wraps'), el.style.getPropertyValue('--_rest-lines'), el.style.getPropertyValue('--_float-lines')]);
+    for (const id of ids) {
+      await restyle(host(page, id), { 'inline-size': '180px' });
+      await expect.poll(() => wraps(id), id).toEqual([true, expect.stringMatching(/^[2-9]$/), expect.stringMatching(/^[2-9]$/)]);
+      // At rest at the new width first: WebKit counts the resting copy's lines once more in a later frame (5, then 4).
+      await frameAtRest(stage(page, id));
+      const before = await wraps(id);
+      const seen = await shownAgain(stage(page, id), {
+        whileHidden: async () => expect(await wraps(id), `${id}: the label's lines while the select is not rendered`).toEqual(before),
+      });
+      expectFirstFrameAtRest(seen);
+      expect(await wraps(id), id).toEqual(before);
+    }
   });
 
   test('SEL-16: the container shows the chosen option’s label on one line in input.typescale and the input color, cut with an ellipsis where it does not fit with the icon, the chevron and the paddings kept whole; with nothing chosen it shows the placeholder in the placeholder color, only while the label is not in the line; never an option’s supporting text', async ({ page }) => {

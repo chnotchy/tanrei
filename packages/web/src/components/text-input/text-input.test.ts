@@ -11,7 +11,7 @@ import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, loadSpec, missingWords, mountFixtures, requirementDrawn, resolveColor, resolveToken, setWords, tab, tabTo, inputBoxCopies, inputBoxSetApart, inputBoxToken, rootTokens, mountFixtureAsInAll, warnings } from '../../../test/harness.js';
 import { coveredText } from '../../../test/covered-text.js';
 import { appearingFixture } from '../../../test/first-frame.js';
-import { expectFirstFrameAtRest } from '../../../test/frames.js';
+import { expectFirstFrameAtRest, frameAtRest } from '../../../test/frames.js';
 import { opticalSize } from '../../../test/icons.js';
 import { holdClock } from '../../../test/page-clock.js';
 import { decodePng } from '../../../test/png.js';
@@ -21,6 +21,7 @@ import { expectBaseline } from '../../../test/baseline.js';
 import { motionCount, motionEnded } from '../../../test/motions.js';
 import { expectBoxTakesContainerSize } from '../../../test/input-box-size.js';
 import { restyle } from '../../../test/restyle.js';
+import { shownAgain } from '../../../test/shown-again.js';
 
 const spec = loadSpec('text-input');
 type P = Page;
@@ -804,6 +805,30 @@ test.describe('behavior', () => {
         expect(notch.x).toBeCloseTo(Math.min(...floated.lines.map((l) => l.left)) - pad, 0);
       }
       await page.locator('body').click({ position: { x: 1, y: 1 } });
+    }
+  });
+
+  test('TXI-13, TXI-22: a field that is not rendered (an ancestor `display: none`) keeps what it measured — a wrapped label’s lines, the length of a slotted element wider than an icon — and is drawn so from the frame it is shown again in', async ({ page }) => {
+    const BUTTON = '<tanrei-button variant="text" slot="trailing-icon" label="Clear"><span slot="icon">close</span></tanrei-button>';
+    await mountFixtures(page, spec, {
+      icons: true,
+      fixtures: [fixture('wraps', { variant: 'outlined', label: 'Email address' }), fixture('beside', { variant: 'outlined', label: 'A label long enough to reach the trailing button of a field this wide' }, BUTTON)],
+    });
+    await restyle(host(page, 'wraps'), { 'inline-size': '96px' });
+    const kept = {
+      wraps: () => part(page, 'wraps', '.field').evaluate((el: HTMLElement) => [el.hasAttribute('data-label-wraps'), el.style.getPropertyValue('--_rest-lines')]),
+      beside: () => part(page, 'beside', '.field').evaluate((el: HTMLElement) => el.style.getPropertyValue('--_trail')),
+    };
+    await expect.poll(kept.wraps).toEqual([true, expect.stringMatching(/^[2-9]$/)]);
+    await expect.poll(kept.beside).toMatch(/^[1-9][\d.]*px$/);
+    for (const id of ['wraps', 'beside'] as const) {
+      await frameAtRest(page.locator(`[data-fixture="${id}"]`));
+      const before = await kept[id]();
+      const seen = await shownAgain(page.locator(`[data-fixture="${id}"]`), {
+        whileHidden: async () => expect(await kept[id](), `${id}: kept while the field is not rendered`).toEqual(before),
+      });
+      expectFirstFrameAtRest(seen);
+      expect(await kept[id](), id).toEqual(before);
     }
   });
 
