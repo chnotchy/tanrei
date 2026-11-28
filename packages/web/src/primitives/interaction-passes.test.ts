@@ -11,7 +11,10 @@
 // What is held, each as an exact count of 0 — counted, not timed (a time is the machine's as much as the package's):
 //   - a glyph's name kept through a render, with the page restyled in the same task (a theme chosen, its checkbox
 //     checked): whether the ink's family changed too is read in the read phase, not in the turn of the render
-//     (src/primitives/glyph.ts).
+//     (src/primitives/glyph.ts);
+//   - an anchored surface opened by a click: the frame's check of what its placement depends on is read in the read
+//     phase, not in the frame's callbacks before the frame has styled the page (src/primitives/anchored.ts,
+//     src/primitives/follow.ts).
 //
 // Chromium only: the passes are counted from its trace.
 import fs from 'node:fs';
@@ -132,5 +135,34 @@ test.describe('passes an interaction forces (a Chromium trace)', motionAtItsOwnS
     // And the marks are what they were: nothing about the glyphs changed.
     const marks = await page.evaluate(() => [...document.querySelectorAll('tanrei-checkbox, tanrei-list-item')].map((host) => host.shadowRoot!.querySelectorAll('[data-drawn]').length));
     expect(new Set(marks).size, `marks ${marks.join(',')}`).toBe(1);
+  });
+
+  test('tanrei-popover: opened by a click on its opener, no frame callback after it reads what the frame has not styled and laid out yet', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(page, `<div style="padding: 120px"><tanrei-button id="opener" label="Storage">Storage</tanrei-button></div><tanrei-popover anchor="opener" label="Storage" headline="Storage">Files in the trash still count toward your storage.</tanrei-popover>`);
+    // The product answers the popover's request, as a product does.
+    await page.evaluate(() => {
+      const popover = document.querySelector('tanrei-popover') as HTMLElement & { open: boolean };
+      popover.addEventListener('toggle', (event) => (popover.open = (event as unknown as CustomEvent<{ open: boolean }>).detail.open));
+    });
+    // Clicked where it is, with the mouse: a locator's click waits for the element in frame callbacks of its own.
+    const at = (await page.locator('#opener').boundingBox())!;
+    const click = () => page.mouse.click(at.x + at.width / 2, at.y + at.height / 2);
+    const isOpen = () => page.evaluate(() => (document.querySelector('tanrei-popover') as unknown as { open: boolean }).open);
+    // Opened once and closed: what the first opening loads and compiles is not counted.
+    for (const want of [true, false]) {
+      await click();
+      await frames(page, 4);
+      expect(await isOpen(), 'the click toggled it').toBe(want);
+    }
+    const forced = await forcedDuring(page, click);
+    expect(await isOpen(), 'the click opened it').toBe(true);
+    test.info().annotations.push({ type: 'passes of the click', description: forced.map(({ pass }) => pass).join('; ') });
+    // The passes of the click's own task and its microtasks are its press and its placement, which must be in place
+    // before any frame; what follows it is counted in the frames' callbacks, before the frame's own style.
+    noneForced(
+      forced.filter((pass) => pass.inFrame),
+      'in the frames’ callbacks after the click',
+    );
   });
 });

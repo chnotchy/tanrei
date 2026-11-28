@@ -17,8 +17,11 @@ import { type Page, expect, test } from '@playwright/test';
 import { restyle } from '../../test/restyle.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-/** The module as it is built: it imports nothing (the host's type alone), so a page can load it alone. */
-const MODULE = fs.readFileSync(path.join(pkg, 'dist/primitives/follow.js'), 'utf8');
+/**
+ * The modules as they are built, served beside the page by name: the controller, and the read phase it makes a frame's
+ * check in (it imports the host's type alone from Lit, and nothing else from outside the primitives).
+ */
+const MODULES = path.join(pkg, 'dist/primitives');
 const PAGE = 'http://follow.test/';
 
 /** Frames after the overlay was last placed before it is taken to be at rest: far more than the design's few. */
@@ -91,7 +94,7 @@ async function open(page: Page, subject: Subject) {
       body: `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>follow</title><style>body { margin: 0; } #anchor { margin: 40px; inline-size: 80px; block-size: 24px; }</style></head><body><div id="spacer"></div><div id="anchor"></div><x-overlay ${subject.attributes}></x-overlay><script type="module">${ELEMENTS}</script></body></html>`,
     }),
   );
-  await page.route(`${PAGE}follow.js`, (route) => route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: MODULE }));
+  await page.route(`${PAGE}*.js`, (route) => route.fulfill({ contentType: 'text/javascript; charset=utf-8', body: fs.readFileSync(path.join(MODULES, path.basename(new URL(route.request().url()).pathname)), 'utf8') }));
   await page.goto(PAGE);
   await page.waitForFunction(() => customElements.get('x-overlay') !== undefined);
 }
