@@ -2514,6 +2514,81 @@ test.describe('what scrolls', () => {
     expect(await page.evaluate(() => ['--tanrei-app-shell-scroll-offset', '--tanrei-app-shell-scroll-offset-end', '--tanrei-app-shell-window-inset-top', '--tanrei-app-shell-window-inset-bottom'].map((name) => document.documentElement.style.getPropertyValue(name)))).toEqual(['', '', '', '']);
   });
 
+  test('APS-5, APS-17: a header that changes height and a window that changes width are written so that no element compares the token set it inherits value by value — every write changes the number of custom properties of the element written and of every element it holds, the root for what the frame makes known and the navigation region for the room the row leaves it, never the frame — and the window’s own width (100vw) is written nowhere', async ({ page }) => {
+    // WebKit compares an element's custom properties with the ones before, value by value, for every element that
+    // inherits them, when the two sets are the same size: written alone, a header's new height on the root of a page of
+    // ten thousand tokens stood it still for 30 to 110 s. With the size changed the comparison stops there. The size is
+    // each element's own — what it holds and what it inherits — so it is counted for the element written and for those
+    // below it, from their computed style, which lists that set: a name the write adds to the root that an element below
+    // holds of its own leaves that element's size as it was (6.9 s for one header height in three, on a page of 17,000
+    // elements). What is counted here is that size, not a time.
+    await mount(page, real({ sections: 6 }), { width: 1280 });
+    // The root's padding takes room from the window as a scrollbar does: the frame then writes the window's width.
+    await page.evaluate(() => {
+      const style = document.createElement('style');
+      style.textContent = 'html { padding-inline: 12px; }';
+      document.head.append(style);
+    });
+    await frame(page);
+    // The elements counted, each with the elements written that it is or that hold it.
+    const COUNTED: Record<string, [string, string[]]> = {
+      root: [':root', ['root']],
+      frame: ['tanrei-app-shell', ['root', 'frame']],
+      navigation: ['tanrei-app-shell > [slot="navigation"]', ['root', 'frame', 'navigation']],
+      'a navigation item': ['tanrei-navigation-drawer-item', ['root', 'frame', 'navigation']],
+      'the main region': ['tanrei-app-shell > main', ['root', 'frame']],
+      'a paragraph of the main region': ['main > p', ['root', 'frame']],
+      footer: ['tanrei-app-shell > [slot="footer"]', ['root', 'frame']],
+    };
+    type Held = { written: Record<'root' | 'frame' | 'navigation', string[]>; counts: Record<string, number> };
+    const held = (): Promise<Held> =>
+      page.evaluate((counted) => {
+        const values = (el: Element | null) => {
+          const style = (el as HTMLElement).style;
+          // The names that change the number (`setTokens()`'s) say nothing of what was written.
+          return [...style].filter((name) => name.startsWith('--') && !name.startsWith('--tanrei-tokens-written-')).map((name) => `${name}: ${style.getPropertyValue(name)}`).sort();
+        };
+        const written = { root: values(document.documentElement), frame: values(document.querySelector('tanrei-app-shell')), navigation: values(document.querySelector('tanrei-app-shell > [slot="navigation"]')) };
+        // The computed style's length: the properties of the engine, as many for every element, and the custom ones.
+        const counts = Object.fromEntries(Object.entries(counted).map(([key, [selector]]) => [key, getComputedStyle(document.querySelector(selector)!).length]));
+        return { written, counts };
+      }, COUNTED);
+    const changes: string[] = [];
+    let before = await held();
+    const step = async (what: string, change: () => Promise<unknown>, settled: () => Promise<boolean>) => {
+      await change();
+      await expect.poll(settled, what).toBe(true);
+      await frame(page);
+      const after = await held();
+      for (const key of ['root', 'frame', 'navigation'] as const) {
+        if (after.written[key].join() === before.written[key].join()) continue;
+        changes.push(`${what}: ${key}`);
+        for (const [counted, [, written]] of Object.entries(COUNTED)) {
+          if (written.includes(key)) expect(after.counts[counted], `${what}: written on the ${key} (${after.written[key].join('; ')}), ${counted} has as many custom properties as before`).not.toBe(before.counts[counted]);
+        }
+      }
+      before = after;
+    };
+    const offset = () => rootProperty(page, '--tanrei-app-shell-scroll-offset');
+    const bar = page.locator('tanrei-app-bar');
+    // Five heights: the root takes off the names a write adds to change the number, and adds others.
+    for (const height of [80, 96, 72, 88, 64]) await step(`the header ${height} high`, () => bar.evaluate((el, h) => ((el as HTMLElement).style.blockSize = `${h}px`), height), async () => (await offset()) === `${height}px`);
+    const room = () => region(page, 'navigation').evaluate((el) => (el as HTMLElement).style.getPropertyValue('--_aps-window'));
+    const pageWidth = () => page.evaluate(() => `${document.documentElement.getBoundingClientRect().width - 24 - (window.innerWidth - document.documentElement.clientWidth)}px`);
+    for (const width of [1260, 1240, 1280]) await step(`the window ${width} wide`, () => resize(page, width), async () => (await room()) === (await pageWidth()));
+    // Each kind was written: the root's values by the header, the navigation's by the window.
+    expect(changes).toEqual(expect.arrayContaining(['the header 80 high: root', 'the header 96 high: root', 'the header 72 high: root', 'the header 88 high: root', 'the header 64 high: root', 'the window 1260 wide: navigation', 'the window 1240 wide: navigation']));
+    // The frame holds no width; the root holds only what the frame makes known.
+    const { written } = await held();
+    expect(written.frame.filter((value) => /--_aps-(window|aside)/.test(value))).toEqual([]);
+    expect(written.root.map((value) => value.split(':')[0]).filter((name) => name.includes('app-shell'))).toEqual(['--tanrei-app-shell-scroll-offset', '--tanrei-app-shell-window-inset-top']);
+    // Without the padding the window's own width is the room, and nothing holds it.
+    await page.evaluate(() => document.head.lastElementChild!.remove());
+    await frame(page);
+    const scrollbar = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth);
+    await expect.poll(room).toBe(scrollbar ? `${1280 - scrollbar}px` : '');
+  });
+
   test('APS-17, APS-15, SNK-13, SNK-35: with scroll main, 400 wide, what the frame keeps over the window — the header’s bottom edge (below an announcement too) and the navigation bar’s height — is made known whatever scrolls, while the scrolling view’s offsets are nothing; a snackbar at the top end stands below the header and one at the bottom above the bar', async ({ page }) => {
     const announcement = '<div slot="announcement"><p style="margin: 0; block-size: 40px">Maintenance tonight</p></div>';
     await mount(page, real({ sections: 6, bar: true, announcement, props: { scroll: 'main' } }), { width: 400 });

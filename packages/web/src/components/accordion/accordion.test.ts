@@ -27,6 +27,7 @@ import { middlePressAimed } from '../../../test/middle-press.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 import { askForFrame } from '../../../test/frame-asked.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 import { SHADOW_HOSTS, attachShadowRoot, declaredShadowRoot, glyphsIn } from '../../../test/shadow-mirror.js';
 
 const spec = loadSpec('accordion');
@@ -1894,6 +1895,35 @@ test.describe('nested, missing, unknown, empty', () => {
     expect((await edges(header(page, 'added', 2))).height).toBe(64);
     expect(await px(header(page, 'added', 2), 'padding-left')).toBe(20);
     expect(await css(header(page, 'added', 2), 'font')).toBe(reference[1]);
+  });
+
+  test('ACC-34: the element adds no rule to the page: a size and a variant a design system adds are drawn from values in the accordion’s own style, taken off again for a value of the core', async ({ page }) => {
+    const fixtures = [raw('added', { size: 'dense', variant: 'airy' }, THREE), raw('plain', {}, THREE.replaceAll('id="', 'id="p'))];
+    await page.setContent(countingRules(await fixturesDocument(spec, { icons: true, fixtures }), TAG));
+    await page.waitForFunction((tag) => !!customElements.get(tag) && [...document.querySelectorAll(tag)].every((el) => el.matches(':defined')), TAG);
+    await page.evaluate(() => document.fonts.ready);
+    await frame(page);
+    await override(page, { [T('container-height-dense')]: '64px', [T('container-padding-inline-dense')]: '20px', [T('airy-label-color')]: 'rgb(1, 2, 3)', [T('airy-container-color')]: 'rgb(4, 5, 6)' });
+    const reference = await header(page, 'plain', 2).evaluate((el) => [getComputedStyle(el).font, getComputedStyle(el).paddingTop]);
+    // The added size: its own height and padding, the default's text style where it names none.
+    await expect.poll(async () => (await edges(header(page, 'added', 2))).height).toBe(64);
+    expect(await px(header(page, 'added', 2), 'padding-left')).toBe(20);
+    expect(await css(header(page, 'added', 2), 'font')).toBe(reference[0]);
+    // The added variant: its own label and fill, the default's where it names none (the hovered fill).
+    // (A color the tokens change is a state's change, which the header moves to: read where it settles.)
+    await expect.poll(() => css(header(page, 'added', 2), 'color')).toBe('rgb(1, 2, 3)');
+    expect(await host(page, 'added').evaluate((el) => getComputedStyle(el).getPropertyValue('--_acc-container'))).toBe('rgb(4, 5, 6)');
+    expect(await host(page, 'added').evaluate((el) => getComputedStyle(el).getPropertyValue('--_acc-hovered-container'))).toBe(await host(page, 'plain').evaluate((el) => getComputedStyle(el).getPropertyValue('--_acc-hovered-container')));
+    // Drawn so with no rule inserted anywhere and no sheet added to the document.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // Back to values of the core: what the added ones wrote is taken off, and the accordion is drawn as the plain one.
+    await host(page, 'added').evaluate((el) => Object.assign(el as unknown as { size: string; variant: string }, { size: 'medium', variant: 'plain' }));
+    await frame(page);
+    expect(await host(page, 'added').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    const drawn = (id: string) => header(page, id, 2).evaluate((el) => [getComputedStyle(el).height, getComputedStyle(el).font, getComputedStyle(el).color, getComputedStyle(el).paddingLeft]);
+    const plain = await drawn('plain');
+    await expect.poll(() => drawn('added')).toEqual(plain);
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
   });
 
   test('ACC-37: without a size of its own an accordion is drawn at the size its nearest container sets — a set size, never a default — and its own size, medium included, wins; a size it lacks is its nearest; it passes none to an accordion in its content; a change, a removal and a move are drawn before the next frame, keeping every item’s open and the focus; at control height 40, 48 and 56 every header is its size’s height', async ({ page }) => {

@@ -11,6 +11,7 @@ import { declarations, resolved, tokensIn, writeConditions } from '../../../scri
 import { type Fixture, fixturesDocument, loadSpec, mountFixtures, resolveColor, resolveToken, tab, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
 import { restyle } from '../../../test/restyle.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 
 const spec = loadSpec('page-header');
 type P = Page;
@@ -1032,6 +1033,27 @@ test.describe('text size, forced colors, direction, unknown values', () => {
     await unknown.evaluate((el) => el.setAttribute('size', 'a } body { display: none'));
     await expect.poll(() => seen.filter((m) => m.includes('PGH-23') && m.includes('display: none')).length).toBe(1);
     expect(await css(page.locator('body'), 'display')).toBe('block');
+  });
+
+  test('PGH-23: the element adds no rule to the page: a size a design system adds is drawn from values in the head’s own style, taken off again for a size of the core', async ({ page }) => {
+    const content = '<h1>Members</h1><p>People who can open this project.</p>';
+    await page.setContent(countingRules(await fixturesDocument(spec, { fixtures: [raw('added', { size: 'compact' }, content), raw('small', { size: 'small' }, content)] }), TAG));
+    await page.waitForFunction((tag) => !!customElements.get(tag) && [...document.querySelectorAll(tag)].every((el) => el.matches(':defined')), TAG);
+    await page.evaluate(() => document.fonts.ready);
+    await frame(page);
+    await override(page, { [T('title-typescale-compact-font-size')]: '20px', [T('title-typescale-compact-line-height')]: '1.4', [T('container-padding-block-end-compact')]: '4px' });
+    const added = host(page, 'added');
+    await expect.poll(() => px(title(page, 'added'), 'font-size')).toBe(20);
+    expect([await px(added, 'padding-bottom'), await px(description(page, 'added'), 'font-size')]).toEqual([4, await resolveToken(page, T('description-typescale-medium-font-size'))]);
+    // Drawn so with no rule inserted anywhere and no sheet added to the document.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // Back to a size of the core: what the added one wrote is taken off, and the head is drawn as that size.
+    await added.evaluate((el) => ((el as unknown as { size: string }).size = 'small'));
+    await frame(page);
+    expect(await added.evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    const drawn = (id: string) => Promise.all([px(title(page, id), 'font-size'), px(host(page, id), 'padding-bottom'), px(description(page, id), 'font-size')]);
+    expect(await drawn('added')).toEqual(await drawn('small'));
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
   });
 
   test('PGH-24: a head without a title still draws the parts it has, exposes no empty heading and is reported; a head with no part draws nothing, takes no space and exposes nothing; a title that is not a heading is still drawn as the title, and reported', async ({ page }) => {

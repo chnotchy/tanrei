@@ -42,7 +42,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-figure',
     css: 'figure.css',
-    mark: '--_figure-fill',
+    mark: '--_figure-edge-color',
     html: (n) => `<tanrei-figure><figure><div>content ${n}</div><figcaption>Caption</figcaption></figure></tanrei-figure>`,
     drawn: { part: 'figure', property: 'margin-left' },
     inside: 'figure > div',
@@ -51,7 +51,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-page-header',
     css: 'page-header.css',
-    mark: '--_pgh-title-font-size',
+    mark: '--_pgh-dot-color',
     html: (n) => `<tanrei-page-header><h1>Title ${n}</h1></tanrei-page-header>`,
     drawn: { part: 'h1', property: 'margin-top' },
     inside: '',
@@ -60,7 +60,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-accordion',
     css: 'accordion.css',
-    mark: '--_acc-container',
+    mark: '--_acc-edge-color',
     html: (n) => `<tanrei-accordion><details><summary>Question ${n}</summary><div>Answer</div></details></tanrei-accordion>`,
     drawn: { part: 'summary', property: 'display' },
     inside: 'details > div',
@@ -69,7 +69,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-link-card',
     css: 'link-card.css',
-    mark: '--_lc-container',
+    mark: '--_lc-media-fill',
     html: (n) => `<tanrei-link-card><a href="#c${n}">Card ${n}</a></tanrei-link-card>`,
     drawn: { part: '', property: 'display' },
     inside: '',
@@ -78,7 +78,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-tree-view',
     css: 'tree-view.css',
-    mark: '--_trv-gap',
+    mark: '--_trv-target',
     html: (n) => `<tanrei-tree-view label="Tree ${n}"><ul><li data-value="a${n}"><span>Item</span></li></ul></tanrei-tree-view>`,
     drawn: { part: 'ul', property: 'padding-left' },
     inside: 'li',
@@ -96,7 +96,7 @@ export const LIGHT_DOM_SUBJECTS: LightDomSubject[] = [
   {
     tag: 'tanrei-table-of-contents',
     css: 'table-of-contents.css',
-    mark: '--_toc-row-height',
+    mark: '--_toc-row-floor',
     html: (n) => `<tanrei-table-of-contents label="Contents ${n}"><ul><li><a href="#s${n}">Section</a></li></ul></tanrei-table-of-contents>`,
     drawn: { part: 'ul', property: 'padding-left' },
     inside: 'li',

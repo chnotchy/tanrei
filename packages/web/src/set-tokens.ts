@@ -14,13 +14,21 @@
 //   most the number it takes off;
 // - so adding one marker more than it takes off makes the size grow whatever the write did, and taking off one more
 //   than it gives a value makes it shrink;
-// - it takes them off when the element holds enough, and adds them otherwise, so an element holds at most a few.
+// - it takes them off when the element holds enough, and adds them otherwise, so an element holds at most a few;
+// - each marker it adds is a name this module has not written before, on any element. The size WebKit compares is
+//   each element's own: every name it holds, its own and those it inherits. A marker that an element below already
+//   held (the app shell writes on the root, on itself and on its navigation region) added to the root left that
+//   element's size as it was — one name more inherited, one name of its own fewer — and the comparison ran for it and
+//   everything it holds: 6.9 s for one header height in three on a page of 17,000 elements, when the markers were
+//   `-0`, `-1`, … on every element.
 //
-// Nothing is read from the page's style, so the write itself forces no style work.
+// A name that already holds its value is not written, and a write that changes nothing adds no marker. Only the
+// element's own style is read, so the write itself forces no style work.
 import { DEBUG } from './primitives/debug.js';
 
-/** The names of the markers: `--tanrei-tokens-written-0`, `-1`, … */
+/** The names of the markers: `--tanrei-tokens-written-<n>`, each `n` once, in the order written. */
 const MARKER = '--tanrei-tokens-written-';
+let markers = 0;
 
 export interface SetTokensOptions {
   /** The element whose own style holds the tokens: the root (`document.documentElement`) when left out. */
@@ -33,30 +41,39 @@ export interface SetTokensOptions {
  * rule of higher precedence still wins. A name that is not a custom property (`--…`) is ignored, and reported in a debug build.
  */
 export function setTokens(tokens: Readonly<Record<string, string | null | undefined>>, { on = document.documentElement }: SetTokensOptions = {}): void {
-  const style = on.style;
+  const values: Record<string, string> = {};
+  for (const [name, value] of Object.entries(tokens)) {
+    if (name.startsWith('--')) values[name] = value ?? '';
+    else if (DEBUG) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
+  }
+  writeCounted(on.style, values);
+}
+
+/**
+ * The write of `setTokens()`, for the package's own elements, whose names are their own: each custom property of
+ * `values` set on `style` (`''` takes it off), those that already hold that value left alone, and the number of
+ * custom properties changed with the write when it changed anything.
+ */
+export function writeCounted(style: CSSStyleDeclaration, values: Readonly<Record<string, string>>): void {
   let given = 0;
   let taken = 0;
-  for (const [name, value] of Object.entries(tokens)) {
-    if (!name.startsWith('--')) {
-      if (DEBUG) console.warn(`[tanrei] setTokens(): "${name}" is not a custom property; it is ignored`);
-      continue;
-    }
-    if (value === '' || value === null || value === undefined) {
-      style.removeProperty(name);
-      taken++;
-    } else {
+  for (const [name, value] of Object.entries(values)) {
+    if (style.getPropertyValue(name) === value) continue;
+    if (value) {
       style.setProperty(name, value);
       given++;
+    } else {
+      style.removeProperty(name);
+      taken++;
     }
   }
   if (given + taken === 0) return;
-  let held = 0;
-  while (style.getPropertyValue(`${MARKER}${held}`)) held++;
-  if (held > given) {
-    // Taking off one more than the write can have added: the set is smaller, whatever the write did.
-    for (let n = 0; n <= given; n++) style.removeProperty(`${MARKER}${held - 1 - n}`);
-  } else {
-    // Adding one more than the write can have taken off: the set is larger.
-    for (let n = 0; n <= taken; n++) style.setProperty(`${MARKER}${held + n}`, '1');
+  const held = [...style].filter((name) => name.startsWith(MARKER));
+  // Taking off one more than the write can have added, where the element holds that many: the set is smaller, whatever
+  // the write did. Otherwise adding one more than the write can have taken off, each a new name: the set is larger.
+  const shrink = held.length > given;
+  for (let n = 0; n <= (shrink ? given : taken); n++) {
+    if (shrink) style.removeProperty(held[n]);
+    else style.setProperty(MARKER + markers++, '1');
   }
 }

@@ -17,7 +17,7 @@ import {
 } from '../../primitives/index.js';
 import { PendingGlyphs, isGlyphProbe } from '../../primitives/glyph-pending.js';
 import type { TanreiAccordionSizeRegistry, TanreiAccordionVariantRegistry } from '../../registry.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn, writeValues } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { TYPE_LONGHANDS } from '../../styles/type.js';
 import { DEBUG } from '../../primitives/debug.js';
@@ -111,19 +111,16 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 }
 
 /**
- * ACC-34: a size a design system added — the default's rules, read from that size's tokens — for an accordion that
- * sets it and for one that takes it from its container (ACC-37: the custom state that carries the size it draws).
+ * ACC-34: what a size a design system added draws — the default's members, read from that size's tokens, each falling
+ * back to the default's — for an accordion that sets it and for one that takes it from its container (ACC-37). Written
+ * in the element's own style (`writeValues`), never as a rule added to the page.
  */
-const sizeRules = (size: string) =>
-  `@layer tanrei.components { :where(${TAG}[size='${size}'], ${TAG}:state(size-${size})) { ${SIZE_MEMBERS.map(
-    ([name, token]) => `${name}: var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}));`,
-  ).join(' ')} } }`;
+const sizeValues = (size: string): [`--${string}`, string][] =>
+  SIZE_MEMBERS.map(([name, token]) => [name as `--${string}`, `var(${PREFIX}-${token.replace('*', size)}, var(${PREFIX}-${token.replace('*', DEFAULT_SIZE)}))`]);
 
-/** ACC-34: a variant a design system added — its colors in each state, the default's where it has none. */
-const variantRules = (variant: string) =>
-  `@layer tanrei.components { :where(${TAG}[variant='${variant}']) { ${STATES.flatMap((state) =>
-    VARIANT_PARTS.map(([part, token]) => `--_acc-${state}${part}: var(${PREFIX}-${variant}-${state}${token}, var(${PREFIX}-${DEFAULT_VARIANT}-${state}${token}));`),
-  ).join(' ')} } }`;
+/** ACC-34: what a variant a design system added draws — its colors in each state, the default's where it has none. */
+const variantValues = (variant: string): [`--${string}`, string][] =>
+  STATES.flatMap((state) => VARIANT_PARTS.map(([part, token]): [`--${string}`, string] => [`--_acc-${state}${part}`, `var(${PREFIX}-${variant}-${state}${token}, var(${PREFIX}-${DEFAULT_VARIANT}-${state}${token}))`]));
 
 /** Writes an attribute only when it differs: what is written here may be observed, and must settle. */
 function mark(element: Element, name: string, value: string | null) {
@@ -258,6 +255,8 @@ export class TanreiAccordion extends TanreiLightElement {
 
   /** ACC-34: the size last read for a value the core does not have. */
   private sizeRead = DEFAULT_SIZE;
+  /** ACC-34: the names written in the element's style for a size and a variant a design system added (`readAxis`). */
+  private axisWritten: Record<'size' | 'variant', string[]> = { size: [], variant: [] };
 
   /** How an item is told from the item next to it: `divider` is one hairline (in the outlined look the items share one edge), `gap` empty space and no line (each item has an edge of its own); `auto` takes `comp.accordion.separation`, the design system's answer. */
   separation: TanreiAccordionSeparation = 'auto';
@@ -312,7 +311,9 @@ export class TanreiAccordion extends TanreiLightElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    adoptUnlessDrawn(this, sheet('accordion', () => ACCORDION_CSS), '--_acc-container');
+    // The mark is a name accordion.css sets on every accordion and the element never writes: a size or a variant a
+    // design system added is written in the element's own style (`readAxis`), which would answer for a root without the rules.
+    adoptUnlessDrawn(this, sheet('accordion', () => ACCORDION_CSS), '--_acc-edge-color');
     for (const [type, listener] of this.listeners) this.addEventListener(type, listener, true);
     this.observed = new WeakSet();
     this.mutations?.observe(this, { childList: true });
@@ -346,9 +347,9 @@ export class TanreiAccordion extends TanreiLightElement {
     if (DEBUG && changed.has('separation') && !(SEPARATION_VALUES as readonly string[]).includes(this.separation)) {
       report(this, 'ACC-10', `separation "${this.separation}" is not a value the accordion defines; it is drawn as "auto"`);
     }
-    if (changed.has('variant')) this.readAxis('variant', String(this.variant ?? ''), CORE_VARIANTS, DEFAULT_VARIANT, variantRules, (value) => `${PREFIX}-${value}-label-color`);
+    if (changed.has('variant')) this.readAxis('variant', String(this.variant ?? ''), CORE_VARIANTS, DEFAULT_VARIANT, variantValues, (value) => `${PREFIX}-${value}-label-color`);
     // ACC-34, ACC-37: the size it draws — its own or its container's — when that changed.
-    if (this.sizes.drawn !== this.sizeRead) this.readAxis('size', (this.sizeRead = this.sizes.drawn), CORE_SIZES, DEFAULT_SIZE, sizeRules, (value) => `${PREFIX}-container-height-${value}`);
+    if (this.sizes.drawn !== this.sizeRead) this.readAxis('size', (this.sizeRead = this.sizes.drawn), CORE_SIZES, DEFAULT_SIZE, sizeValues, (value) => `${PREFIX}-container-height-${value}`);
     this.read();
   }
 
@@ -414,13 +415,15 @@ export class TanreiAccordion extends TanreiLightElement {
   }
 
   /**
-   * ACC-34: a value of an open axis the core does not have was added by a design system — its rules are added to the
-   * root, falling back to the default's tokens — or is unknown to the active one, which a debug build says.
+   * ACC-34: a value of an open axis the core does not have was added by a design system — what it draws is written in
+   * the element's own style, falling back to the default's tokens, and taken off again for a value of the core — or is
+   * unknown to the active one, which a debug build says.
    */
-  private readAxis(axis: string, value: string, core: readonly string[], fallback: string, rules: (value: string) => string, probe: (value: string) => string) {
-    if (core.includes(value)) return;
+  private readAxis(axis: 'size' | 'variant', value: string, core: readonly string[], fallback: string, values: (value: string) => [`--${string}`, string][], probe: (value: string) => string) {
     const known = KEY.test(value);
-    if (known) adopt(this.getRootNode() as Root, sheet(`${axis}:${value}`, () => rules(value)));
+    const added = known && !core.includes(value);
+    if (added || this.axisWritten[axis].length) this.axisWritten[axis] = writeValues(this, this.axisWritten[axis], added ? values(value) : []);
+    if (core.includes(value)) return;
     if (DEBUG && (!known || getComputedStyle(this).getPropertyValue(probe(value)).trim() === '')) {
       report(this, 'ACC-34', `${axis} "${value}" is not a value of the active design system; it is drawn as "${fallback}"`);
     }

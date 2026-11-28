@@ -15,6 +15,7 @@ import { expectWheelKeptFromPage } from '../../../test/contained-wheel.js';
 import { type Locator, type Page, expect, test } from '@playwright/test';
 import { type Fixture, acmeSystemCss, fixturesDocument, iconFaceArrives, loadSpec, mountFixtures, resolveColor, resolveToken, tab, tabTo, withoutIconFont, rootTokens } from '../../../test/harness.js';
 import { expectBaseline } from '../../../test/baseline.js';
+import { countingRules, ruleWrites } from '../../../test/rule-writes.js';
 import { controlledElements, controlledInTree } from '../../../test/controlled-list.js';
 import { CONTROL_HEIGHTS, atControlHeight } from '../../../test/control-height.js';
 
@@ -495,11 +496,11 @@ test.describe('which item is current', () => {
       return page.evaluate(() => document.getElementById('s1')!.getBoundingClientRect().top);
     };
     // Where the first target stands with the list's stylesheet in the root, and where it stands without it: a root
-    // that sets the name the element asks its root for (`--_toc-row-height`) is taken to draw it, and is given nothing.
+    // that sets the name the element asks its root for (`--_toc-row-floor`) is taken to draw it, and is given nothing.
     served = body(`<style>${dist('table-of-contents.css')}</style>`, 0);
     await page.goto(url);
     const drawn = await firstTarget();
-    served = body(`<style>tanrei-table-of-contents { --_toc-row-height: 1px; }</style>`, 0);
+    served = body(`<style>tanrei-table-of-contents { --_toc-row-floor: 1px; }</style>`, 0);
     await page.goto(url);
     const bare = await firstTarget();
     expect(Math.abs(drawn - bare), 'the list’s stylesheet moves the first target').toBeGreaterThan(16);
@@ -1597,6 +1598,24 @@ test.describe('missing, unknown, empty', () => {
     await expect(chevron).toHaveAttribute('data-drawn', '');
     expect(await css(chevron, 'visibility')).toBe('visible');
     expect([await edges(disclosure.locator('.row-title')), await edges(disclosure.locator('.row-current'))]).toEqual(before);
+  });
+
+  test('TOC-39: the element adds no rule to the page: a size a design system adds is drawn from values in its own style, taken off again for a size of the core', async ({ page }) => {
+    const fixtures = [raw('added', { ...LABEL, size: 'roomy', tracking: 'manual' }, THREE), raw('small', { ...LABEL, size: 'small', tracking: 'manual' }, THREE.replaceAll('href="#', 'href="#s-'))];
+    await page.setContent(countingRules(await fixturesDocument(spec, { icons: true, fixtures }), TAG));
+    await page.waitForFunction((tag) => !!customElements.get(tag) && [...document.querySelectorAll(tag)].every((el) => el.matches(':defined')), TAG);
+    await page.evaluate(() => document.fonts.ready);
+    await frame(page);
+    await override(page, { [T('row-height-roomy')]: '60px', [T('row-padding-block-roomy')]: '20px' });
+    await expect.poll(async () => (await edges(row(page, 'added', '#one'))).height).toBe(60);
+    expect(await px(row(page, 'added', '#one'), 'padding-top')).toBe(20);
+    // Drawn so with no rule inserted anywhere and no sheet added to the document.
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
+    // Back to a size of the core: what the added one wrote is taken off, and the rows are the small size's.
+    await set(host(page, 'added'), { size: 'small' });
+    expect(await host(page, 'added').evaluate((el) => (el as HTMLElement).style.length)).toBe(0);
+    expect([(await edges(row(page, 'added', '#one'))).height, await px(row(page, 'added', '#one'), 'padding-top')]).toEqual([(await edges(row(page, 'small', '#s-one'))).height, await px(row(page, 'small', '#s-one'), 'padding-top')]);
+    expect(await ruleWrites(page)).toEqual({ inserted: 0, adopted: 0 });
   });
 
   test('TOC-39: a presentation or a tracking it does not have behaves as list and auto, and a size the active system does not have is drawn with the default’s tokens, each reported; one a design system adds is drawn from its tokens; a change of size draws the new heights at once, keeping the current item, open and the focus; a manual current that names no item draws none, and is reported; of two items with one href both are drawn and the first is the one that can be current; more than three levels are still drawn, each set in by one indent, and reported', async ({ page }) => {

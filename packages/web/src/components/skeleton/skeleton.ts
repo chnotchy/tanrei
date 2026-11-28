@@ -2,7 +2,7 @@ import type { PropertyDeclarations, PropertyValues } from 'lit';
 import { AvailabilityController, SystemWatchController, VisibilityController, WordsController, report, styleQueries } from '../../primitives/index.js';
 import { documentPainted } from '../../primitives/first-paint.js';
 import { readInPhase } from '../../primitives/read-phase.js';
-import { adopt, adoptUnlessDrawn } from '../../primitives/sheets.js';
+import { adoptUnlessDrawn, writeValues } from '../../primitives/sheets.js';
 import { TanreiLightElement } from '../../primitives/element.js';
 import { DEBUG } from '../../primitives/debug.js';
 
@@ -31,8 +31,6 @@ const WAIT = 'tanrei-skeleton-wait';
 const STIRS: readonly string[] = ['tanrei-skeleton-pulse', 'tanrei-skeleton-wave'];
 /** The most lines skeleton.css reads from `data-lines` itself, and the shadows it holds for them. */
 const LINES_IN_SHEET = 24;
-/** A text placeholder, as skeleton.css reaches it. */
-const TEXT = `.${PLACEHOLDER}:not([data-shape='block'], [data-shape='circle'])`;
 /** What the element exposes itself with (SKL-15), and leaves alone where the page wrote it. */
 const EXPOSURE = ['role', 'aria-busy', 'aria-label', 'aria-hidden'] as const;
 
@@ -41,8 +39,6 @@ const milliseconds = {
   fromAttribute: (value: string | null) => (value === null ? null : value.trim() === '' ? Number.NaN : Number(value)),
 };
 const usable = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0;
-
-type Root = Document | ShadowRoot;
 
 const sheets = new Map<string, CSSStyleSheet>();
 /** A stylesheet of the page, made once and shared by every root that needs it. */
@@ -62,38 +58,19 @@ function sheet(id: string, text: () => string): CSSStyleSheet | null {
 }
 
 /**
- * The sheet of the rules the element writes: one per page, grown as placeholders need a rule it does not have yet. Its
- * rules are in no cascade layer, so they also win over a copy of skeleton.css that a page loads into a layer of its own.
+ * SKL-3, SKL-25: what a placeholder whose `data-lines` skeleton.css does not read is drawn with — more lines than it
+ * holds, or a value that is not a whole number of at least 1, which is drawn as the whole number below it, and as 1
+ * where there is none: its lines and, past the shadows the stylesheet holds, the shadows of the lines between the
+ * first and the last. Written in the placeholder's own style (`writeValues`), never as a rule added to the page; the
+ * stylesheet's first bar reads `--_skl-shadows` before its own list, and draws none of them in forced colors.
  */
-const written = new Set<string>();
-function writtenSheet(id: string, rules: () => string[]): CSSStyleSheet | null {
-  const made = sheet('written', () => '');
-  if (!made || written.has(id)) return made;
-  try {
-    for (const rule of rules()) made.insertRule(rule, made.cssRules.length);
-    written.add(id);
-  } catch {
-    // A browser that cannot read the rule draws the placeholder as a page without the script does.
-  }
-  return made;
-}
-
-/** An attribute's value inside a double-quoted string of a selector. */
-const quoted = (value: string) => value.replace(/["\\\n\r\f]/g, (char) => `\\${char.codePointAt(0)!.toString(16)} `);
-
-/**
- * SKL-3, SKL-25: the rules of a `data-lines` that skeleton.css does not read — more lines than it holds, or a value
- * that is not a whole number of at least 1, which is drawn as the whole number below it, and as 1 where there is none.
- */
-function linesRules(value: string, lines: number): string[] {
-  const at = `[data-lines="${quoted(value)}"]`;
-  const rules = [`:where(.${PLACEHOLDER}${at}) { --_skl-lines: ${lines}; }`];
+function linesValues(lines: number): [`--${string}`, string][] {
+  const values: [`--${string}`, string][] = [['--_skl-lines', String(lines)]];
   if (lines > LINES_IN_SHEET) {
     const shadows = Array.from({ length: lines - 2 }, (_, k) => `0 calc(${k + 1}lh * clamp(0, var(--_skl-lines) - ${k + 2}, 1)) 0 0 var(--_skl-fill)`);
-    // Not in forced colors, where a shadow is not drawn and skeleton.css copies the outline instead.
-    rules.push(`@media not (forced-colors: active) { :where(${TEXT}${at})::before { box-shadow: ${shadows.join(', ')}; } }`);
+    values.push(['--_skl-shadows', shadows.join(', ')]);
   }
-  return rules;
+  return values;
 }
 
 /** The lines a `data-lines` is drawn as (SKL-25): the whole number below it, and 1 where it is less than 1 or no number. */
@@ -211,6 +188,8 @@ export class TanreiSkeleton extends TanreiLightElement {
   private readonly exposed = new Set<string>();
   /** The children the element made inert (SKL-19). */
   private readonly inerted = new WeakSet<Element>();
+  /** SKL-3, SKL-25: the names written in each placeholder's style for a `data-lines` skeleton.css does not read (`linesValues`). */
+  private readonly linesWritten = new WeakMap<HTMLElement, string[]>();
   private readonly mutations = typeof MutationObserver === 'undefined' ? null : new MutationObserver((records) => this.changed(records));
   /** A wave is measured again when the skeleton or a placeholder changes size. */
   private readonly sizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => this.measure());
@@ -515,8 +494,8 @@ export class TanreiSkeleton extends TanreiLightElement {
   }
 
   /**
-   * Reads what the skeleton holds and writes what follows from it: `inert` on each of its children (SKL-19), the rule
-   * of a `data-lines` the stylesheet does not read (SKL-3), and in a debug build what it ignored (SKL-25, SKL-26).
+   * Reads what the skeleton holds and writes what follows from it: `inert` on each of its children (SKL-19), what a
+   * `data-lines` the stylesheet does not read draws, in the placeholder's style (SKL-3), and in a debug build what it ignored (SKL-25, SKL-26).
    * Called when it is inserted and when what it holds changes; it writes only what differs, so it settles.
    */
   private read() {
@@ -531,10 +510,11 @@ export class TanreiSkeleton extends TanreiLightElement {
     const placeholders = this.placeholders();
     for (const placeholder of placeholders) {
       const lines = placeholder.getAttribute('data-lines');
-      if (lines === null) continue;
-      const drawn = linesOf(lines);
-      const inSheet = String(drawn) === lines && drawn <= LINES_IN_SHEET;
-      if (!inSheet) adopt(this.getRootNode() as Root, writtenSheet(`lines:${lines}`, () => linesRules(lines, drawn)));
+      const drawn = lines === null ? 0 : linesOf(lines);
+      const inSheet = lines === null || (String(drawn) === lines && drawn <= LINES_IN_SHEET);
+      const before = this.linesWritten.get(placeholder);
+      if (inSheet && !before) continue;
+      this.linesWritten.set(placeholder, writeValues(placeholder, before ?? [], inSheet ? [] : linesValues(drawn)));
     }
     if (!DEBUG) return;
     // A skeleton that is still being parsed is read again when it is whole.
