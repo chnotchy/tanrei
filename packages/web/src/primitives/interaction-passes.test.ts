@@ -15,6 +15,9 @@
 //   - an anchored surface opened by a click: the frame's check of what its placement depends on is read in the read
 //     phase, not in the frame's callbacks before the frame has styled the page (src/primitives/anchored.ts,
 //     src/primitives/follow.ts);
+//   - every other overlay FollowController follows (a tooltip, a menu with a submenu open, a FAB menu, a slider's value
+//     indicator, a search's docked view, a docked date and time picker), opened and then followed while the page
+//     scrolls: each one's frame check reads in the read phase too (its `changed()`), and it still follows its anchor;
 //   - the pointer coming onto a row whose text is cut: the tooltip's waits are read in the read phase, not in the
 //     `pointerenter`, after the page has just written something for the pointer (src/primitives/cut-text.ts).
 //
@@ -110,6 +113,90 @@ function noneForced(forced: Forced[], what: string) {
   expect(passes, `passes a script forced ${what}`).toEqual([]);
 }
 
+/** What the test does to a subject: opens it (or moves what is followed), does more once it is open (`then`, not counted), or closes it. */
+type Opener = (page: Page) => Promise<unknown>;
+
+/** The overlays FollowController follows, besides the anchored surface's (src/primitives/anchored.ts). */
+const FOLLOWERS: { tag: string; what: string; markup: string; open: Opener; then?: Opener; close?: Opener; surfaces?: number }[] = (() => {
+  const set = (tag: string, props: Record<string, unknown>) => (page: Page) =>
+    page.evaluate(([tag, props]) => Object.assign(document.querySelector(tag as string)!, props), [tag, props] as const);
+  return [
+    {
+      tag: 'tanrei-tooltip',
+      what: 'opened',
+      markup: `<tanrei-tooltip text="Move to trash"><button id="anchor">Delete</button></tanrei-tooltip>`,
+      open: set('tanrei-tooltip', { open: true }),
+      close: set('tanrei-tooltip', { open: false }),
+    },
+    {
+      tag: 'tanrei-menu',
+      what: 'opened (a submenu then opened in it is followed too)',
+      markup: `<button id="anchor">Edit</button><tanrei-menu anchor="anchor"><tanrei-menu-item label="Cut"></tanrei-menu-item><tanrei-submenu label="Share"><tanrei-menu-item label="Email"></tanrei-menu-item><tanrei-menu-item label="Link"></tanrei-menu-item></tanrei-submenu></tanrei-menu>`,
+      open: set('tanrei-menu', { open: true }),
+      // TODO: the submenu's opening is not counted: its appearance is started from the next frame by
+      // src/primitives/motion.ts (`nextFrame()`), whose read in a frame callback forces one style pass of the page.
+      then: async (page) => {
+        await set('tanrei-submenu', { open: true })(page);
+        await frames(page, 4);
+      },
+      close: set('tanrei-menu', { open: false }),
+      surfaces: 2,
+    },
+    {
+      tag: 'tanrei-fab-menu',
+      what: 'opened',
+      markup: `<tanrei-fab-menu label="Create"><tanrei-fab-menu-item label="Document" icon="description"></tanrei-fab-menu-item><tanrei-fab-menu-item label="Upload" icon="upload"></tanrei-fab-menu-item></tanrei-fab-menu>`,
+      open: set('tanrei-fab-menu', { open: true }),
+      close: set('tanrei-fab-menu', { open: false }),
+    },
+    {
+      tag: 'tanrei-slider',
+      what: 'given a new value with its value indicator shown',
+      markup: `<tanrei-slider label="Volume" value="40" value-indicator="always" style="inline-size: 320px"></tanrei-slider>`,
+      open: set('tanrei-slider', { value: 60 }),
+    },
+    {
+      tag: 'tanrei-search',
+      what: 'opened by the keyboard',
+      markup: `<tanrei-search label="Search mail" placeholder="Search mail" value="inv"><tanrei-search-suggestion value="invoice" headline="invoice"></tanrei-search-suggestion><tanrei-search-suggestion value="invitation" headline="invitation"></tanrei-search-suggestion></tanrei-search>`,
+      open: async (page) => {
+        await page.evaluate(() => document.querySelector('tanrei-search')!.shadowRoot!.querySelector('input')!.focus());
+        await page.keyboard.press('ArrowDown');
+      },
+      close: (page) => page.keyboard.press('Escape'),
+    },
+    {
+      tag: 'tanrei-date-time-picker',
+      what: 'opened docked',
+      markup: `<button id="anchor">Pick a date</button><tanrei-date-time-picker presentation="docked" anchor="anchor" label="Date" value="2026-09-17"></tanrei-date-time-picker>`,
+      open: set('tanrei-date-time-picker', { open: true }),
+      close: set('tanrei-date-time-picker', { open: false }),
+    },
+  ];
+})();
+
+/**
+ * Where each surface `tag` holds open in the top layer stands from its anchor (`#anchor`, or the host): its top-left
+ * corner from the anchor's, in each shadow root under the host. Null while none is open.
+ */
+const standing = (page: Page, tag: string) =>
+  page.evaluate((tag) => {
+    const host = document.querySelector(tag)!;
+    const anchor = (document.getElementById('anchor') ?? host).getBoundingClientRect();
+    const open: Element[] = [];
+    const visit = (root: ShadowRoot) => {
+      open.push(...root.querySelectorAll(':popover-open'));
+      for (const element of root.querySelectorAll('*')) if (element.shadowRoot) visit(element.shadowRoot);
+    };
+    visit(host.shadowRoot!);
+    for (const element of host.querySelectorAll('*')) if (element.shadowRoot) visit(element.shadowRoot);
+    if (!open.length) return null;
+    return open.map((surface) => {
+      const box = surface.getBoundingClientRect();
+      return [Math.round(box.left - anchor.left), Math.round(box.top - anchor.top)];
+    });
+  }, tag);
+
 // Harsh mode leaves these pages' motion at its own speed: its rate in Chromium is the DevTools protocol's Animation
 // domain, with which the engine skips some of the passes counted here.
 test.describe('passes an interaction forces (a Chromium trace)', motionAtItsOwnSpeed('the passes counted are the engine’s own work, which the Animation domain changes'), () => {
@@ -188,4 +275,43 @@ test.describe('passes an interaction forces (a Chromium trace)', motionAtItsOwnS
     noneForced(forced, 'by the pointer coming onto the row');
     await expect.poll(() => row.evaluate((el) => !!el.shadowRoot!.querySelector<HTMLElement & { open: boolean }>('tanrei-tooltip')?.open)).toBe(true);
   });
+
+  // Every other overlay FollowController follows: opened (or, for the slider's value indicators, which are shown for as
+  // long as the slider is, given a new value) and then followed while the page scrolls under it. The frames' callbacks
+  // after each force no pass, and the surface still stands where it did against its anchor.
+  for (const subject of FOLLOWERS) {
+    test(`${subject.tag}: ${subject.what}, and followed while the page scrolls, no frame callback reads what the frame has not styled and laid out yet — and it still follows its anchor`, async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 600 });
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await open(page, `<div style="padding: 160px 200px; block-size: 2000px">${subject.markup}</div>`);
+      // Opened once and closed: what the first opening loads and compiles is not counted.
+      if (subject.close) {
+        await subject.open(page);
+        await frames(page, 4);
+        await subject.then?.(page);
+        expect(await standing(page, subject.tag), 'it opened').not.toBeNull();
+        await subject.close(page);
+        await frames(page, 8);
+      }
+      const opened = await forcedDuring(page, () => subject.open(page));
+      expect(await standing(page, subject.tag), 'it opened').not.toBeNull();
+      noneForced(
+        opened.filter((pass) => pass.inFrame),
+        `in the frames’ callbacks after it ${subject.what}`,
+      );
+      await subject.then?.(page);
+      const before = await standing(page, subject.tag);
+      expect(before?.length, 'the surfaces open in the top layer').toBe(subject.surfaces ?? 1);
+      const scrolled = await forcedDuring(page, () => page.evaluate(() => window.scrollBy(0, 40)));
+      noneForced(
+        scrolled.filter((pass) => pass.inFrame),
+        'in the frames’ callbacks while it follows the page’s scroll',
+      );
+      expect(await page.evaluate(() => window.scrollY), 'the page scrolled').toBe(40);
+      // Followed: what stands in the top layer moved with its anchor, 40 up.
+      const after = await standing(page, subject.tag);
+      expect(after?.length, 'as many surfaces still open').toBe(before!.length);
+      for (const [n, offset] of before!.entries()) expect(after![n]!, `surface ${n} from its anchor`).toEqual(offset);
+    });
+  }
 });

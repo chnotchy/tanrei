@@ -259,6 +259,7 @@ export class TanreiSlider extends TanreiElement {
     followed: () => [this, ...this.handles.map((id) => this.inThumb(id, '.handle'))],
     sized: () => this.handles.map((id) => this.inThumb(id, '.value-indicator')),
     check: () => this.placeIndicators(),
+    changed: () => this.indicatorsChanged(),
   });
   /**
    * SLD-17, SLD-21, SLD-25: a change of the direction it inherits moves the handles and the tracks to the other side. It
@@ -663,20 +664,14 @@ export class TanreiSlider extends TanreiElement {
    */
   private readonly placeIndicators = (): boolean => {
     const shown = this.indicatorsShown;
-    const vertical = this.axis === 'vertical';
-    // Nothing is measured while no indicator is shown: a page of sliders without one lays out nothing for them.
-    const root = document.documentElement;
-    const view = shown ? { width: root.clientWidth, height: root.clientHeight } : { width: 0, height: 0 };
+    const view = this.indicatorView(shown);
     let changed = false;
     for (const id of this.handles) {
       const indicator = this.inThumb(id, '.value-indicator');
       const handle = this.inThumb(id, '.handle');
       if (!indicator || !handle) continue;
-      const box = shown ? handle.getBoundingClientRect() : null;
-      // SLD-28: a handle that is not drawn (the slider or an ancestor hidden, a dialog it stands in closed) or is out of
-      // sight (outside the window, scrolled away inside an ancestor that clips) draws no indicator — and is shown again,
-      // newest in the top layer, so above a dialog or a popover it stands in that opened while it was not drawn.
-      if (!box || anchorGone(handle, box, view)) {
+      const box = this.drawnHandle(handle, shown, view);
+      if (!box) {
         if (indicator.matches(':popover-open')) {
           indicator.hidePopover();
           changed = true;
@@ -687,45 +682,100 @@ export class TanreiSlider extends TanreiElement {
         indicator.showPopover();
         changed = true;
       }
-      // The point it stands against, in the window: the middle of the handle's top edge (horizontal), or of its edge at
-      // the inline start (vertical: the left, or the right in right-to-left). The handle's box is its outer edge, the
-      // outline drawn inside it; a handle that moves (a drag, the value motion) is read where it is drawn now.
-      const side = vertical ? (this.rtl ? 'right' : 'left') : 'top';
-      const point = vertical ? { x: this.rtl ? box.right : box.left, y: box.top + box.height / 2 } : { x: box.left + box.width / 2, y: box.top };
-      // The box's exact, fractional size, in the same pixels as the handle's. offsetWidth/offsetHeight round it to whole
-      // pixels, while text is rarely a whole number of pixels wide: from a rounded-down size the clamp left the
-      // indicator a fraction of a pixel outside the window. Its own `translate` only moves the box.
-      const at = indicator.getBoundingClientRect();
-      const size = vertical ? at.height : at.width;
-      const center = vertical ? point.y : point.x;
-      const limit = vertical ? view.height : view.width;
-      const start = center - size / 2;
-      const shift = start < 0 ? -start : start + size > limit ? limit - (start + size) : 0;
-      // Lengths are written in the indicator's own pixels, measured in the window's: under an ancestor's `zoom`, which
-      // reaches the top layer, one of its pixels is not one of the window's (`cssZoom()`). (A transform around the
-      // slider does not reach the top layer.)
-      const drawn = cssZoom(indicator);
+      // Read once it is in the top layer: an indicator out of it has no box to measure.
+      const { side, lengths } = this.indicatorPlace(indicator, box, view);
       if (indicator.dataset.side !== side) {
         indicator.dataset.side = side;
         changed = true;
       }
-      // The point from each edge of the window: the edge the indicator stands at across the axis is placed from the
-      // window's edge on that side (its bottom above the handle, its right edge to the left of it), so that its size
-      // never enters where that edge is drawn.
-      for (const [name, value] of [
-        ['--_x', point.x / drawn],
-        ['--_y', point.y / drawn],
-        ['--_r', (view.width - point.x) / drawn],
-        ['--_b', (view.height - point.y) / drawn],
-        ['--_shift', shift / drawn],
-      ] as const) {
-        if (indicator.style.getPropertyValue(name) === `${value}px`) continue;
-        indicator.style.setProperty(name, `${value}px`);
+      for (const [name, value] of lengths) {
+        if (indicator.style.getPropertyValue(name) === value) continue;
+        indicator.style.setProperty(name, value);
         changed = true;
       }
     }
     return changed;
   };
+
+  /**
+   * Whether `placeIndicators` would change anything, read and nothing written: FollowController reads it in the frame's
+   * read phase, after the frame's own style and layout (src/primitives/follow.ts says why).
+   */
+  private readonly indicatorsChanged = (): boolean => {
+    const shown = this.indicatorsShown;
+    const view = this.indicatorView(shown);
+    for (const id of this.handles) {
+      const indicator = this.inThumb(id, '.value-indicator');
+      const handle = this.inThumb(id, '.handle');
+      if (!indicator || !handle) continue;
+      const box = this.drawnHandle(handle, shown, view);
+      const open = indicator.matches(':popover-open');
+      if (!box) {
+        if (open) return true;
+        continue;
+      }
+      if (!open) return true;
+      const { side, lengths } = this.indicatorPlace(indicator, box, view);
+      if (indicator.dataset.side !== side || lengths.some(([name, value]) => indicator.style.getPropertyValue(name) !== value)) return true;
+    }
+    return false;
+  };
+
+  /** The window the value indicators are kept in. Nothing is measured while none is shown: a page of sliders without one lays out nothing for them. */
+  private indicatorView(shown: boolean): { width: number; height: number } {
+    const root = document.documentElement;
+    return shown ? { width: root.clientWidth, height: root.clientHeight } : { width: 0, height: 0 };
+  }
+
+  /**
+   * SLD-28: the box of a handle whose value indicator is drawn; null for one that is not drawn (the slider or an
+   * ancestor hidden, a dialog it stands in closed) or is out of sight (outside the window, scrolled away inside an
+   * ancestor that clips), which draws no indicator — and is shown again, newest in the top layer, so above a dialog or a
+   * popover it stands in that opened while it was not drawn. Read and nothing written.
+   */
+  private drawnHandle(handle: HTMLElement, shown: boolean, view: { width: number; height: number }): DOMRect | null {
+    const box = shown ? handle.getBoundingClientRect() : null;
+    return !box || anchorGone(handle, box, view) ? null : box;
+  }
+
+  /**
+   * SLD-17, SLD-28: where a value indicator in the top layer stands against its handle's box — the side it is on and the
+   * lengths it is placed by, as written on it — read and nothing written.
+   */
+  private indicatorPlace(indicator: HTMLElement, box: DOMRect, view: { width: number; height: number }): { side: string; lengths: (readonly [string, string])[] } {
+    const vertical = this.axis === 'vertical';
+    // The point it stands against, in the window: the middle of the handle's top edge (horizontal), or of its edge at
+    // the inline start (vertical: the left, or the right in right-to-left). The handle's box is its outer edge, the
+    // outline drawn inside it; a handle that moves (a drag, the value motion) is read where it is drawn now.
+    const side = vertical ? (this.rtl ? 'right' : 'left') : 'top';
+    const point = vertical ? { x: this.rtl ? box.right : box.left, y: box.top + box.height / 2 } : { x: box.left + box.width / 2, y: box.top };
+    // The box's exact, fractional size, in the same pixels as the handle's. offsetWidth/offsetHeight round it to whole
+    // pixels, while text is rarely a whole number of pixels wide: from a rounded-down size the clamp left the
+    // indicator a fraction of a pixel outside the window. Its own `translate` only moves the box.
+    const at = indicator.getBoundingClientRect();
+    const size = vertical ? at.height : at.width;
+    const center = vertical ? point.y : point.x;
+    const limit = vertical ? view.height : view.width;
+    const start = center - size / 2;
+    const shift = start < 0 ? -start : start + size > limit ? limit - (start + size) : 0;
+    // Lengths are written in the indicator's own pixels, measured in the window's: under an ancestor's `zoom`, which
+    // reaches the top layer, one of its pixels is not one of the window's (`cssZoom()`). (A transform around the
+    // slider does not reach the top layer.)
+    const drawn = cssZoom(indicator);
+    // The point from each edge of the window: the edge the indicator stands at across the axis is placed from the
+    // window's edge on that side (its bottom above the handle, its right edge to the left of it), so that its size
+    // never enters where that edge is drawn.
+    const lengths = (
+      [
+        ['--_x', point.x / drawn],
+        ['--_y', point.y / drawn],
+        ['--_r', (view.width - point.x) / drawn],
+        ['--_b', (view.height - point.y) / drawn],
+        ['--_shift', shift / drawn],
+      ] as const
+    ).map(([name, value]) => [name, `${value}px`] as const);
+    return { side, lengths };
+  }
 
   // ─── Rendering ────────────────────────────────────────────────────────────────────────────────────────────────
 

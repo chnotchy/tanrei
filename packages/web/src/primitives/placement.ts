@@ -302,6 +302,20 @@ export function surfaceCap(twin: Element | null | undefined): number {
   return Number.isFinite(size) ? Math.max(0, size) : Number.POSITIVE_INFINITY;
 }
 
+/**
+ * What `surfaceCap(twin)` is resolved from, as one comparable string, read and nothing written: the computed value and,
+ * where it stays relative, the writing mode and the window's size it is resolved against. Where it is the same, so is
+ * the cap — a check that only asks whether the cap changed reads this, and makes no probe to measure a `calc()`.
+ */
+export function surfaceCapKey(twin: Element | null | undefined): string {
+  if (!twin) return '';
+  const style = getComputedStyle(twin);
+  const value = style.maxBlockSize;
+  if (!value || value === 'none' || /^-?[\d.]+(e-?\d+)?px$/i.test(value)) return value;
+  const root = document.documentElement;
+  return `${value},${style.writingMode},${root.clientWidth},${root.clientHeight}`;
+}
+
 // ── A menu's kind of surface: below or above its anchor, beside its parent surface, at a point ─────────────────────
 
 /** The four placements of a menu's kind of surface (MNU-2, DTM-2): a side of the anchor, and the edge it is aligned by. */
