@@ -14,7 +14,9 @@
 //     (src/primitives/glyph.ts);
 //   - an anchored surface opened by a click: the frame's check of what its placement depends on is read in the read
 //     phase, not in the frame's callbacks before the frame has styled the page (src/primitives/anchored.ts,
-//     src/primitives/follow.ts).
+//     src/primitives/follow.ts);
+//   - the pointer coming onto a row whose text is cut: the tooltip's waits are read in the read phase, not in the
+//     `pointerenter`, after the page has just written something for the pointer (src/primitives/cut-text.ts).
 //
 // Chromium only: the passes are counted from its trace.
 import fs from 'node:fs';
@@ -22,7 +24,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type Page, expect, test } from '@playwright/test';
 import { build } from 'esbuild';
-import { withoutIconFont } from '../../test/harness.js';
+import { rootTokens, withoutIconFont } from '../../test/harness.js';
 import { motionAtItsOwnSpeed } from '../../test/harsh.js';
 
 const pkg = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -164,5 +166,26 @@ test.describe('passes an interaction forces (a Chromium trace)', motionAtItsOwnS
       forced.filter((pass) => pass.inFrame),
       'in the frames’ callbacks after the click',
     );
+  });
+
+  test('tanrei-list-row: the pointer coming onto a row whose headline is cut, in a page that answers the pointer too, reads no style in its pointerenter, and the tooltip still opens after its show delay', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(page, `<div id="region" style="inline-size: 160px; padding: 40px"><tanrei-list-row headline="A headline far too long to be drawn whole in this row"></tanrei-list-row></div>`);
+    // A show delay longer than what is traced (the move, four frames and harsh mode's wait after an action): the
+    // tooltip's own opening, after it, is not the pointerenter's.
+    await rootTokens(page, { '--tanrei-comp-tooltip-motion-show-delay': '1500ms' });
+    // The page marks the region the pointer is over before the row hears it (a product's own hover highlight): the
+    // page has something to style again when the row's pointerenter runs.
+    await page.evaluate(() => {
+      let over = 0;
+      document.addEventListener('pointerover', (event) => (document.getElementById('region')!.style.outlineWidth = `${(event.target as Element).closest('#region') ? ++over : 0}px`), { capture: true });
+    });
+    const row = page.locator('tanrei-list-row');
+    const box = (await row.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height + 80);
+    await frames(page, 2);
+    const forced = await forcedDuring(page, () => page.mouse.move(box.x + box.width / 2, box.y + box.height / 2));
+    noneForced(forced, 'by the pointer coming onto the row');
+    await expect.poll(() => row.evaluate((el) => !!el.shadowRoot!.querySelector<HTMLElement & { open: boolean }>('tanrei-tooltip')?.open)).toBe(true);
   });
 });

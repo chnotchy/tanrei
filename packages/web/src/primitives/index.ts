@@ -10,7 +10,8 @@
 //                 its ::before, so the text under it is still checked for contrast
 //   target      — the minimum target (::before); neighbourTarget(): it stops toward a neighbour, on both axes, at a cap of
 //                 its own or of the row it stands in (TARGET_CAPS; rowTargets(): half the gap between the two)
-//   cut-text    — isCut() and CutTextTip: a one-line text cut with an ellipsis, shown whole in a tooltip while it is cut (TRV-50)
+//   cut-text    — isCut() and CutTextTip: a one-line text cut with an ellipsis, shown whole in a tooltip while it is cut (TRV-50);
+//                 TipWait: a tooltip's show or hide delay begun now, its length read in the frame's read phase
 //   kept-length — KeptLengths, keptLength() and keptSpaces(): controls that stand close in a row keep a touch target's
 //                 length each, the gap between two growing only by what they lack (SRC-34, TBR-16); between slotted
 //                 elements the space is a spacer of the host's box, never a margin a page's reset could take away
@@ -351,7 +352,7 @@ export {
   selectionStates,
 } from './selection.js';
 export { TARGET_CAPS, minimumTarget, neighbourTarget, rowTargets } from './target.js';
-export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, isCut } from './cut-text.js';
+export { type CutTextContent, CutTextTip, type CutTextTipOptions, type CutTextTooltip, TipWait, isCut } from './cut-text.js';
 export { KeptLengths, type LaidOut, keptLength, keptSpaces } from './kept-length.js';
 export { type ItemRowOptions, itemRowStyles, rowTarget } from './item-row.js';
 export { type LabelBegins, RovingKeys, type RovingItem, TYPEAHEAD_WINDOW } from './roving.js';

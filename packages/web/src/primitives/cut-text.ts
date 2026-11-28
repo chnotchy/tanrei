@@ -12,8 +12,11 @@
  *
  * The host gives what the text is now (`content`, null while nothing is cut) and the element that carries the
  * tooltip's waits as a transition the host never runs (`clock`: `transition-delay` is the show delay and
- * `transition-duration` the hide delay, from `--tanrei-comp-tooltip-motion-show-delay` and `-hide-delay`).
+ * `transition-duration` the hide delay, from `--tanrei-comp-tooltip-motion-show-delay` and `-hide-delay`), read in the
+ * frame's read phase (`TipWait`).
  */
+import { cancelPhaseRead, readInPhase } from './read-phase.js';
+
 /**
  * What of a `<tanrei-tooltip>` the primitive sets. (Said here, not imported: a primitive every component loads names no
  * component's module.)
@@ -51,28 +54,59 @@ export interface CutTextTipOptions {
 /** A duration as a computed style writes it, in ms. */
 const ms = (value: string) => (Number.parseFloat(value) || 0) * (value.trim().endsWith('ms') ? 1 : 1000);
 
-export class CutTextTip {
+/**
+ * One wait of a tooltip's, its show delay or its hide delay, from the moment it is begun (`start`). How long it is comes
+ * from the element that carries the waits as a transition (`clock`: `transition-delay` is the show delay and
+ * `transition-duration` the hide delay), read as the tokens resolve then — in the read phase of the next frame
+ * (src/primitives/read-phase.ts), with every other read of it, and the time from the start to that phase taken off the
+ * wait. Read in the event that begins it (the pointer coming onto a row), the computed style had the browser style the
+ * page for it there and then, whatever the pointer's hover and the page's own answer to it had just changed. Where the
+ * wait is shorter than a frame, it ends in the task after that phase.
+ */
+export class TipWait {
   private timer: ReturnType<typeof setTimeout> | undefined;
+
+  constructor(private readonly clock: () => Element | null) {}
+
+  /** Begins the show (`show`) or hide (`hide`) wait now, and calls `then` at its end; one begun before is withdrawn. */
+  start(which: 'show' | 'hide', then: () => void): void {
+    this.cancel();
+    const from = performance.now();
+    readInPhase(this, () => {
+      const clock = this.clock();
+      const style = clock ? getComputedStyle(clock) : null;
+      const wait = ms((which === 'show' ? style?.transitionDelay : style?.transitionDuration) ?? '');
+      return () => {
+        this.timer = setTimeout(then, Math.max(0, wait - (performance.now() - from)));
+      };
+    });
+  }
+
+  /** Withdraws the wait begun, whether its length has been read yet or not. */
+  cancel(): void {
+    clearTimeout(this.timer);
+    this.timer = undefined;
+    cancelPhaseRead(this);
+  }
+}
+
+export class CutTextTip {
+  private readonly wait: TipWait;
   private hovered = false;
   private focused = false;
 
-  constructor(private readonly options: CutTextTipOptions) {}
+  constructor(private readonly options: CutTextTipOptions) {
+    this.wait = new TipWait(options.clock);
+  }
 
   /** Whether the tooltip is open. */
   get shown(): boolean {
     return !!this.options.tip()?.open;
   }
 
-  /** The tooltip's waits, as its tokens resolve now, in ms. */
-  private waits(): { show: number; hide: number } {
-    const clock = this.options.clock();
-    const style = clock ? getComputedStyle(clock) : null;
-    return { show: ms(style?.transitionDelay ?? ''), hide: ms(style?.transitionDuration ?? '') };
-  }
-
   /** Opens the tooltip with what is cut now, or closes it where nothing is. */
   private show(): void {
-    clearTimeout(this.timer);
+    this.wait.cancel();
     const content = this.options.content();
     if (!content) return this.hide();
     this.options.place?.();
@@ -86,7 +120,7 @@ export class CutTextTip {
 
   /** Closes the tooltip at once. */
   hide(): void {
-    clearTimeout(this.timer);
+    this.wait.cancel();
     const tip = this.options.tip();
     if (tip?.open) tip.open = false;
   }
@@ -95,20 +129,19 @@ export class CutTextTip {
   pointerEnter(pointerType: string): void {
     if (pointerType === 'touch') return;
     this.hovered = true;
-    clearTimeout(this.timer);
     if (this.shown) return this.show();
-    this.timer = setTimeout(() => {
+    this.wait.start('show', () => {
       if (this.hovered) this.show();
-    }, this.waits().show);
+    });
   }
 
   /** The pointer left the row (and its tooltip): it closes after the hide delay, unless keyboard focus is on the row. */
   pointerLeave(pointerType: string): void {
     if (pointerType === 'touch') return;
     this.hovered = false;
-    clearTimeout(this.timer);
+    this.wait.cancel();
     if (this.focused) return;
-    this.timer = setTimeout(() => this.hide(), this.waits().hide);
+    this.wait.start('hide', () => this.hide());
   }
 
   /** Focus came onto the row: by the keyboard, the tooltip opens at once where something is cut. */

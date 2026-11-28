@@ -60,7 +60,7 @@ import { WordsController } from '../../primitives/words.js';
 import { fillPlaces } from '../../primitives/places.js';
 // Not re-exported by the primitives' index: internal to a region and its destinations.
 import { askDestinationContext } from '../../primitives/destination.js';
-import { type CutTextContent, CutTextTip, isCut } from '../../primitives/cut-text.js';
+import { type CutTextContent, CutTextTip, TipWait, isCut } from '../../primitives/cut-text.js';
 import { flatParent } from '../../primitives/flat-tree.js';
 import { ownDirection } from '../../styles/product-text.js';
 import { TanreiBadge } from '../badge/badge.js';
@@ -502,25 +502,19 @@ abstract class DrawerCell extends TanreiElement {
     return this.renderRoot?.querySelector<TanreiTooltip>('.tip') ?? null;
   }
 
-  private tipTimer: ReturnType<typeof setTimeout> | undefined;
+  /** NVD-56: the tooltip's show and hide delays, read from `.tip-clock` in the frame's read phase. */
+  private readonly tipWait = new TipWait(() => this.renderRoot?.querySelector('.tip-clock') ?? null);
   private hovered = false;
 
   /** NVD-56: shows or hides the cell's name beside it. The tooltip is the tooltip component's plain one, opened by the cell. */
   private showName(shown: boolean) {
-    clearTimeout(this.tipTimer);
+    this.tipWait.cancel();
     if (!shown) {
       this.sightline?.disconnect();
       this.sightline = null;
     }
     const tip = this.tip;
     if (tip && tip.open !== shown) tip.open = shown;
-  }
-
-  /** The tooltip's waits, as its tokens resolve now, in ms. */
-  private tipWaits(): { show: number; hide: number } {
-    const clock = this.renderRoot?.querySelector('.tip-clock');
-    const style = clock ? getComputedStyle(clock) : null;
-    return { show: ms(style?.transitionDelay ?? ''), hide: ms(style?.transitionDuration ?? '') };
   }
 
   /** NVD-56: a fine pointer resting on the cell shows its name after the tooltip's show delay; a touch does not. */
@@ -531,10 +525,9 @@ abstract class DrawerCell extends TanreiElement {
       return;
     }
     this.hovered = true;
-    clearTimeout(this.tipTimer);
-    this.tipTimer = setTimeout(() => {
+    this.tipWait.start('show', () => {
       if (this.hovered && this.unnamed) this.showName(true);
-    }, this.tipWaits().show);
+    });
   };
 
   protected readonly onPointerLeave = (event: PointerEvent) => {
@@ -542,11 +535,11 @@ abstract class DrawerCell extends TanreiElement {
     if (event.pointerType === 'touch') return;
     this.cutTip.pointerLeave(event.pointerType);
     this.hovered = false;
-    clearTimeout(this.tipTimer);
+    this.tipWait.cancel();
     // NVD-56: only a cell drawn without its label has a name to hide (an expanded row draws no `.tip`); and it stays
     // while the cell has keyboard focus, as a tooltip does.
     if (!this.unnamed || this.cell?.matches(':focus-visible')) return;
-    this.tipTimer = setTimeout(() => this.showName(false), this.tipWaits().hide);
+    this.tipWait.start('hide', () => this.showName(false));
   };
 
   /** An activation closes the tooltip, and so does focus leaving the cell. */
@@ -580,7 +573,7 @@ abstract class DrawerCell extends TanreiElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    clearTimeout(this.tipTimer);
+    this.tipWait.cancel();
     this.cutTip.hide();
     this.sightline?.disconnect();
     this.sightline = null;
@@ -596,7 +589,7 @@ abstract class DrawerCell extends TanreiElement {
     if (before && before.selected !== this.context.selected && before.collapsed === this.context.collapsed) markConditionChange(this.cell);
     // NVD-56: a cell that draws its label again, or leaves the collapsed form, has no tooltip to leave open; NVD-75: nor
     // does a cut row that collapses.
-    if (!this.unnamed) clearTimeout(this.tipTimer);
+    if (!this.unnamed) this.tipWait.cancel();
     if (before && !before.collapsed && this.context.collapsed) this.cutTip.hide();
   }
 
