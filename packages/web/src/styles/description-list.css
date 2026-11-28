@@ -313,12 +313,15 @@
     grid-template-columns: minmax(0, 1fr);
     margin-block-start: 0;
     clip-path: none;
-
-    & > :where(div:first-child) {
-      margin-block-start: 0;
-      border-block-start-width: 0;
-      padding-block-start: 0;
-    }
+  }
+  /* Written out, not nested: under a parent of two selectors `&` is `:is()` of both, which an engine's filter of
+     ancestors cannot read, so `:first-child` would be asked of every `div` of the page — in Firefox each one's parent,
+     `<html>` included, is then marked and restyled whole when a child comes or goes (test/keyed-selectors.test.mjs). */
+  :where(tanrei-description-list:is([layout='stacked'], [layout='stat']):not([columns])) > :where(dl) > :where(div:first-child),
+  :where(tanrei-description-list:is([layout='stacked'], [layout='stat'])[columns='1']) > :where(dl) > :where(div:first-child) {
+    margin-block-start: 0;
+    border-block-start-width: 0;
+    padding-block-start: 0;
   }
 
   /* DSL-6: stat — the first value first, as a figure; the term under it as its label; the other values under that.

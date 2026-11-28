@@ -532,8 +532,10 @@
       position: relative;
     }
     /* Out of the line (a float at the line's start, wholly in the list's inset), so that the item's text begins where
-       every other item's does: the space a renderer writes after the box is then the line's first, and is dropped. */
-    :where(input):where(li > [type='checkbox']:first-child, li > p:first-child > [type='checkbox']:first-child) {
+       every other item's does: the space a renderer writes after the box is then the line's first, and is dropped.
+       Two selectors, not one list of two: an engine's filter of ancestors reads the item (`li`) only from a `:where()`
+       of ONE selector, and without it `:first-child` is asked of every input of the page (test/keyed-selectors.test.mjs). */
+    :where(input):where(li > [type='checkbox']:first-child), :where(input):where(li > p:first-child > [type='checkbox']:first-child) {
       float: inline-start;
       box-sizing: border-box;
       inline-size: var(--tanrei-comp-prose-task-icon-size);
