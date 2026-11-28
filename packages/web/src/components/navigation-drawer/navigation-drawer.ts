@@ -180,8 +180,8 @@ const ITEM = 'tanrei-navigation-drawer-item';
 const GROUP = 'tanrei-navigation-drawer-group';
 const SECTION = 'tanrei-navigation-drawer-section';
 const DRAWER = 'tanrei-navigation-drawer';
-/** NVD-97: the width of the window's own box, measured, less a scroll bar or a gutter kept for one, for the styles (\`windowWatch\`). */
-const WINDOW = '--_nvd-window';
+/** NVD-97: what \`100vw\` counts that the window's own box does not — a scroll bar or a gutter kept for one — for the styles (\`windowWatch\`). */
+const BAR = '--_nvd-bar';
 /** The drawer's cells: its destinations and its groups' rows. */
 const CELLS = `${ITEM}, ${GROUP}`;
 
@@ -2178,26 +2178,28 @@ export class TanreiNavigationDrawer extends TanreiElement {
   private instantFrame = 0;
   private readonly sizes = new ResizeObserver(() => this.measure());
   /**
-   * NVD-97: the width of the window's own box while the drawer is over the content — the box the panel and its scrim are
-   * laid out in, less a scroll bar that takes room in it, which \`100vw\` counts (a classic one, or the gutter the page's
-   * scroll hold keeps) — for the styles (\`--_nvd-window\`): the room over the content, at which every part of the drawer
-   * and its items lay their rows out, is reckoned from it, as the panel itself is held to its containing block, that box
-   * exactly. Watched on the root element's box, which changes with the window's width and with a scroll bar that comes,
-   * goes or gives its room to the root's padding while the page's scroll is held, and then read as the box of an element
-   * fixed to the window (\`windowBox()\`) — not as the root's \`clientWidth\`, which Chromium does not narrow by the
-   * gutter its scroll hold keeps (Linux, Windows), so that a drawer that measured the window while the scroll was held
-   * laid its rows out a bar's width wider than the panel; and never off the drawer, whose width follows it. Where the
-   * hold keeps a gutter the root's box and the window's own box stay as they were, and so does the value.
+   * NVD-97: while the drawer is over the content, what \`100vw\` counts that the window's own box does not — the box the
+   * panel and its scrim are laid out in, which a scroll bar takes room in (a classic one, or the gutter the page's
+   * scroll hold keeps) — for the styles (\`--_nvd-bar\`): the room over the content, at which every part of the drawer
+   * and its items lay their rows out, is reckoned from \`100vw\` less it, as the panel itself is held to its containing
+   * block, that box exactly. Watched on the root element's box, which changes with the window's width and with a scroll
+   * bar that comes, goes or gives its room to the root's padding while the page's scroll is held, and then read as the
+   * box of an element fixed to the window (\`windowBox()\`) — not as the root's \`clientWidth\`, which Chromium does not
+   * narrow by the gutter its scroll hold keeps (Linux, Windows), so that a drawer that measured the window while the
+   * scroll was held laid its rows out a bar's width wider than the panel; and never off the drawer, whose width follows
+   * it. Where the hold keeps a gutter the root's box and the window's own box stay as they were, and so does the value.
    *
-   * It is held to the width from which it no longer holds the rows narrower (\`windowWrite()\`).
+   * The window's width itself is never written: every element of the drawer inherits what the host holds, and in WebKit
+   * a name written there restyles each of them with the whole token set it inherits, so that each width of the window
+   * below the one from which it no longer holds the rows narrower cost the whole drawer's restyle. A width changes
+   * \`100vw\`, which only the parts whose own width or inset reads it resolve again; what the bar takes changes as a
+   * scroll bar comes or goes, so a window that only changes width writes nothing.
    */
   private readonly windowWatch = new ResizeObserver(() => {
-    const { left, right } = windowBox(document.documentElement);
-    this.windowWidth = right - left;
-    writeCounted(this.style, this.windowWrite());
+    const { left, right, viewport } = windowBox(document.documentElement);
+    const bar = Math.max(0, viewport - (right - left));
+    writeCounted(this.style, { [BAR]: bar > 0 ? `${bar}px` : '' });
   });
-  /** NVD-97: the width of the window's own box as \`windowWatch\` last measured it; null while it is not watched, and until it has. */
-  private windowWidth: number | null = null;
   private watchingWindow = false;
   /** NVD-57, NVD-58: the value whose selection was last shown (null: none was selected); undefined before the first. */
   private shownFor: string | null | undefined = undefined;
@@ -3363,8 +3365,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
   }
 
   /**
-   * NVD-97: the window's width is watched while the drawer is over the content, and nothing otherwise; until it is first
-   * measured (in the frame after it begins), and without script, the styles take \`100vw\`.
+   * NVD-97: the window's box is watched while the drawer is over the content, and nothing otherwise; until it is first
+   * measured (in the frame after it begins), and without script, the styles take \`100vw\` whole.
    */
   private watchWindow(on: boolean) {
     if (on === this.watchingWindow) return;
@@ -3372,31 +3374,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     if (on) this.windowWatch.observe(document.documentElement, { box: 'border-box' });
     else {
       this.windowWatch.disconnect();
-      this.windowWidth = null;
-      writeCounted(this.style, { [WINDOW]: '' });
+      writeCounted(this.style, { [BAR]: '' });
     }
-  }
-
-  /**
-   * NVD-97: what the window's width writes (\`--_nvd-window\`, for \`writeCounted()\`): the width measured, held to
-   * the width from which the window no longer holds the rows narrower than container.width — container.width, the
-   * start inset and a touch target from where the room is reckoned. Every element of the drawer inherits the name, so a
-   * write that changes nothing in the rows restyles each of them all the same, and a window wider than that writes the
-   * same length again, which is no write (WebKit: 0.2 s a width for a documentation page's drawer over the content,
-   * closed or open). Never taken off for it: the styles' \`100vw\` in its place has every element that reads the
-   * width restyled with every width of the window as well. The sum and where the room is reckoned from are read as the
-   * cascade computes them (\`object-position\` on the host, the styles' NVD-97), before anything is written; \`from\`
-   * is where it is reckoned from once a write that comes with this one moves it. Nothing to write before the window is
-   * measured; where a length cannot be read, the width itself.
-   */
-  private windowWrite(from?: number): Record<string, string> {
-    const width = this.windowWidth;
-    if (width === null) return {};
-    const [room, over] = getComputedStyle(this)
-      .objectPosition.split(/\s+/)
-      .map((length) => (length.endsWith('px') ? Number.parseFloat(length) : Number.NaN));
-    const most = (room ?? Number.NaN) + (from ?? over ?? Number.NaN);
-    return { [WINDOW]: `${Number.isNaN(most) ? width : Math.min(width, most)}px` };
   }
 
   override disconnectedCallback() {
@@ -4155,12 +4134,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     this.opening = true;
     readTogether(() => {
       this.opening = false;
-      // NVD-97: whether the window holds the rows narrower, read again as it opens: the tokens may have changed since.
-      const measured = this.windowWrite();
       return () => {
-        if (!(this.open && this.modal && !this.held && !this.shown && this.isConnected)) return;
-        writeCounted(this.style, measured);
-        this.show();
+        if (this.open && this.modal && !this.held && !this.shown && this.isConnected) this.show();
       };
     });
   }
@@ -4391,10 +4366,8 @@ export class TanreiNavigationDrawer extends TanreiElement {
     writeCounted(this.style, {
       '--_top': length(top),
       '--_start': length(start),
-      // NVD-97: where the room over the content is reckoned from, for the strip of scrim it leaves at the window's end,
-      // and the window's width where the room it leaves from there holds the rows narrower.
+      // NVD-97: where the room over the content is reckoned from, for the strip of scrim it leaves at the window's end.
       '--_nvd-from': length(start),
-      ...this.windowWrite(Math.round(start * 100) / 100),
       '--_reach': length(Math.max(0, window.innerHeight - box.top)),
     });
   }
@@ -4886,7 +4859,7 @@ export class TanreiNavigationDrawer extends TanreiElement {
         // column — and the room over the content is reckoned from the column's start (the host's \`--_nvd-from\`, which
         // the width its rows are laid out at reads there).
         this.place = { '--_top': `${box.top}px`, '--_start': `${start}px`, '--_height': `${box.height}px`, '--_column-drawn': `${box.width}px` };
-        writeCounted(this.style, { '--_nvd-from': `${start}px`, ...this.windowWrite(start) });
+        writeCounted(this.style, { '--_nvd-from': `${start}px` });
         this.presented = true;
         // MOT-4: a drawer that appears open before the document's first paint never showed its column: it is drawn open
         // at its full width, scrim and all, from its first frame, and does not widen from the column

@@ -171,25 +171,22 @@ export const drawerStyles = css`
      wide is always left to press (NVD-20, WCAG 2.5.8). The room is reckoned from where it starts (\`--_nvd-over-from\`):
      the window's start edge for a drawer that slides in, the start of its column's box for one that widens from it
      (NVD-40) and for one an app shell holds, which the element measures where it opens (\`--_nvd-from\`). The window is
-     the window's own box, which the panel and its scrim are laid out in, less a scroll bar that takes room in it or the
-     gutter kept for one (\`--_nvd-window\`, which the element measures in every frame it changes), so that the rows,
-     which are laid out at this width in every part of the drawer and in its items' own shadow roots, follow the window
-     in every frame and end where the panel does — not
-     \`100vw\`, which counts a classic scroll bar, or the gutter the page's scroll hold keeps, as the window's and cut
-     the rows' ends by its width; \`100vw\` only until the element has measured it, and without script. The panel itself
-     is held to its containing block as well (below), which is the window exactly, so that the strip stays whatever the
-     rows are laid out at.
-     The element holds the width it writes to the width from which the window no longer holds the rows narrower than
-     container.width — container.width, the start inset and a touch target from where the room is reckoned — so that a
-     window wider than that writes nothing new: every element of the drawer inherits the name, and a window that changed
-     width with nothing to change in the rows restyled each of them (WebKit: 0.2 s a width on a documentation page). It
-     reads that sum, and where the room is reckoned from, as the cascade computes them, in \`object-position\` — a real
-     property, which draws nothing on an element that is not a replaced one. */
+     the window's own box, which the panel and its scrim are laid out in: \`100vw\` less what \`100vw\` counts that the
+     box does not — a classic scroll bar, or the gutter the page's scroll hold keeps (\`--_nvd-bar\`, which the element
+     measures as the window's box changes, and which is none until it has, and without script) — so that the rows, which
+     are laid out at this width in every part of the drawer and in its items' own shadow roots, follow the window in
+     every frame and end where the panel does. The panel itself is held to its containing block as well (below), which
+     is the window exactly, so that the strip stays whatever the rows are laid out at.
+     The window's width itself is never written: every element of the drawer inherits what its host holds, and in WebKit
+     a name written there restyles each of them, with the whole token set it inherits — at every width below the one
+     from which the window no longer holds the rows narrower (WebKit, on a page of 12,600 elements: 0.16 s a width
+     written, 0.12 s by \`100vw\`). A width of the
+     window changes \`100vw\`, and with it only the parts whose own width or inset reads it; the bar's room changes as
+     a scroll bar comes or goes, not as the window's width does. */
   :host([data-as='modal']) {
     --_nvd-asked: ${t('container-width')};
     --_nvd-over-from: 0px;
-    --_nvd-w: max(0px, min(${t('container-width')}, calc(var(--_nvd-window, 100vw) - var(--_nvd-over-from) - var(--_inset-start) - var(--tanrei-sys-target-touch))));
-    object-position: calc(${t('container-width')} + var(--_inset-start) + var(--tanrei-sys-target-touch)) var(--_nvd-over-from);
+    --_nvd-w: max(0px, min(${t('container-width')}, calc(100vw - var(--_nvd-bar, 0px) - var(--_nvd-over-from) - var(--_inset-start) - var(--tanrei-sys-target-touch))));
   }
   :host([data-as='modal'][data-collapsible]),
   :host([data-held][data-as='modal']) {

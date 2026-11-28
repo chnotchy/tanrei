@@ -7918,12 +7918,13 @@ The width its parts are laid out at (`--_nvd-w`, read in the drawer's own shadow
 `min(container.width, the window − where it starts − the start inset − sys.target.touch)`, where it starts being the
 window's start edge for a drawer that slides in and the start of its column's box for one that widens from it or that an
 app shell holds (`--_nvd-from`, measured where it opens, as its place is). The window is the window's own box — the
-containing block of what is fixed to it, which the panel and its scrim are laid out in — less a scroll bar that takes
-room in it or the gutter kept for one (`--_nvd-window`): while the drawer is over the content, a resize observer of the
-root element's border box — which changes with the window's width, and with a scroll bar that comes, goes, or gives its
-room to the root's padding while the page's scroll is held — reads the width of an element fixed across the window for
-the instant it is measured (`windowBox()`, as the scroll hold reads it) and writes it on the host in the frame it
-changes; until then, and without script, it is `100vw`. Not `100vw` itself: that counts a classic scroll bar, or the
+containing block of what is fixed to it, which the panel and its scrim are laid out in: `100vw` less what `100vw` counts
+that the box does not, a scroll bar that takes room in it or the gutter kept for one (`--_nvd-bar`). While the drawer is
+over the content, a resize observer of the root element's border box — which changes with the window's width, and with
+a scroll bar that comes, goes, or gives its room to the root's padding while the page's scroll is held — reads the
+width of an element fixed across the window for the instant it is measured, and the width `100vw` resolves to in the
+same instant (`windowBox()`, as the scroll hold reads it), and writes their difference on the host where it changed;
+until then, and without script, it is none. Not `100vw` alone: that counts a classic scroll bar, or the
 gutter the scroll hold keeps (Chromium on Linux and Windows), as the window's, and the rows were laid out that much wider
 than the panel and cut at their ends — while the drawer was open where the gutter is kept, and through its slide out
 where the hold pads the root instead (WebKit; Chromium on macOS), since the hold gives the bar back as the slide begins —
@@ -7933,19 +7934,19 @@ measured it while the scroll was held (the window resized under the open drawer,
 surface) laid its rows out a bar's width wider than the panel. Where the hold keeps a gutter, the root's box and the
 window's own box both stay as they were, so the observer has nothing to answer. Never the drawer: the drawer's width
 follows the room; a root given a width of its own, which a window's resize does not change, is not followed until
-something else changes its box. The width written is held to the width from which the window no longer holds the rows
-narrower — `container.width`, the start inset and the touch target from where the room is reckoned, which the element
-reads as the cascade computes it in the host's `object-position` (a real property, which draws nothing on an element that
-is not a replaced one) when the window changes and where the drawer opens — so a wider window writes the same length
-again, which is no write. Every element of the drawer inherits the name, and in WebKit a write restyles each of them
-with the whole token set it inherits: on a documentation page of 2,800 elements whose drawer of 340 is closed over the
-content, a window that changed width took 0.5 s with the width written, 0.17 to 0.2 s held (as with no drawer's write at
-all), and an open drawer's restyle took 0.17 to 0.21 s a width, none held. Never taken off instead: `100vw` in its place
-has every element that reads the width restyled with every width of the window, written or not (0.3 s a width on the same
-page). Below that width every width is still written, and still restyles every element of the drawer (0.6 s a width on
-the same page), counted or not. What the drawer writes on its host, its dialog or its panel goes through `writeCounted()`
-(`src/set-tokens.ts`), so that the number of custom properties changes with each write. A token changed by script while
-the drawer is open over the content is read again the next time the window changes or the drawer opens. A custom property cannot hold a percentage of the window
+something else changes its box. The window's width itself is never written: every element of the drawer inherits what
+its host holds, and in WebKit a name written there restyles each of them with the whole token set it inherits. Written
+as it was — held, from the width where the window no longer holds the rows narrower than `container.width`, to that
+width — every width below that one restyled the whole drawer. A width of the window changes `100vw`, which only the
+parts whose own width or inset reads it resolve again, and the bar's room changes as a scroll bar comes or goes, not as
+the window's width does. On a page of 12,600 elements whose modal drawer holds 1,970 (90 rows), eight widths below that
+one took 1.25 s in WebKit with the width written (the longest frame 0.1 s) and 0.98 s with `100vw` (0.075 s), where
+the same widths with the drawer's rows held still take 0.78 s; in Chromium 0.54 s (0.05 s) and 0.47 s (0.033 s). An app
+shell's closed drawer on the same page: 1.27 s and 0.93 s in WebKit, 0.54 s and 0.52 s in Chromium. Above that width,
+where nothing was written, `100vw` costs nothing to measure: 0.81 s for eight widths, written or not, open or closed.
+And a token changed by script while the drawer is open over the content is followed in the frame it is drawn, with no
+width to read again. What the drawer writes on its host, its dialog or its panel goes through `writeCounted()`
+(`src/set-tokens.ts`), so that the number of custom properties changes with each write. A custom property cannot hold a percentage of the window
 for parts in other boxes, so the panel itself — the dialog, and the held panel that slides in, both `position: fixed` — is
 also held to `100%` of its containing block less the same, which is the window exactly, so that the strip stays whole
 whatever the rows are laid out at. The slide is `translate` by the panel's own width, so it starts and ends wholly outside
