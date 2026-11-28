@@ -7933,7 +7933,19 @@ measured it while the scroll was held (the window resized under the open drawer,
 surface) laid its rows out a bar's width wider than the panel. Where the hold keeps a gutter, the root's box and the
 window's own box both stay as they were, so the observer has nothing to answer. Never the drawer: the drawer's width
 follows the room; a root given a width of its own, which a window's resize does not change, is not followed until
-something else changes its box. A custom property cannot hold a percentage of the window
+something else changes its box. The width written is held to the width from which the window no longer holds the rows
+narrower — `container.width`, the start inset and the touch target from where the room is reckoned, which the element
+reads as the cascade computes it in the host's `object-position` (a real property, which draws nothing on an element that
+is not a replaced one) when the window changes and where the drawer opens — so a wider window writes the same length
+again, which is no write. Every element of the drawer inherits the name, and in WebKit a write restyles each of them
+with the whole token set it inherits: on a documentation page of 2,800 elements whose drawer of 340 is closed over the
+content, a window that changed width took 0.5 s with the width written, 0.17 to 0.2 s held (as with no drawer's write at
+all), and an open drawer's restyle took 0.17 to 0.21 s a width, none held. Never taken off instead: `100vw` in its place
+has every element that reads the width restyled with every width of the window, written or not (0.3 s a width on the same
+page). Below that width every width is still written, and still restyles every element of the drawer (0.6 s a width on
+the same page), counted or not. What the drawer writes on its host, its dialog or its panel goes through `writeCounted()`
+(`src/set-tokens.ts`), so that the number of custom properties changes with each write. A token changed by script while
+the drawer is open over the content is read again the next time the window changes or the drawer opens. A custom property cannot hold a percentage of the window
 for parts in other boxes, so the panel itself — the dialog, and the held panel that slides in, both `position: fixed` — is
 also held to `100%` of its containing block less the same, which is the window exactly, so that the strip stays whole
 whatever the rows are laid out at. The slide is `translate` by the panel's own width, so it starts and ends wholly outside

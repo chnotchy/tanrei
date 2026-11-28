@@ -5917,6 +5917,56 @@ test.describe('the room over the content and a column’s room', () => {
       else expect(Number(last.right), 'its last frame drawn at the window’s edge').toBeLessThanOrEqual(1);
     });
 
+    test(`NVD-97: a window that changes width (${dir}) writes nothing new on an open modal drawer while the room it leaves holds the rows at container.width — the width written is held to where that ends, as every element of the drawer inherits it and each was restyled for nothing — and each width written changes the number of the host’s custom properties, so that no element below compares the token set it inherits value by value`, async ({ page }) => {
+      await page.setViewportSize({ width: 400, height: 640 });
+      await mount(page, [fixture('m', MAIL, { variant: 'modal', open: true })], { dir, reducedMotion: true });
+      const [touch, full, pad] = await Promise.all([px(page, '--tanrei-sys-target-touch'), px(page, T('container-width')), px(page, T('container-padding-inline'))]);
+      await expect(dialogOf(page, 'm')).toHaveJSProperty('open', true);
+      // A watch of the test's own on the root's box, made after the drawer's: told of a width, the drawer was told first.
+      await page.evaluate(() => {
+        const w = window as unknown as { widthsSeen: number; written: string[] };
+        w.widthsSeen = 0;
+        w.written = [];
+        const host = document.querySelector('tanrei-navigation-drawer') as HTMLElement;
+        // Each value the window's width takes on the host, as it changes.
+        let last = host.style.getPropertyValue('--_nvd-window');
+        new MutationObserver(() => {
+          const value = host.style.getPropertyValue('--_nvd-window');
+          if (value !== last) w.written.push((last = value));
+        }).observe(host, { attributes: true, attributeFilter: ['style'] });
+        new ResizeObserver(() => w.widthsSeen++).observe(document.documentElement, { box: 'border-box' });
+      });
+      const seen = () => page.evaluate(() => (window as unknown as { widthsSeen: number }).widthsSeen);
+      const host = () =>
+        drawer(page, 'm').evaluate((el) => {
+          const own = (el as HTMLElement).style;
+          const written = (window as unknown as { written: string[] }).written.splice(0);
+          return { value: own.getPropertyValue('--_nvd-window'), written, count: getComputedStyle(el).length };
+        });
+      const resize = async (width: number) => {
+        const before = await seen();
+        await page.setViewportSize({ width, height: 640 });
+        await expect.poll(seen, `${width} wide: the width seen`).toBeGreaterThan(before);
+        await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+      };
+      let count = (await host()).count;
+      // container.width and the touch target leave the rows whole down to their sum (240 and 36: 276 wide).
+      for (const width of [360, 320, full + touch, 300, full + touch + 40, 260, 250, 270, 480]) {
+        await resize(width);
+        const most = Math.min(full, width - touch);
+        const now = await host();
+        // Wider, the width is held to that sum: nothing new is written, and 480 writes the sum back.
+        if (width >= full + touch) expect([now.value, now.written], `${width} wide: nothing written but the sum, once, after a narrower width`).toEqual([`${full + touch}px`, width === 480 ? [`${full + touch}px`] : []]);
+        else {
+          expect(now.value, `${width} wide: the window’s width written`).toBe(`${width}px`);
+        }
+        if (now.written.length) expect(now.count, `${width} wide: the host has as many custom properties as before`).not.toBe(count);
+        count = now.count;
+        await expect.poll(async () => (await bounds(dialogOf(page, 'm'))).width, `${width} wide: the drawer`).toBe(most);
+        expect((await bounds(box(page, 'm', 0))).width, `${width} wide: the rows`).toBe(most - 2 * pad);
+      }
+    });
+
     test(`NVD-97, NVD-40, NVD-31: a collapsed drawer in a parent narrower than its column (${dir}) — standard, and a collapsible modal drawer’s column — is the room’s width, laid out from its start edge with every icon in its place and cut at its end edge, where its edge is drawn, nothing past its parent; the column opened there widens from the width it is drawn at to the window less sys.target.touch, and narrows back to it`, async ({ page }) => {
       await page.setViewportSize({ width: 280, height: 640 });
       await mount(page, [rail('c', MAIL), rail('mc', MAIL, { variant: 'modal', open: false })], { dir });
