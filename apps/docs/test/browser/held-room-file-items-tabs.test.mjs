@@ -1,11 +1,12 @@
 // The pages of file items, tabs and tab views whose figures the web package's cloak holds at the box they are drawn
 // in, in each engine, before the modules that define their elements have arrived: file items' rows and tiles, with
 // their second lines as they wrap, and the panels of tabs and tab views. held-room.mjs holds the tests and says how they
-// read the page. The pages of fields, ratings, swatches and number tickers are in held-room-fields.test.mjs, and those
-// of lists and menus in held-room-lists.test.mjs — three files, so that CI's shards, which take whole files, can place
-// them in different jobs; the other pages whose figures the cloak holds are in held-room-figures.test.mjs,
-// held-room-buttons.test.mjs, held-room-actions.test.mjs and held-room-chips.test.mjs, and the pages whose tables,
-// keyboard maps and lists of status tags hold their room in held-room-tables.test.mjs.
+// read the page. The pages of fields, ratings, swatches and number tickers are in held-room-fields.test.mjs — two
+// files, so that CI's shards, which take whole files, can place them in different jobs; those of lists, menus and menu
+// bars are in held-room-list.test.mjs, held-room-list-cupertino.test.mjs, held-room-menu.test.mjs,
+// held-room-menu-cupertino.test.mjs and held-room-menubar.test.mjs, and the other pages whose figures the cloak holds
+// in held-room-figures.test.mjs, held-room-buttons.test.mjs, held-room-actions.test.mjs and held-room-chips.test.mjs,
+// and the pages whose tables, keyboard maps and lists of status tags hold their room in held-room-tables.test.mjs.
 //
 //   pnpm --filter @tanrei/docs build && pnpm --filter @tanrei/docs test:browser
 //   DOCS_ENGINES=chromium node --test test/browser/held-room-file-items-tabs.test.mjs   # in one engine (all three by default)
