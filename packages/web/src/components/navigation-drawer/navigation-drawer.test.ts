@@ -5917,53 +5917,72 @@ test.describe('the room over the content and a column’s room', () => {
       else expect(Number(last.right), 'its last frame drawn at the window’s edge').toBeLessThanOrEqual(1);
     });
 
-    test(`NVD-97: a window that changes width (${dir}) writes nothing new on an open modal drawer while the room it leaves holds the rows at container.width — the width written is held to where that ends, as every element of the drawer inherits it and each was restyled for nothing — and each width written changes the number of the host’s custom properties, so that no element below compares the token set it inherits value by value`, async ({ page }) => {
+    test(`NVD-97: a window that changes width (${dir}) writes no custom property on an open modal drawer — not on its host, its dialog, its panel or anything in it, below the width from which the window no longer holds the rows narrower than container.width or above it — as every element under the one written inherits it and each was restyled with the whole token set it inherits; the drawer and its rows follow the window all the same, in the frame it changes`, async ({ page }) => {
       await page.setViewportSize({ width: 400, height: 640 });
       await mount(page, [fixture('m', MAIL, { variant: 'modal', open: true })], { dir, reducedMotion: true });
       const [touch, full, pad] = await Promise.all([px(page, '--tanrei-sys-target-touch'), px(page, T('container-width')), px(page, T('container-padding-inline'))]);
       await expect(dialogOf(page, 'm')).toHaveJSProperty('open', true);
       // A watch of the test's own on the root's box, made after the drawer's: told of a width, the drawer was told first.
+      // Every element of the drawer — the host, what its shadow root holds, its items and what their shadow roots hold —
+      // is watched for a write to its own style that changes a custom property.
       await page.evaluate(() => {
         const w = window as unknown as { widthsSeen: number; written: string[] };
         w.widthsSeen = 0;
         w.written = [];
         const host = document.querySelector('tanrei-navigation-drawer') as HTMLElement;
-        // Each value the window's width takes on the host, as it changes.
-        let last = host.style.getPropertyValue('--_nvd-window');
-        new MutationObserver(() => {
-          const value = host.style.getPropertyValue('--_nvd-window');
-          if (value !== last) w.written.push((last = value));
-        }).observe(host, { attributes: true, attributeFilter: ['style'] });
+        const own = (style: string | null) => (style ?? '').split(';').map((declaration) => declaration.trim()).filter((declaration) => declaration.startsWith('--')).sort().join('; ');
+        const watch = new MutationObserver((records) => {
+          for (const record of records) {
+            const element = record.target as HTMLElement;
+            const before = own(record.oldValue);
+            const after = own(element.getAttribute('style'));
+            if (before !== after) w.written.push(`${element.localName}${element.className ? `.${String(element.className).split(' ').join('.')}` : ''}: ${before} → ${after}`);
+          }
+        });
+        const options = { attributes: true, attributeFilter: ['style'], attributeOldValue: true, subtree: true };
+        const roots: Node[] = [host];
+        for (let n = 0; n < roots.length; n++) {
+          watch.observe(roots[n], options);
+          const elements = roots[n] instanceof Element ? [roots[n] as Element, ...(roots[n] as Element).querySelectorAll('*')] : [...(roots[n] as ShadowRoot).querySelectorAll('*')];
+          for (const element of elements) if (element.shadowRoot) roots.push(element.shadowRoot);
+        }
         new ResizeObserver(() => w.widthsSeen++).observe(document.documentElement, { box: 'border-box' });
       });
       const seen = () => page.evaluate(() => (window as unknown as { widthsSeen: number }).widthsSeen);
-      const host = () =>
-        drawer(page, 'm').evaluate((el) => {
-          const own = (el as HTMLElement).style;
-          const written = (window as unknown as { written: string[] }).written.splice(0);
-          return { value: own.getPropertyValue('--_nvd-window'), written, count: getComputedStyle(el).length };
-        });
+      const written = () => page.evaluate(() => (window as unknown as { written: string[] }).written.splice(0));
       const resize = async (width: number) => {
         const before = await seen();
         await page.setViewportSize({ width, height: 640 });
         await expect.poll(seen, `${width} wide: the width seen`).toBeGreaterThan(before);
         await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
       };
-      let count = (await host()).count;
       // container.width and the touch target leave the rows whole down to their sum (240 and 36: 276 wide).
-      for (const width of [360, 320, full + touch, 300, full + touch + 40, 260, 250, 270, 480]) {
+      for (const width of [360, 320, full + touch, 300, full + touch + 40, 260, 250, 270, 480, 268]) {
         await resize(width);
         const most = Math.min(full, width - touch);
-        const now = await host();
-        // Wider, the width is held to that sum: nothing new is written, and 480 writes the sum back.
-        if (width >= full + touch) expect([now.value, now.written], `${width} wide: nothing written but the sum, once, after a narrower width`).toEqual([`${full + touch}px`, width === 480 ? [`${full + touch}px`] : []]);
-        else {
-          expect(now.value, `${width} wide: the window’s width written`).toBe(`${width}px`);
-        }
-        if (now.written.length) expect(now.count, `${width} wide: the host has as many custom properties as before`).not.toBe(count);
-        count = now.count;
-        await expect.poll(async () => (await bounds(dialogOf(page, 'm'))).width, `${width} wide: the drawer`).toBe(most);
+        expect(await written(), `${width} wide: no custom property written in the drawer`).toEqual([]);
+        expect((await bounds(dialogOf(page, 'm'))).width, `${width} wide: the drawer`).toBe(most);
         expect((await bounds(box(page, 'm', 0))).width, `${width} wide: the rows`).toBe(most - 2 * pad);
+      }
+    });
+
+    test(`NVD-97: a token changed by script while a modal drawer is open (${dir}) — container.width, or sys.target.touch — is followed at once, the window as it was: the drawer and its rows are the new container.width, held to the window less the new touch target`, async ({ page }) => {
+      await page.setViewportSize({ width: 400, height: 640 });
+      await mount(page, [fixture('m', MAIL, { variant: 'modal', open: true })], { dir, reducedMotion: true });
+      const pad = await px(page, T('container-padding-inline'));
+      await expect(dialogOf(page, 'm')).toHaveJSProperty('open', true);
+      for (const [tokens, most] of [
+        // Wider than the window leaves: held to 400 less the touch target (36).
+        [{ [T('container-width')]: '380px' }, 364],
+        // A touch target of 64 holds it narrower still.
+        [{ [T('container-width')]: '380px', '--tanrei-sys-target-touch': '64px' }, 336],
+        // Back to the system's own: container.width (240) whole.
+        [{ [T('container-width')]: '', '--tanrei-sys-target-touch': '' }, 240],
+      ] as const) {
+        await rootTokens(page, tokens);
+        const what = JSON.stringify(tokens);
+        await expect.poll(async () => (await bounds(dialogOf(page, 'm'))).width, `${what}: the drawer`).toBe(most);
+        expect((await bounds(box(page, 'm', 0))).width, `${what}: the rows`).toBe(most - 2 * pad);
       }
     });
 

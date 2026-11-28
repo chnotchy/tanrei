@@ -146,7 +146,7 @@
 //                 deepActive(), tabbables(), trapFocus() and holdPageScroll(): what every modal overlay (dialog, drawer) does;
 //                 SCROLL_HOLD_INSET: the room the window gains on each side while the scroll is held, for what is fixed to it;
 //                 windowBox(): where the window's own box stands, which what is fixed to it is laid out in — not the root's
-//                 clientWidth, which leaves out no gutter the scroll hold keeps (Chromium);
+//                 clientWidth, which leaves out no gutter the scroll hold keeps (Chromium) — and the width `100vw` resolves to;
 //                 focusWithin() and returnFocus(): focus inside a host, and given back to its opener (the sheets);
 //                 focusLost(): focus on nothing, the page or a removed element — the one focus a late answer may move;
 //                 hasFocusVisibleOption(): whether focus() reads `focusVisible`, before a focus is given as a pointer's;

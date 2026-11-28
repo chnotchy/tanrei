@@ -252,14 +252,20 @@ export const SCROLL_HOLD_INSET = { left: '--tanrei-scroll-hold-inset-left', righ
  * and its backdrop are laid out in — read from such an element, a child of the root, for the instant it is measured. The
  * root's `clientWidth` does not say it: Chromium keeps a stable gutter and reports it as no room taken. The scroll hold
  * reads it, and so does what is sized against the window while the scroll is held (the drawer over the content, NVD-97).
+ * `viewport` is the width `100vw` resolves to in the same instant, which counts what the box does not (a classic scroll
+ * bar, a kept gutter), as each engine counts it: a style that reads `100vw` takes the difference off.
  */
 export function windowBox(root: HTMLElement) {
   const probe = document.createElement('div');
   probe.style.cssText = 'position: fixed; left: 0; right: 0; top: 0; height: 0; margin: 0; padding: 0; border: 0; visibility: hidden; pointer-events: none';
+  const unit = document.createElement('div');
+  unit.style.cssText = 'width: 100vw; min-width: 0; max-width: none; height: 0; margin: 0; padding: 0; border: 0';
+  probe.append(unit);
   root.append(probe);
   const { left, right } = probe.getBoundingClientRect();
+  const viewport = unit.getBoundingClientRect().width;
   probe.remove();
-  return { left, right };
+  return { left, right, viewport };
 }
 
 /**
